@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="MonikCloud" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2015-04.2.6">
+  <Role name="MonikWorker">
+    <Instances count="1" />
+    
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="DBConnectionString" value="[Your database connection string]" />
+      <Setting name="IncomingConnectionString" value="[Azure service bus connection string: source of the logs]" />
+      <Setting name="OutcomingConnectionString" value="[Azure service bus connection string: self logs target]" />
+      <Setting name="IncomingQueue" value="[Queue name]"/>
+    </ConfigurationSettings>
+    
+  </Role>
+</ServiceConfiguration>

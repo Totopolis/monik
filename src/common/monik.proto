@@ -1,0 +1,58 @@
+syntax = "proto3";
+package tutorial;
+
+option csharp_namespace = "Monik.Common";
+
+message KeepAlive
+{
+	sint64 created = 1;
+
+	// Server, Role, Application, Service, etc
+	string source = 2;
+
+	// Instance of the source: app on the server or cloud deployment, concrete instance of desktop application, etc
+	string instance = 3;
+}
+
+message Log 
+{
+  sint64 created = 1;
+
+  enum LevelType {
+    SYSTEM = 0;
+    APPLICATION = 1;
+    LOGIC = 2;
+	SECURITY = 3;
+  }
+
+  LevelType level = 2;
+
+  enum SeverityType {
+    INFO = 0;
+    WARNING = 1;
+    ERROR = 2;
+	FATAL = 3;
+  }
+
+  SeverityType severity = 3;
+
+  // Server, Role, Application, Service, etc
+  string source = 4;
+  // Instance of the source: app on the server or cloud deployment, concrete instance of desktop application, etc
+  string instance = 5;
+  
+  enum FormatType {
+    PLAIN = 0;
+    JSON = 1;
+    XML = 2;
+  }
+
+  FormatType format = 6;
+
+  string body = 7;
+
+  // users tags or categories
+  string tags = 8;
+}
+
+// TODO: message PerfCounter, ApiMethod, ...
