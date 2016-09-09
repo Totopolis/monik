@@ -5,10 +5,10 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Monik.Client.Azure")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Monik")]
+[assembly: AssemblyDescription("Client library to collect messages: logs, performance counters and keep-alive statuses use Azure Service Bus transport")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Totopolis")]
 [assembly: AssemblyProduct("Monik.Client.Azure")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
