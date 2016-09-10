@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Monik;
 using Monik.Common;
+using System.Diagnostics;
 
 namespace Monik.Service
 {
@@ -26,20 +27,6 @@ namespace Monik.Service
     public short SourceID { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
-  }
-
-  public class Log_
-  {
-    public long ID { get; set; }
-    public DateTime Created { get; set; }
-    public DateTime Received { get; set; }
-    public byte Level { get; set; }
-    public byte Severity { get; set; }
-    public short SourceID { get; set; }
-    public int InstanceID { get; set; }
-    public byte Format { get; set; }
-    public string Body { get; set; }
-    public string Tags { get; set; }
   }
 
   public class SourceInstanceCache
@@ -108,24 +95,5 @@ namespace Monik.Service
 
       return new Tuple<short, int>(_src.ID, _ins.ID);
     }
-
-    public void WriteLog(Log aLog, Tuple<short, int> aSourceAndInstance)
-    {
-      Log_ _row = new Log_()
-      {
-        Created = Helper.FromMillisecondsSinceUnixEpoch(aLog.Created),
-        Received = DateTime.UtcNow,
-        Level = (byte)aLog.Level,
-        Severity = (byte)aLog.Severity,
-        SourceID = aSourceAndInstance.Item1,
-        InstanceID = aSourceAndInstance.Item2,
-        Format = (byte)aLog.Format,
-        Body = aLog.Body,
-        Tags = aLog.Tags
-      };
-
-      _row.ID = (int)MappedCommand.InsertAndGetId<Log_>(FConnectionString, "[mon].[Log]", _row, "ID");
-    }
-
   }//end of class
 }

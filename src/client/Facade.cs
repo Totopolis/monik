@@ -14,7 +14,7 @@ namespace Monik.Client
 {
   public interface IBaseSender
   {
-    void SendLogs(ConcurrentQueue<Log> aQueue);
+    void SendMessages(ConcurrentQueue<Event> aQueue);
   }
 
   public class MonikInstance
@@ -23,17 +23,58 @@ namespace Monik.Client
     private string FSourceName;
     private string FSourceInstance;
 
-    private static ConcurrentQueue<Log> FLogQueue = new ConcurrentQueue<Log>();
+    private ConcurrentQueue<Event> FMsgQueue = new ConcurrentQueue<Event>();
 
-    private static Task FSenderTask;
-    private static readonly ManualResetEvent FNewMessageEvent = new ManualResetEvent(false);
-    private static readonly CancellationTokenSource FCancellationTokenSource = new CancellationTokenSource();
+    private Task FSenderTask;
+    private readonly ManualResetEvent FNewMessageEvent = new ManualResetEvent(false);
+    private readonly CancellationTokenSource FSenderCancellationTokenSource = new CancellationTokenSource();
+
+    public int SendDelay = 1000; // in ms
+    public uint AutoKeepAliveInterval = 10000; //in ms
+
+    private CancellationTokenSource FAutoKeepAliveCancellationTokenSource;
+
+    private Task FAutoKeepAliveTask;
+
+    private bool FAutoKeepAlive;
+    public bool AutoKeepAlive
+    {
+      get { return FAutoKeepAlive; }
+      set
+      {
+        if (FAutoKeepAlive == value)
+          return;
+
+        FAutoKeepAlive = value;
+
+        if (FAutoKeepAlive == false)
+          FAutoKeepAliveCancellationTokenSource.Cancel();
+        else
+        {
+          FAutoKeepAliveCancellationTokenSource = new CancellationTokenSource();
+          FAutoKeepAliveTask = Task.Run(() => { OnAutoKeepAliveTask(); });
+        }
+      }
+    }
+
+    private void OnAutoKeepAliveTask()
+    {
+      while (!FAutoKeepAliveCancellationTokenSource.IsCancellationRequested)
+      {
+        Task.Delay((int)AutoKeepAliveInterval).Wait();
+
+        KeepAlive();
+      }
+    }
 
     public MonikInstance(IBaseSender aSender, string aSourceName, string aSourceInstance)
     {
       FSender = aSender;
       FSourceName = aSourceName;
       FSourceInstance = aSourceInstance;
+      FAutoKeepAlive = false;
+      FAutoKeepAliveTask = null;
+      FAutoKeepAliveCancellationTokenSource = null;
 
       FSenderTask = Task.Run(() => { OnSenderTask(); });
     }
@@ -42,85 +83,94 @@ namespace Monik.Client
     {
       // TODO: is it correct?
       FNewMessageEvent.Set();
-      FCancellationTokenSource.Cancel();
+      FSenderCancellationTokenSource.Cancel();
+
+      if (FAutoKeepAlive)
+        FAutoKeepAliveCancellationTokenSource.Cancel();
 
       // TODO: may be mor efficient?
-      Task.Delay(2000);
+      Task.Delay(2000).Wait();
     }
 
     private void OnSenderTask()
     {
-      while (!FCancellationTokenSource.IsCancellationRequested)
+      while (!FSenderCancellationTokenSource.IsCancellationRequested)
       {
         FNewMessageEvent.WaitOne();
-        Task.Delay(1000); // TODO: use param, by stopping not use delay
+        Task.Delay(SendDelay).Wait();
 
         try
         {
-          if (FLogQueue.IsEmpty)
+          if (FMsgQueue.IsEmpty)
             continue;
 
-          FSender.SendLogs(FLogQueue);
+          FSender.SendMessages(FMsgQueue);
         }
         catch { } // TODO: ???
         finally { FNewMessageEvent.Reset(); }
       }
     }
 
-    private Log NewLog()
+    private Event NewEvent()
     {
-      return new Log()
+      return new Event()
       {
         Created = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds,
-        Level = Log.Types.LevelType.Application,
-        Severity = Log.Types.SeverityType.Info,
         Source = Helper.Utf16ToUtf8(FSourceName),
-        Instance = Helper.Utf16ToUtf8(FSourceInstance),
-        Format = Log.Types.FormatType.Plain
+        Instance = Helper.Utf16ToUtf8(FSourceInstance)
       };
     }
 
-    private void PushMessageToSend(string aBody, Log.Types.LevelType aLevel, Log.Types.SeverityType aSeverity)
+    private void PushLogToSend(string aBody, Log.Types.LevelType aLevel, Log.Types.SeverityType aSeverity)
     {
-      Log _msg = NewLog();
-      _msg.Body = Helper.Utf16ToUtf8(aBody);
-      _msg.Level = aLevel;
-      _msg.Severity = aSeverity;
+      Event _msg = NewEvent();
+      _msg.Lg = new Log()
+      {
+        Format = Log.Types.FormatType.Plain,
+        Body = Helper.Utf16ToUtf8(aBody),
+        Level = aLevel,
+        Severity = aSeverity
+      };
 
-      FLogQueue.Enqueue(_msg);
+      FMsgQueue.Enqueue(_msg);
 
       FNewMessageEvent.Set();
     }
 
     public void KeepAlive()
     {
-      throw new NotImplementedException();
+      Event _msg = NewEvent();
+      _msg.Ka = new Common.KeepAlive() { Interval = AutoKeepAliveInterval };
+
+      FMsgQueue.Enqueue(_msg);
+
+      FNewMessageEvent.Set();
     }
 
-    public void SystemInfo(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Info); }
-    public void SystemWarning(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Warning); }
-    public void SystemError(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Error); }
-    public void SystemFatal(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Fatal); }
+    public void SystemInfo(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Info); }
+    public void SystemWarning(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Warning); }
+    public void SystemError(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Error); }
+    public void SystemFatal(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Fatal); }
 
-    public void ApplicationInfo(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Info); }
-    public void ApplicationWarning(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Warning); }
-    public void ApplicationError(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Error); }
-    public void ApplicationFatal(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Fatal); }
+    public void ApplicationInfo(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Info); }
+    public void ApplicationWarning(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Warning); }
+    public void ApplicationError(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Error); }
+    public void ApplicationFatal(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Fatal); }
 
-    public void LogicInfo(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Info); }
-    public void LogicWarning(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Warning); }
-    public void LogicError(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Error); }
-    public void LogicFatal(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Fatal); }
+    public void LogicInfo(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Info); }
+    public void LogicWarning(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Warning); }
+    public void LogicError(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Error); }
+    public void LogicFatal(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Fatal); }
 
-    public void SecurityInfo(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Info); }
-    public void SecurityWarning(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Warning); }
-    public void SecurityError(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Error); }
-    public void SecurityFatal(string aBody) { PushMessageToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Fatal); }
+    public void SecurityInfo(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Info); }
+    public void SecurityWarning(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Warning); }
+    public void SecurityError(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Error); }
+    public void SecurityFatal(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Fatal); }
   }
 
   public class M
   {
-    private static MonikInstance MainInstance = null;
+    public static MonikInstance MainInstance { get; private set; }
 
     public static MonikInstance I = null;
     public static MonikInstance I2 = null;

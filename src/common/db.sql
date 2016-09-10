@@ -70,3 +70,17 @@ VAlUES ('OutcomingConnectionString', '[YOUR SERVICE BUS CONNECTION STRING]')
 
 INSERT INTO mon.Settings (Name, Value)
 VAlUES ('OutcomingQueue', '[SERVICE BUS QUEUE]')
+
+CREATE TABLE [mon].[KeepAlive](
+	[ID] [bigint] IDENTITY(1,1) NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[Received] [datetime] NOT NULL,
+	[SourceID] [smallint] NOT NULL,
+	[InstanceID] [int] NULL,
+ CONSTRAINT [PK_KeepAlive] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH 
+(PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, 
+ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+)

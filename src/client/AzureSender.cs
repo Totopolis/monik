@@ -23,10 +23,10 @@ namespace Monik.Client
       FQueueName = aQueueName;
     }
 
-    public void SendLogs(ConcurrentQueue<Log> aQueue)
+    public void SendMessages(ConcurrentQueue<Event> aQueue)
     {
       var _client = QueueClient.CreateFromConnectionString(FServiceBusConnectionString, FQueueName);
-      Log _msg;
+      Event _msg;
 
       try
       {

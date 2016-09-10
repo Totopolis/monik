@@ -3,21 +3,27 @@ package tutorial;
 
 option csharp_namespace = "Monik.Common";
 
-message KeepAlive
+message Event
 {
 	sint64 created = 1;
+	string source = 2; // Server, Role, Application, Service, etc
+	string instance = 3; // Instance of the source: app on the server or cloud deployment, concrete instance of desktop application, etc
 
-	// Server, Role, Application, Service, etc
-	string source = 2;
+	oneof msg
+	{
+		KeepAlive ka = 4;
+		Log lg = 5;
+		// TODO: need reserve for future extensions ??
+	}
+}
 
-	// Instance of the source: app on the server or cloud deployment, concrete instance of desktop application, etc
-	string instance = 3;
+message KeepAlive 
+{
+	 uint32 interval = 1;
 }
 
 message Log 
 {
-  sint64 created = 1;
-
   enum LevelType {
     SYSTEM = 0;
     APPLICATION = 1;
@@ -25,7 +31,7 @@ message Log
 	SECURITY = 3;
   }
 
-  LevelType level = 2;
+  LevelType level = 1;
 
   enum SeverityType {
     INFO = 0;
@@ -34,25 +40,18 @@ message Log
 	FATAL = 3;
   }
 
-  SeverityType severity = 3;
+  SeverityType severity = 2;
 
-  // Server, Role, Application, Service, etc
-  string source = 4;
-  // Instance of the source: app on the server or cloud deployment, concrete instance of desktop application, etc
-  string instance = 5;
-  
   enum FormatType {
     PLAIN = 0;
     JSON = 1;
     XML = 2;
   }
 
-  FormatType format = 6;
-
-  string body = 7;
-
-  // users tags or categories
-  string tags = 8;
+  FormatType format = 3;
+  string body = 4;
+  
+  string tags = 5; // users tags or categories
 }
 
 // TODO: message PerfCounter, ApiMethod, ...

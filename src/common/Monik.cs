@@ -22,33 +22,35 @@ namespace Monik.Common {
     static MonikReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cgttb25pay5wcm90bxIIdHV0b3JpYWwiPgoJS2VlcEFsaXZlEg8KB2NyZWF0",
-            "ZWQYASABKBISDgoGc291cmNlGAIgASgJEhAKCGluc3RhbmNlGAMgASgJIoAD",
-            "CgNMb2cSDwoHY3JlYXRlZBgBIAEoEhImCgVsZXZlbBgCIAEoDjIXLnR1dG9y",
-            "aWFsLkxvZy5MZXZlbFR5cGUSLAoIc2V2ZXJpdHkYAyABKA4yGi50dXRvcmlh",
-            "bC5Mb2cuU2V2ZXJpdHlUeXBlEg4KBnNvdXJjZRgEIAEoCRIQCghpbnN0YW5j",
-            "ZRgFIAEoCRIoCgZmb3JtYXQYBiABKA4yGC50dXRvcmlhbC5Mb2cuRm9ybWF0",
-            "VHlwZRIMCgRib2R5GAcgASgJEgwKBHRhZ3MYCCABKAkiQQoJTGV2ZWxUeXBl",
-            "EgoKBlNZU1RFTRAAEg8KC0FQUExJQ0FUSU9OEAESCQoFTE9HSUMQAhIMCghT",
-            "RUNVUklUWRADIjsKDFNldmVyaXR5VHlwZRIICgRJTkZPEAASCwoHV0FSTklO",
-            "RxABEgkKBUVSUk9SEAISCQoFRkFUQUwQAyIqCgpGb3JtYXRUeXBlEgkKBVBM",
-            "QUlOEAASCAoESlNPThABEgcKA1hNTBACQg+qAgxNb25pay5Db21tb25iBnBy",
-            "b3RvMw=="));
+            "Cgttb25pay5wcm90bxIIdHV0b3JpYWwigQEKBUV2ZW50Eg8KB2NyZWF0ZWQY",
+            "ASABKBISDgoGc291cmNlGAIgASgJEhAKCGluc3RhbmNlGAMgASgJEiEKAmth",
+            "GAQgASgLMhMudHV0b3JpYWwuS2VlcEFsaXZlSAASGwoCbGcYBSABKAsyDS50",
+            "dXRvcmlhbC5Mb2dIAEIFCgNtc2ciHQoJS2VlcEFsaXZlEhAKCGludGVydmFs",
+            "GAEgASgNIs0CCgNMb2cSJgoFbGV2ZWwYASABKA4yFy50dXRvcmlhbC5Mb2cu",
+            "TGV2ZWxUeXBlEiwKCHNldmVyaXR5GAIgASgOMhoudHV0b3JpYWwuTG9nLlNl",
+            "dmVyaXR5VHlwZRIoCgZmb3JtYXQYAyABKA4yGC50dXRvcmlhbC5Mb2cuRm9y",
+            "bWF0VHlwZRIMCgRib2R5GAQgASgJEgwKBHRhZ3MYBSABKAkiQQoJTGV2ZWxU",
+            "eXBlEgoKBlNZU1RFTRAAEg8KC0FQUExJQ0FUSU9OEAESCQoFTE9HSUMQAhIM",
+            "CghTRUNVUklUWRADIjsKDFNldmVyaXR5VHlwZRIICgRJTkZPEAASCwoHV0FS",
+            "TklORxABEgkKBUVSUk9SEAISCQoFRkFUQUwQAyIqCgpGb3JtYXRUeXBlEgkK",
+            "BVBMQUlOEAASCAoESlNPThABEgcKA1hNTBACQg+qAgxNb25pay5Db21tb25i",
+            "BnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Monik.Common.KeepAlive), global::Monik.Common.KeepAlive.Parser, new[]{ "Created", "Source", "Instance" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Monik.Common.Log), global::Monik.Common.Log.Parser, new[]{ "Created", "Level", "Severity", "Source", "Instance", "Format", "Body", "Tags" }, null, new[]{ typeof(global::Monik.Common.Log.Types.LevelType), typeof(global::Monik.Common.Log.Types.SeverityType), typeof(global::Monik.Common.Log.Types.FormatType) }, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Monik.Common.Event), global::Monik.Common.Event.Parser, new[]{ "Created", "Source", "Instance", "Ka", "Lg" }, new[]{ "Msg" }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Monik.Common.KeepAlive), global::Monik.Common.KeepAlive.Parser, new[]{ "Interval" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Monik.Common.Log), global::Monik.Common.Log.Parser, new[]{ "Level", "Severity", "Format", "Body", "Tags" }, null, new[]{ typeof(global::Monik.Common.Log.Types.LevelType), typeof(global::Monik.Common.Log.Types.SeverityType), typeof(global::Monik.Common.Log.Types.FormatType) }, null)
           }));
     }
     #endregion
 
   }
   #region Messages
-  public sealed partial class KeepAlive : pb::IMessage<KeepAlive> {
-    private static readonly pb::MessageParser<KeepAlive> _parser = new pb::MessageParser<KeepAlive>(() => new KeepAlive());
+  public sealed partial class Event : pb::IMessage<Event> {
+    private static readonly pb::MessageParser<Event> _parser = new pb::MessageParser<Event>(() => new Event());
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<KeepAlive> Parser { get { return _parser; } }
+    public static pb::MessageParser<Event> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
@@ -61,22 +63,31 @@ namespace Monik.Common {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public KeepAlive() {
+    public Event() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public KeepAlive(KeepAlive other) : this() {
+    public Event(Event other) : this() {
       created_ = other.created_;
       source_ = other.source_;
       instance_ = other.instance_;
+      switch (other.MsgCase) {
+        case MsgOneofCase.Ka:
+          Ka = other.Ka.Clone();
+          break;
+        case MsgOneofCase.Lg:
+          Lg = other.Lg.Clone();
+          break;
+      }
+
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public KeepAlive Clone() {
-      return new KeepAlive(this);
+    public Event Clone() {
+      return new Event(this);
     }
 
     /// <summary>Field number for the "created" field.</summary>
@@ -118,13 +129,57 @@ namespace Monik.Common {
       }
     }
 
+    /// <summary>Field number for the "ka" field.</summary>
+    public const int KaFieldNumber = 4;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override bool Equals(object other) {
-      return Equals(other as KeepAlive);
+    public global::Monik.Common.KeepAlive Ka {
+      get { return msgCase_ == MsgOneofCase.Ka ? (global::Monik.Common.KeepAlive) msg_ : null; }
+      set {
+        msg_ = value;
+        msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.Ka;
+      }
+    }
+
+    /// <summary>Field number for the "lg" field.</summary>
+    public const int LgFieldNumber = 5;
+    /// <summary>
+    ///  TODO: need reserve for future extensions ??
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Monik.Common.Log Lg {
+      get { return msgCase_ == MsgOneofCase.Lg ? (global::Monik.Common.Log) msg_ : null; }
+      set {
+        msg_ = value;
+        msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.Lg;
+      }
+    }
+
+    private object msg_;
+    /// <summary>Enum of possible cases for the "msg" oneof.</summary>
+    public enum MsgOneofCase {
+      None = 0,
+      Ka = 4,
+      Lg = 5,
+    }
+    private MsgOneofCase msgCase_ = MsgOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public MsgOneofCase MsgCase {
+      get { return msgCase_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(KeepAlive other) {
+    public void ClearMsg() {
+      msgCase_ = MsgOneofCase.None;
+      msg_ = null;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as Event);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(Event other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -134,6 +189,9 @@ namespace Monik.Common {
       if (Created != other.Created) return false;
       if (Source != other.Source) return false;
       if (Instance != other.Instance) return false;
+      if (!object.Equals(Ka, other.Ka)) return false;
+      if (!object.Equals(Lg, other.Lg)) return false;
+      if (MsgCase != other.MsgCase) return false;
       return true;
     }
 
@@ -143,6 +201,9 @@ namespace Monik.Common {
       if (Created != 0L) hash ^= Created.GetHashCode();
       if (Source.Length != 0) hash ^= Source.GetHashCode();
       if (Instance.Length != 0) hash ^= Instance.GetHashCode();
+      if (msgCase_ == MsgOneofCase.Ka) hash ^= Ka.GetHashCode();
+      if (msgCase_ == MsgOneofCase.Lg) hash ^= Lg.GetHashCode();
+      hash ^= (int) msgCase_;
       return hash;
     }
 
@@ -165,6 +226,14 @@ namespace Monik.Common {
         output.WriteRawTag(26);
         output.WriteString(Instance);
       }
+      if (msgCase_ == MsgOneofCase.Ka) {
+        output.WriteRawTag(34);
+        output.WriteMessage(Ka);
+      }
+      if (msgCase_ == MsgOneofCase.Lg) {
+        output.WriteRawTag(42);
+        output.WriteMessage(Lg);
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -179,11 +248,17 @@ namespace Monik.Common {
       if (Instance.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Instance);
       }
+      if (msgCase_ == MsgOneofCase.Ka) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Ka);
+      }
+      if (msgCase_ == MsgOneofCase.Lg) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Lg);
+      }
       return size;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(KeepAlive other) {
+    public void MergeFrom(Event other) {
       if (other == null) {
         return;
       }
@@ -196,6 +271,15 @@ namespace Monik.Common {
       if (other.Instance.Length != 0) {
         Instance = other.Instance;
       }
+      switch (other.MsgCase) {
+        case MsgOneofCase.Ka:
+          Ka = other.Ka;
+          break;
+        case MsgOneofCase.Lg:
+          Lg = other.Lg;
+          break;
+      }
+
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -218,6 +302,141 @@ namespace Monik.Common {
             Instance = input.ReadString();
             break;
           }
+          case 34: {
+            global::Monik.Common.KeepAlive subBuilder = new global::Monik.Common.KeepAlive();
+            if (msgCase_ == MsgOneofCase.Ka) {
+              subBuilder.MergeFrom(Ka);
+            }
+            input.ReadMessage(subBuilder);
+            Ka = subBuilder;
+            break;
+          }
+          case 42: {
+            global::Monik.Common.Log subBuilder = new global::Monik.Common.Log();
+            if (msgCase_ == MsgOneofCase.Lg) {
+              subBuilder.MergeFrom(Lg);
+            }
+            input.ReadMessage(subBuilder);
+            Lg = subBuilder;
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class KeepAlive : pb::IMessage<KeepAlive> {
+    private static readonly pb::MessageParser<KeepAlive> _parser = new pb::MessageParser<KeepAlive>(() => new KeepAlive());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<KeepAlive> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Monik.Common.MonikReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public KeepAlive() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public KeepAlive(KeepAlive other) : this() {
+      interval_ = other.interval_;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public KeepAlive Clone() {
+      return new KeepAlive(this);
+    }
+
+    /// <summary>Field number for the "interval" field.</summary>
+    public const int IntervalFieldNumber = 1;
+    private uint interval_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public uint Interval {
+      get { return interval_; }
+      set {
+        interval_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as KeepAlive);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(KeepAlive other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Interval != other.Interval) return false;
+      return true;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Interval != 0) hash ^= Interval.GetHashCode();
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (Interval != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(Interval);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (Interval != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Interval);
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(KeepAlive other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Interval != 0) {
+        Interval = other.Interval;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            input.SkipLastField();
+            break;
+          case 8: {
+            Interval = input.ReadUInt32();
+            break;
+          }
         }
       }
     }
@@ -231,7 +450,7 @@ namespace Monik.Common {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Monik.Common.MonikReflection.Descriptor.MessageTypes[1]; }
+      get { return global::Monik.Common.MonikReflection.Descriptor.MessageTypes[2]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -248,11 +467,8 @@ namespace Monik.Common {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Log(Log other) : this() {
-      created_ = other.created_;
       level_ = other.level_;
       severity_ = other.severity_;
-      source_ = other.source_;
-      instance_ = other.instance_;
       format_ = other.format_;
       body_ = other.body_;
       tags_ = other.tags_;
@@ -263,19 +479,8 @@ namespace Monik.Common {
       return new Log(this);
     }
 
-    /// <summary>Field number for the "created" field.</summary>
-    public const int CreatedFieldNumber = 1;
-    private long created_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long Created {
-      get { return created_; }
-      set {
-        created_ = value;
-      }
-    }
-
     /// <summary>Field number for the "level" field.</summary>
-    public const int LevelFieldNumber = 2;
+    public const int LevelFieldNumber = 1;
     private global::Monik.Common.Log.Types.LevelType level_ = 0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Monik.Common.Log.Types.LevelType Level {
@@ -286,7 +491,7 @@ namespace Monik.Common {
     }
 
     /// <summary>Field number for the "severity" field.</summary>
-    public const int SeverityFieldNumber = 3;
+    public const int SeverityFieldNumber = 2;
     private global::Monik.Common.Log.Types.SeverityType severity_ = 0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Monik.Common.Log.Types.SeverityType Severity {
@@ -296,36 +501,8 @@ namespace Monik.Common {
       }
     }
 
-    /// <summary>Field number for the "source" field.</summary>
-    public const int SourceFieldNumber = 4;
-    private string source_ = "";
-    /// <summary>
-    ///  Server, Role, Application, Service, etc
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public string Source {
-      get { return source_; }
-      set {
-        source_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    /// <summary>Field number for the "instance" field.</summary>
-    public const int InstanceFieldNumber = 5;
-    private string instance_ = "";
-    /// <summary>
-    ///  Instance of the source: app on the server or cloud deployment, concrete instance of desktop application, etc
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public string Instance {
-      get { return instance_; }
-      set {
-        instance_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
     /// <summary>Field number for the "format" field.</summary>
-    public const int FormatFieldNumber = 6;
+    public const int FormatFieldNumber = 3;
     private global::Monik.Common.Log.Types.FormatType format_ = 0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Monik.Common.Log.Types.FormatType Format {
@@ -336,7 +513,7 @@ namespace Monik.Common {
     }
 
     /// <summary>Field number for the "body" field.</summary>
-    public const int BodyFieldNumber = 7;
+    public const int BodyFieldNumber = 4;
     private string body_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Body {
@@ -347,7 +524,7 @@ namespace Monik.Common {
     }
 
     /// <summary>Field number for the "tags" field.</summary>
-    public const int TagsFieldNumber = 8;
+    public const int TagsFieldNumber = 5;
     private string tags_ = "";
     /// <summary>
     ///  users tags or categories
@@ -373,11 +550,8 @@ namespace Monik.Common {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (Created != other.Created) return false;
       if (Level != other.Level) return false;
       if (Severity != other.Severity) return false;
-      if (Source != other.Source) return false;
-      if (Instance != other.Instance) return false;
       if (Format != other.Format) return false;
       if (Body != other.Body) return false;
       if (Tags != other.Tags) return false;
@@ -387,11 +561,8 @@ namespace Monik.Common {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (Created != 0L) hash ^= Created.GetHashCode();
       if (Level != 0) hash ^= Level.GetHashCode();
       if (Severity != 0) hash ^= Severity.GetHashCode();
-      if (Source.Length != 0) hash ^= Source.GetHashCode();
-      if (Instance.Length != 0) hash ^= Instance.GetHashCode();
       if (Format != 0) hash ^= Format.GetHashCode();
       if (Body.Length != 0) hash ^= Body.GetHashCode();
       if (Tags.Length != 0) hash ^= Tags.GetHashCode();
@@ -405,36 +576,24 @@ namespace Monik.Common {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (Created != 0L) {
-        output.WriteRawTag(8);
-        output.WriteSInt64(Created);
-      }
       if (Level != 0) {
-        output.WriteRawTag(16);
+        output.WriteRawTag(8);
         output.WriteEnum((int) Level);
       }
       if (Severity != 0) {
-        output.WriteRawTag(24);
+        output.WriteRawTag(16);
         output.WriteEnum((int) Severity);
       }
-      if (Source.Length != 0) {
-        output.WriteRawTag(34);
-        output.WriteString(Source);
-      }
-      if (Instance.Length != 0) {
-        output.WriteRawTag(42);
-        output.WriteString(Instance);
-      }
       if (Format != 0) {
-        output.WriteRawTag(48);
+        output.WriteRawTag(24);
         output.WriteEnum((int) Format);
       }
       if (Body.Length != 0) {
-        output.WriteRawTag(58);
+        output.WriteRawTag(34);
         output.WriteString(Body);
       }
       if (Tags.Length != 0) {
-        output.WriteRawTag(66);
+        output.WriteRawTag(42);
         output.WriteString(Tags);
       }
     }
@@ -442,20 +601,11 @@ namespace Monik.Common {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (Created != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Created);
-      }
       if (Level != 0) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Level);
       }
       if (Severity != 0) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Severity);
-      }
-      if (Source.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Source);
-      }
-      if (Instance.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Instance);
       }
       if (Format != 0) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Format);
@@ -474,20 +624,11 @@ namespace Monik.Common {
       if (other == null) {
         return;
       }
-      if (other.Created != 0L) {
-        Created = other.Created;
-      }
       if (other.Level != 0) {
         Level = other.Level;
       }
       if (other.Severity != 0) {
         Severity = other.Severity;
-      }
-      if (other.Source.Length != 0) {
-        Source = other.Source;
-      }
-      if (other.Instance.Length != 0) {
-        Instance = other.Instance;
       }
       if (other.Format != 0) {
         Format = other.Format;
@@ -509,34 +650,22 @@ namespace Monik.Common {
             input.SkipLastField();
             break;
           case 8: {
-            Created = input.ReadSInt64();
-            break;
-          }
-          case 16: {
             level_ = (global::Monik.Common.Log.Types.LevelType) input.ReadEnum();
             break;
           }
-          case 24: {
+          case 16: {
             severity_ = (global::Monik.Common.Log.Types.SeverityType) input.ReadEnum();
             break;
           }
-          case 34: {
-            Source = input.ReadString();
-            break;
-          }
-          case 42: {
-            Instance = input.ReadString();
-            break;
-          }
-          case 48: {
+          case 24: {
             format_ = (global::Monik.Common.Log.Types.FormatType) input.ReadEnum();
             break;
           }
-          case 58: {
+          case 34: {
             Body = input.ReadString();
             break;
           }
-          case 66: {
+          case 42: {
             Tags = input.ReadString();
             break;
           }

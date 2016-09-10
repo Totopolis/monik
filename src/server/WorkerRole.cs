@@ -40,6 +40,7 @@ namespace MonikWorker
 
     private QueueClient FQueueClient;
     private SourceInstanceCache FSourceInstanceCache;
+    private MessageProcessor FProcessor;
 
     public override bool OnStart()
     {
@@ -54,10 +55,15 @@ namespace MonikWorker
       var _azureSender = new AzureSender(Settings.GetValue("OutcomingConnectionString"), Settings.GetValue("OutcomingQueue"));
       M.Initialize(_azureSender, "Monik", "Instance1");
 
+      M.MainInstance.AutoKeepAliveInterval = 5000;
+      M.MainInstance.AutoKeepAlive = true;
+
       // TODO: retry logic and exit if exceptions...
 
       FSourceInstanceCache = new SourceInstanceCache(_dbcs);
       FSourceInstanceCache.Initialize();
+
+      FProcessor = new MessageProcessor(_dbcs);
 
       M.ApplicationInfo("MonikWorker has been started");
 
@@ -69,10 +75,11 @@ namespace MonikWorker
         {
           byte[] _buf = message.GetBody<byte[]>();
 
-          Log _msg = Log.Parser.ParseFrom(_buf);
+          Event _msg = Event.Parser.ParseFrom(_buf);
 
           var _sourceInstance = FSourceInstanceCache.CheckSourceAndInstance(Helper.Utf8ToUtf16(_msg.Source), Helper.Utf8ToUtf16(_msg.Instance));
-          FSourceInstanceCache.WriteLog(_msg, _sourceInstance);
+
+          FProcessor.Process(_msg, _sourceInstance);
         }
         catch(Exception _e)
         {
