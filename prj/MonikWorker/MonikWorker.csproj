@@ -109,6 +109,9 @@
     <Compile Include="..\..\src\common\Monik.cs">
       <Link>Client.Azure\Monik.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\server\Settings.cs">
+      <Link>Core\Settings.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\server\SourceInstanceCache.cs">
       <Link>Core\SourceInstanceCache.cs</Link>
     </Compile>

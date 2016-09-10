@@ -47,11 +47,11 @@ namespace MonikWorker
       bool result = base.OnStart();
 
       var _dbcs = CloudConfigurationManager.GetSetting("DBConnectionString");
-      var _incs = CloudConfigurationManager.GetSetting("IncomingConnectionString");
-      var _sbcs = CloudConfigurationManager.GetSetting("OutcomingConnectionString");
-      var _incoming = CloudConfigurationManager.GetSetting("IncomingQueue");
 
-      var _azureSender = new AzureSender(_sbcs, _incoming);
+      Settings.DBConnectionString = _dbcs;
+      Settings.CheckUpdates();
+
+      var _azureSender = new AzureSender(Settings.GetValue("OutcomingConnectionString"), Settings.GetValue("OutcomingQueue"));
       M.Initialize(_azureSender, "Monik", "Instance1");
 
       // TODO: retry logic and exit if exceptions...
@@ -61,7 +61,7 @@ namespace MonikWorker
 
       M.ApplicationInfo("MonikWorker has been started");
 
-      FQueueClient = QueueClient.CreateFromConnectionString(_incs, _incoming);
+      FQueueClient = QueueClient.CreateFromConnectionString(Settings.GetValue("IncomingConnectionString"), Settings.GetValue("IncomingQueue"));
 
       FQueueClient.OnMessage(message =>
       {

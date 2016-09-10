@@ -6,9 +6,6 @@
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="DBConnectionString" value="[Your database connection string]" />
-      <Setting name="IncomingConnectionString" value="[Azure service bus connection string: source of the logs]" />
-      <Setting name="OutcomingConnectionString" value="[Azure service bus connection string: self logs target]" />
-      <Setting name="IncomingQueue" value="[Queue name]"/>
     </ConfigurationSettings>
     
   </Role>

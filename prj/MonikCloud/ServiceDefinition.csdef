@@ -4,9 +4,6 @@
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
       <Setting name="DBConnectionString" />
-      <Setting name="IncomingConnectionString" />
-      <Setting name="OutcomingConnectionString" />
-      <Setting name="IncomingQueue" />
     </ConfigurationSettings>
   </WorkerRole>
 </ServiceDefinition>
