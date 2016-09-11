@@ -38,9 +38,9 @@ namespace MonikWorker
       }
     }
 
-    private QueueClient FQueueClient;
     private SourceInstanceCache FSourceInstanceCache;
     private MessageProcessor FProcessor;
+    private MessagePump FPump;
 
     public override bool OnStart()
     {
@@ -55,37 +55,16 @@ namespace MonikWorker
       var _azureSender = new AzureSender(Settings.GetValue("OutcomingConnectionString"), Settings.GetValue("OutcomingQueue"));
       M.Initialize(_azureSender, "Monik", "Instance1");
 
-      M.MainInstance.AutoKeepAliveInterval = 5000;
+      M.MainInstance.AutoKeepAliveInterval = 10000;
       M.MainInstance.AutoKeepAlive = true;
 
       // TODO: retry logic and exit if exceptions...
 
       FSourceInstanceCache = new SourceInstanceCache(_dbcs);
-      FSourceInstanceCache.Initialize();
-
       FProcessor = new MessageProcessor(_dbcs);
+      FPump = new MessagePump(_dbcs, FSourceInstanceCache, FProcessor);
 
       M.ApplicationInfo("MonikWorker has been started");
-
-      FQueueClient = QueueClient.CreateFromConnectionString(Settings.GetValue("IncomingConnectionString"), Settings.GetValue("IncomingQueue"));
-
-      FQueueClient.OnMessage(message =>
-      {
-        try
-        {
-          byte[] _buf = message.GetBody<byte[]>();
-
-          Event _msg = Event.Parser.ParseFrom(_buf);
-
-          var _sourceInstance = FSourceInstanceCache.CheckSourceAndInstance(Helper.Utf8ToUtf16(_msg.Source), Helper.Utf8ToUtf16(_msg.Instance));
-
-          FProcessor.Process(_msg, _sourceInstance);
-        }
-        catch(Exception _e)
-        {
-          M.ApplicationError("Message processing error: " + _e.Message);
-        }
-      });
 
       return result;
     }
@@ -94,11 +73,8 @@ namespace MonikWorker
     {
       M.ApplicationInfo("MonikWorker is stopping");
 
-      FQueueClient.Close();
       this.cancellationTokenSource.Cancel();
       this.runCompleteEvent.WaitOne();
-
-      // TODO: lost stopped messages
 
       M.ApplicationInfo("MonikWorker has stopped");
 

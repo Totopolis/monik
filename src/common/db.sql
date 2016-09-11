@@ -60,16 +60,12 @@ ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 )
 
 INSERT INTO mon.Settings (Name, Value)
-VAlUES ('IncomingConnectionString', '[YOUR SERVICE BUS CONNECTION STRING]')
-
-INSERT INTO mon.Settings (Name, Value)
-VAlUES ('IncomingQueue', '[SERVICE BUS QUEUE]')
-
-INSERT INTO mon.Settings (Name, Value)
 VAlUES ('OutcomingConnectionString', '[YOUR SERVICE BUS CONNECTION STRING]')
 
 INSERT INTO mon.Settings (Name, Value)
 VAlUES ('OutcomingQueue', '[SERVICE BUS QUEUE]')
+
+
 
 CREATE TABLE [mon].[KeepAlive](
 	[ID] [bigint] IDENTITY(1,1) NOT NULL,
@@ -84,3 +80,24 @@ CREATE TABLE [mon].[KeepAlive](
 (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, 
 ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 )
+
+
+
+CREATE TABLE [mon].[EventQueue](
+	[ID] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](256) NOT NULL,
+	[Description] [nvarchar](256) NULL,
+	[Type] [tinyint] NOT NULL,
+	[ConnectionString] [nvarchar](256) NOT NULL,
+	[QueueName] [nvarchar](256) NOT NULL,
+ CONSTRAINT [PK_EventQueue] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH 
+(PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, 
+ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+)
+
+INSERT INTO mon.EventQueue (Name, Type, ConnectionString, QueueName)
+VAlUES ('EventsSourceAzureQueue', 1, '[YOUR SERVICE BUS CONNECTION STRING]', '[SERVICE BUS QUEUE]')
+

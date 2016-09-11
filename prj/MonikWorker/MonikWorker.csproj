@@ -112,6 +112,9 @@
     <Compile Include="..\..\src\server\MessageProcessor.cs">
       <Link>Core\MessageProcessor.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\server\MessagePump.cs">
+      <Link>Core\MessagePump.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\server\Settings.cs">
       <Link>Core\Settings.cs</Link>
     </Compile>
