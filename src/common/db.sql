@@ -1,14 +1,22 @@
+DROP TABLE [mon].[Log]
+DROP TABLE [mon].[Source]
+DROP TABLE [mon].[Instance]
+DROP TABLE [mon].[Settings]
+DROP TABLE [mon].[KeepAlive]
+DROP TABLE [mon].[EventQueue]
+DROP TABLE [mon].[HourStat]
+
+
 CREATE TABLE [mon].[Log](
 	[ID] [bigint] IDENTITY(1,1) NOT NULL,
 	[Created] [datetime] NOT NULL,
 	[Received] [datetime] NOT NULL,
 	[Level] [tinyint] NOT NULL,
 	[Severity] [tinyint] NOT NULL,
-	[SourceID] [smallint] NOT NULL,
-	[InstanceID] [int] NULL,
-	[Format] [tinyint] NULL,
-	[Body] [nvarchar](max) NULL,
-	[Tags] [nvarchar](256) NULL,
+	[InstanceID] [int] NOT NULL,
+	[Format] [tinyint] NOT NULL,
+	[Body] [nvarchar](max) NOT NULL,
+	[Tags] [nvarchar](256) NOT NULL,
 CONSTRAINT [PK_Log] PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC
@@ -21,8 +29,8 @@ ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 CREATE TABLE [mon].[Source](
 	[ID] [smallint] IDENTITY(1,1) NOT NULL,
 	[Created] [datetime] NOT NULL,
-	[Name] [nchar](256) NOT NULL,
-	[Description] [nchar](256) NULL,
+	[Name] [nvarchar](256) NOT NULL,
+	[Description] [nvarchar](256) NULL,
 CONSTRAINT [PK_Source] PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC
@@ -60,10 +68,19 @@ ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 )
 
 INSERT INTO mon.Settings (Name, Value)
+VAlUES ('NeedUpdate', '0')
+
+INSERT INTO mon.Settings (Name, Value)
 VAlUES ('OutcomingConnectionString', '[YOUR SERVICE BUS CONNECTION STRING]')
 
 INSERT INTO mon.Settings (Name, Value)
 VAlUES ('OutcomingQueue', '[SERVICE BUS QUEUE]')
+
+INSERT INTO mon.Settings (Name, Value)
+VAlUES ('DayDeepLog', '14')
+
+INSERT INTO mon.Settings (Name, Value)
+VAlUES ('DayDeepKeepAlive', '1')
 
 
 
@@ -71,8 +88,7 @@ CREATE TABLE [mon].[KeepAlive](
 	[ID] [bigint] IDENTITY(1,1) NOT NULL,
 	[Created] [datetime] NOT NULL,
 	[Received] [datetime] NOT NULL,
-	[SourceID] [smallint] NOT NULL,
-	[InstanceID] [int] NULL,
+	[InstanceID] [int] NOT NULL,
  CONSTRAINT [PK_KeepAlive] PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC
@@ -100,4 +116,18 @@ ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 
 INSERT INTO mon.EventQueue (Name, Type, ConnectionString, QueueName)
 VAlUES ('EventsSourceAzureQueue', 1, '[YOUR SERVICE BUS CONNECTION STRING]', '[SERVICE BUS QUEUE]')
+
+
+
+CREATE TABLE [mon].[HourStat](
+	[ID] [int] IDENTITY(1,1) NOT NULL,
+	[Hour] [datetime] NOT NULL,
+	[LastLogID] [bigint] NOT NULL,
+	[LastKeepAliveID] [bigint] NOT NULL,
+ CONSTRAINT [PK_HourStat] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, 
+ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+)
 

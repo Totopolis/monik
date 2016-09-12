@@ -64,6 +64,10 @@ namespace MonikWorker
       FProcessor = new MessageProcessor(_dbcs);
       FPump = new MessagePump(_dbcs, FSourceInstanceCache, FProcessor);
 
+      FSourceInstanceCache.OnStart();
+      FProcessor.OnStart();
+      FPump.OnStart();
+
       M.ApplicationInfo("MonikWorker has been started");
 
       return result;
@@ -73,12 +77,14 @@ namespace MonikWorker
     {
       M.ApplicationInfo("MonikWorker is stopping");
 
+      FPump.OnStop();
+
       this.cancellationTokenSource.Cancel();
       this.runCompleteEvent.WaitOne();
 
       M.ApplicationInfo("MonikWorker has stopped");
 
-      M.Stop();
+      M.OnStop();
 
       base.OnStop();
     }
@@ -88,7 +94,7 @@ namespace MonikWorker
       // TODO: Replace the following with your own logic.
       while (!cancellationToken.IsCancellationRequested)
       {
-        M.ApplicationInfo("Working");
+        //M.ApplicationInfo("Working");
         await Task.Delay(10000);
       }
     }

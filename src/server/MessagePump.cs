@@ -41,16 +41,10 @@ namespace Monik.Service
       FCache = aCache;
       FProcessor = aProcessor;
       FQueues = null;
-
-      Initialize();
     }
 
-    private void Initialize()
+    public void OnStart()
     {
-      if (FQueues != null)
-        foreach (var it in FQueues)
-          it.Queue.Close();
-
       FQueues = new List<ActiveQueue>();
       var _configs = SimpleCommand.ExecuteQuery<EventQueue>(FConnectionString, "select * from [mon].[EventQueue]");
       foreach (var it in _configs)
@@ -67,7 +61,7 @@ namespace Monik.Service
           {
             byte[] _buf = message.GetBody<byte[]>();
             Event _msg = Event.Parser.ParseFrom(_buf);
-
+            
             var _sourceInstance = FCache.CheckSourceAndInstance(Helper.Utf8ToUtf16(_msg.Source), Helper.Utf8ToUtf16(_msg.Instance));
             FProcessor.Process(_msg, _sourceInstance);
           }
@@ -78,7 +72,14 @@ namespace Monik.Service
         });
 
         FQueues.Add(_queue);
-      }
+      }//foreach config
+    }
+
+    public void OnStop()
+    {
+      if (FQueues != null)
+        foreach (var it in FQueues)
+          it.Queue.Close();
     }
     
   }//end class

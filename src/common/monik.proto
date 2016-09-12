@@ -13,6 +13,7 @@ message Event
 	{
 		KeepAlive ka = 4;
 		Log lg = 5;
+		PerfCounter pc = 6;
 		// TODO: need reserve for future extensions ??
 	}
 }
@@ -54,4 +55,6 @@ message Log
   string tags = 5; // users tags or categories
 }
 
-// TODO: message PerfCounter, ApiMethod, ...
+message PerfCounter
+{
+}

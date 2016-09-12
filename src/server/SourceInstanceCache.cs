@@ -40,11 +40,9 @@ namespace Monik.Service
       FConnectionString = aConnectionString;
       FSources = new Dictionary<string, Source>();
       FInstances = new Dictionary<Source, InstanceMap>();
-
-      Initialize();
     }
 
-    private void Initialize()
+    public void OnStart()
     {
       Dictionary<short, Source> _srcMap = new Dictionary<short, Source>();
 

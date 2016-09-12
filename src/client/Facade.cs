@@ -79,7 +79,7 @@ namespace Monik.Client
       FSenderTask = Task.Run(() => { OnSenderTask(); });
     }
 
-    public void Stop()
+    public void OnStop()
     {
       // TODO: is it correct?
       FNewMessageEvent.Set();
@@ -182,11 +182,11 @@ namespace Monik.Client
 
     public static MonikInstance CreateAdditionalInstance(IBaseSender aSender, string aSourceName, string aSourceInstance)
     {
-      MonikInstance _res = new MonikInstance(aSender, aSourceName, aSourceInstance);
+      MonikInstance _res = new MonikInstance(aSender, aSourceName, aSourceInstance == null ? "" : aSourceInstance );
       return _res;
     }
 
-    public static void Stop() { MainInstance?.Stop(); }
+    public static void OnStop() { MainInstance?.OnStop(); }
 
     public static void KeepAlive() { MainInstance?.KeepAlive(); }
 
