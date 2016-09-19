@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Monik;
 using Monik.Common;
 using System.Diagnostics;
+using Monik.Client;
 
 namespace Monik.Service
 {
@@ -58,8 +59,39 @@ namespace Monik.Service
           var src = DateTime.UtcNow;
           var hm = new DateTime(src.Year, src.Month, src.Day, src.Hour, 0, 0);
 
-          var stat = new { Hour = hm, LastLogID = FLastLogID, LastKeepAliveID = FLastKeepAliveID };
-          MappedCommand.Insert(FConnectionString, "[mon].[HourStat]", stat);
+          // TODO: fix for more correct stats, may be multiply inserts by exceptions
+          try
+          {
+            // insert new hour
+            var stat = new { Hour = hm, LastLogID = FLastLogID, LastKeepAliveID = FLastKeepAliveID };
+            MappedCommand.Insert(FConnectionString, "[mon].[HourStat]", stat);
+
+            // cleanup logs
+            var _logDeep = int.Parse(Settings.GetValue("DayDeepLog"));
+            var _logThreshold = SimpleCommand.ExecuteScalar(FConnectionString, "select max(LastLogID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", _logDeep);
+            if (_logThreshold != System.DBNull.Value)
+            {
+              long _val = (long)_logThreshold;
+              SimpleCommand.ExecuteNonQuery(FConnectionString, "delete from mon.Log where ID < @p0", _val);
+            }
+
+            // cleanup keep-alive
+            var _kaDeep = int.Parse(Settings.GetValue("DayDeepKeepAlive"));
+            var _kaThreshold = SimpleCommand.ExecuteScalar(FConnectionString, "select max(LastKeepAliveID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", _kaDeep);
+            if (_kaThreshold != System.DBNull.Value)
+            {
+              long _val = (long)_kaThreshold;
+              SimpleCommand.ExecuteNonQuery(FConnectionString, "delete from mon.KeepAlive where ID < @p0", _val);
+            }
+          }
+          catch(Exception _e)
+          {
+            M.ApplicationError("MessageProcessor.HourStatsThread: " + _e.Message);
+
+            // delayed retry logic with magic number
+            Task.Delay(1000).Wait();
+            continue;
+          }
 
           var hm2 = new DateTime(src.Year, src.Month, src.Day, src.Hour, 0, 0).AddHours(1);
           var delay = hm2 - DateTime.UtcNow;

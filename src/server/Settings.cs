@@ -13,6 +13,7 @@ namespace Monik.Service
   {
     public static string DBConnectionString = null;
 
+    // TODO: use concurent when online updates
     private static Dictionary<string, string> FSettings = null;
 
     public static void CheckUpdates()
