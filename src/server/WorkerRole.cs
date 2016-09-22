@@ -78,6 +78,7 @@ namespace MonikWorker
       M.ApplicationInfo("MonikWorker is stopping");
 
       FPump.OnStop();
+      FProcessor.OnStop();
 
       this.cancellationTokenSource.Cancel();
       this.runCompleteEvent.WaitOne();

@@ -121,13 +121,15 @@ namespace Monik.Client
       };
     }
 
-    private void PushLogToSend(string aBody, Log.Types.LevelType aLevel, Log.Types.SeverityType aSeverity)
+    private void PushLogToSend(string aBody, Log.Types.LevelType aLevel, Log.Types.SeverityType aSeverity, params object[] aParams)
     {
+      string _text = string.Format(aBody, aParams);
+
       Event _msg = NewEvent();
       _msg.Lg = new Log()
       {
         Format = Log.Types.FormatType.Plain,
-        Body = Helper.Utf16ToUtf8(aBody),
+        Body = Helper.Utf16ToUtf8(_text),
         Level = aLevel,
         Severity = aSeverity
       };
@@ -147,25 +149,25 @@ namespace Monik.Client
       FNewMessageEvent.Set();
     }
 
-    public void SystemInfo(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Info); }
-    public void SystemWarning(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Warning); }
-    public void SystemError(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Error); }
-    public void SystemFatal(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Fatal); }
+    public void SystemInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Info, aParams); }
+    public void SystemWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Warning, aParams); }
+    public void SystemError(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Error, aParams); }
+    public void SystemFatal(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Fatal, aParams); }
 
-    public void ApplicationInfo(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Info); }
-    public void ApplicationWarning(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Warning); }
-    public void ApplicationError(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Error); }
-    public void ApplicationFatal(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Fatal); }
+    public void ApplicationInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Info, aParams); }
+    public void ApplicationWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Warning, aParams); }
+    public void ApplicationError(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Error, aParams); }
+    public void ApplicationFatal(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Fatal, aParams); }
 
-    public void LogicInfo(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Info); }
-    public void LogicWarning(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Warning); }
-    public void LogicError(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Error); }
-    public void LogicFatal(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Fatal); }
+    public void LogicInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Info, aParams); }
+    public void LogicWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Warning, aParams); }
+    public void LogicError(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Error, aParams); }
+    public void LogicFatal(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Fatal, aParams); }
 
-    public void SecurityInfo(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Info); }
-    public void SecurityWarning(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Warning); }
-    public void SecurityError(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Error); }
-    public void SecurityFatal(string aBody) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Fatal); }
+    public void SecurityInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Info, aParams); }
+    public void SecurityWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Warning, aParams); }
+    public void SecurityError(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Error, aParams); }
+    public void SecurityFatal(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Fatal, aParams); }
   }
 
   public class M
@@ -190,25 +192,25 @@ namespace Monik.Client
 
     public static void KeepAlive() { MainInstance?.KeepAlive(); }
 
-    public static void SystemInfo(string aBody) { MainInstance?.SystemInfo(aBody); }
-    public static void SystemWarning(string aBody) { MainInstance?.SystemWarning(aBody); }
-    public static void SystemError(string aBody) { MainInstance?.SystemError(aBody); }
-    public static void SystemFatal(string aBody) { MainInstance?.SystemFatal(aBody); }
+    public static void SystemInfo(string aBody, params object[] aParams) { MainInstance?.SystemInfo(aBody, aParams); }
+    public static void SystemWarning(string aBody, params object[] aParams) { MainInstance?.SystemWarning(aBody, aParams); }
+    public static void SystemError(string aBody, params object[] aParams) { MainInstance?.SystemError(aBody, aParams); }
+    public static void SystemFatal(string aBody, params object[] aParams) { MainInstance?.SystemFatal(aBody, aParams); }
 
-    public static void ApplicationInfo(string aBody) { MainInstance?.ApplicationInfo(aBody); }
-    public static void ApplicationWarning(string aBody) { MainInstance?.ApplicationWarning(aBody); }
-    public static void ApplicationError(string aBody) { MainInstance?.ApplicationError(aBody); }
-    public static void ApplicationFatal(string aBody) { MainInstance?.ApplicationFatal(aBody); }
+    public static void ApplicationInfo(string aBody, params object[] aParams) { MainInstance?.ApplicationInfo(aBody, aParams); }
+    public static void ApplicationWarning(string aBody, params object[] aParams) { MainInstance?.ApplicationWarning(aBody, aParams); }
+    public static void ApplicationError(string aBody, params object[] aParams) { MainInstance?.ApplicationError(aBody, aParams); }
+    public static void ApplicationFatal(string aBody, params object[] aParams) { MainInstance?.ApplicationFatal(aBody, aParams); }
 
-    public static void LogicInfo(string aBody) { MainInstance?.LogicInfo(aBody); }
-    public static void LogicWarning(string aBody) { MainInstance?.LogicWarning(aBody); }
-    public static void LogicError(string aBody) { MainInstance?.LogicError(aBody); }
-    public static void LogicFatal(string aBody) { MainInstance?.LogicFatal(aBody); }
+    public static void LogicInfo(string aBody, params object[] aParams) { MainInstance?.LogicInfo(aBody, aParams); }
+    public static void LogicWarning(string aBody, params object[] aParams) { MainInstance?.LogicWarning(aBody, aParams); }
+    public static void LogicError(string aBody, params object[] aParams) { MainInstance?.LogicError(aBody, aParams); }
+    public static void LogicFatal(string aBody, params object[] aParams) { MainInstance?.LogicFatal(aBody, aParams); }
 
-    public static void SecurityInfo(string aBody) { MainInstance?.SecurityInfo(aBody); }
-    public static void SecurityWarning(string aBody) { MainInstance?.SecurityWarning(aBody); }
-    public static void SecurityError(string aBody) { MainInstance?.SecurityError(aBody); }
-    public static void SecurityFatal(string aBody) { MainInstance?.SecurityFatal(aBody); }
+    public static void SecurityInfo(string aBody, params object[] aParams) { MainInstance?.SecurityInfo(aBody, aParams); }
+    public static void SecurityWarning(string aBody, params object[] aParams) { MainInstance?.SecurityWarning(aBody, aParams); }
+    public static void SecurityError(string aBody, params object[] aParams) { MainInstance?.SecurityError(aBody, aParams); }
+    public static void SecurityFatal(string aBody, params object[] aParams) { MainInstance?.SecurityFatal(aBody, aParams); }
   }
 
 }

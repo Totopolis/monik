@@ -8,6 +8,7 @@ using Monik;
 using Monik.Common;
 using System.Diagnostics;
 using Monik.Client;
+using System.Threading;
 
 namespace Monik.Service
 {
@@ -39,10 +40,14 @@ namespace Monik.Service
     public MessageProcessor(string aConnectionString)
     {
       FConnectionString = aConnectionString;
+      FCleaner = Scheduler.CreatePerHour(CleanerTask, "cleaner");
+      FStatist = Scheduler.CreatePerHour(StatistTask, "statist");
     }
 
     private long FLastLogID;
     private long FLastKeepAliveID;
+    private Scheduler FCleaner;
+    private Scheduler FStatist;
 
     public void OnStart()
     {
@@ -52,58 +57,60 @@ namespace Monik.Service
       var _res2 = SimpleCommand.ExecuteScalar(FConnectionString, "select max(ID) from [mon].[KeepAlive]");
       FLastKeepAliveID = _res2 == System.DBNull.Value ? 0 : (long)_res2;
 
-      Task.Run(() =>
+      FCleaner.OnStart();
+      FStatist.OnStart();
+    }
+
+    private void CleanerTask()
+    {
+      try
       {
-        while (true)
+        // cleanup logs
+        var _logDeep = int.Parse(Settings.GetValue("DayDeepLog"));
+        var _logThreshold = SimpleCommand.ExecuteScalar(FConnectionString, "select max(LastLogID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", _logDeep);
+        if (_logThreshold != System.DBNull.Value)
         {
-          var src = DateTime.UtcNow;
-          var hm = new DateTime(src.Year, src.Month, src.Day, src.Hour, 0, 0);
-
-          // TODO: fix for more correct stats, may be multiply inserts by exceptions
-          try
-          {
-            // insert new hour
-            var stat = new { Hour = hm, LastLogID = FLastLogID, LastKeepAliveID = FLastKeepAliveID };
-            MappedCommand.Insert(FConnectionString, "[mon].[HourStat]", stat);
-
-            // cleanup logs
-            var _logDeep = int.Parse(Settings.GetValue("DayDeepLog"));
-            var _logThreshold = SimpleCommand.ExecuteScalar(FConnectionString, "select max(LastLogID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", _logDeep);
-            if (_logThreshold != System.DBNull.Value)
-            {
-              long _val = (long)_logThreshold;
-              SimpleCommand.ExecuteNonQuery(FConnectionString, "delete from mon.Log where ID < @p0", _val);
-            }
-
-            // cleanup keep-alive
-            var _kaDeep = int.Parse(Settings.GetValue("DayDeepKeepAlive"));
-            var _kaThreshold = SimpleCommand.ExecuteScalar(FConnectionString, "select max(LastKeepAliveID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", _kaDeep);
-            if (_kaThreshold != System.DBNull.Value)
-            {
-              long _val = (long)_kaThreshold;
-              SimpleCommand.ExecuteNonQuery(FConnectionString, "delete from mon.KeepAlive where ID < @p0", _val);
-            }
-          }
-          catch(Exception _e)
-          {
-            M.ApplicationError("MessageProcessor.HourStatsThread: " + _e.Message);
-
-            // delayed retry logic with magic number
-            Task.Delay(1000).Wait();
-            continue;
-          }
-
-          var hm2 = new DateTime(src.Year, src.Month, src.Day, src.Hour, 0, 0).AddHours(1);
-          var delay = hm2 - DateTime.UtcNow;
-
-          Task.Delay(delay).Wait();
+          long _val = (long)_logThreshold;
+          var _count = SimpleCommand.ExecuteNonQuery(FConnectionString, "delete from mon.Log where ID < @p0", _val);
+          M.ApplicationInfo("MessageProcessor.CleanerTask delete from mon.Log: {0} rows", _count);
         }
-      });
+
+        // cleanup keep-alive
+        var _kaDeep = int.Parse(Settings.GetValue("DayDeepKeepAlive"));
+        var _kaThreshold = SimpleCommand.ExecuteScalar(FConnectionString, "select max(LastKeepAliveID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", _kaDeep);
+        if (_kaThreshold != System.DBNull.Value)
+        {
+          long _val = (long)_kaThreshold;
+          var _count = SimpleCommand.ExecuteNonQuery(FConnectionString, "delete from mon.KeepAlive where ID < @p0", _val);
+          M.ApplicationInfo("MessageProcessor.CleanerTask delete from mon.KeepAlive: {0} rows", _count);
+        }
+      }
+      catch (Exception _e)
+      {
+        M.ApplicationError("MessageProcessor.CleanerTask: {0}", _e.Message);
+      }
+    }
+
+    private void StatistTask()
+    {
+      try
+      {
+        DateTime now = DateTime.UtcNow;
+        DateTime hs = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0);
+
+        var stat = new { Hour = hs, LastLogID = FLastLogID, LastKeepAliveID = FLastKeepAliveID };
+        MappedCommand.Insert(FConnectionString, "[mon].[HourStat]", stat);
+      }
+      catch (Exception _e)
+      {
+        M.ApplicationError("MessageProcessor.StatistTask: {0}", _e.Message);
+      }
     }
 
     public void OnStop()
     {
-      // TODO: stop HourStat thread
+      FStatist.OnStop();
+      FCleaner.OnStop();
     }
 
     public void Process(Event aEvent, Tuple<short, int> aSourceAndInstance)

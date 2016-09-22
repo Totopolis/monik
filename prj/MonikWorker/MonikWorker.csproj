@@ -104,10 +104,13 @@
       <Link>Client.Azure\Facade.cs</Link>
     </Compile>
     <Compile Include="..\..\src\common\Helper.cs">
-      <Link>Client.Azure\Helper.cs</Link>
+      <Link>Common\Helper.cs</Link>
     </Compile>
     <Compile Include="..\..\src\common\Monik.cs">
-      <Link>Client.Azure\Monik.cs</Link>
+      <Link>Common\Monik.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\common\Scheduler.cs">
+      <Link>Common\Scheduler.cs</Link>
     </Compile>
     <Compile Include="..\..\src\server\MessageProcessor.cs">
       <Link>Core\MessageProcessor.cs</Link>

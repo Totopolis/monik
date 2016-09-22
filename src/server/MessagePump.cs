@@ -67,7 +67,7 @@ namespace Monik.Service
           }
           catch (Exception _e)
           {
-            M.ApplicationError("MessagePump.OnMessage: " + _e.Message);
+            M.ApplicationError("MessagePump.OnMessage: {0}", _e.Message);
           }
         });
 
