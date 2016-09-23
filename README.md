@@ -26,8 +26,11 @@ M.MainInstance.AutoKeepAliveInterval = 5000;
 M.MainInstance.AutoKeepAlive = true;
 
 // Profile time of your code
-var th = new TimingHelper();
+var th = TimingHelper.Create();
+// some code1
+th.EndAndLog("something1");
+
 th.Begin();
-// some code
-th.EndAndLog("something");
+// some code2
+th.EndAndLog("something2");
 ```

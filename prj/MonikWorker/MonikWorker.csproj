@@ -103,6 +103,9 @@
     <Compile Include="..\..\src\client\Facade.cs">
       <Link>Client.Azure\Facade.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\client\TimingHelper.cs">
+      <Link>Client.Azure\TimingHelper.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\common\Helper.cs">
       <Link>Common\Helper.cs</Link>
     </Compile>
@@ -127,7 +130,6 @@
     <Compile Include="..\..\src\server\WorkerRole.cs">
       <Link>WorkerRole.cs</Link>
     </Compile>
-    <Compile Include="Client.Azure\TimingHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

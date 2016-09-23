@@ -15,7 +15,10 @@ namespace Monik.Client
 {
   public class TimingHelper
   {
-    private DateTime FFrom;
+    private DateTime FFrom = DateTime.Now;
+    private TimingHelper() { }
+
+    public static TimingHelper Create() { return new TimingHelper(); }
 
     public void Begin() { FFrom = DateTime.Now; }
 
