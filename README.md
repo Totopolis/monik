@@ -17,10 +17,17 @@ var azureSender = new AzureSender("[Service Bus connection string]", "[Queue nam
 M.Initialize(azureSender, "[Source name]", "[Source instance]");
 
 // Send message
-M.SecurityInfo("User John log to");
+M.SecurityInfo("User John log in");
 M.ApplicationError("Some error in application");
+M.LogicInfo("{0} completed, processid={1}", "MyProcess", 1250);
 
 // Enable auto Keep-Alive (per 5 sec)
-M.MainInstance.KeepAliveInterval = 5000;
+M.MainInstance.AutoKeepAliveInterval = 5000;
 M.MainInstance.AutoKeepAlive = true;
+
+// Profile time of your code
+var th = new TimingHelper();
+th.Begin();
+// some code
+th.EndAndLog("something");
 ```

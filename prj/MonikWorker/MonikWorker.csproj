@@ -127,6 +127,7 @@
     <Compile Include="..\..\src\server\WorkerRole.cs">
       <Link>WorkerRole.cs</Link>
     </Compile>
+    <Compile Include="Client.Azure\TimingHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

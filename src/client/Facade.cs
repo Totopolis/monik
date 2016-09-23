@@ -172,7 +172,7 @@ namespace Monik.Client
 
   public class M
   {
-    public static MonikInstance MainInstance { get; private set; }
+    public static MonikInstance MainInstance { get; private set; } = null;
 
     public static MonikInstance I = null;
     public static MonikInstance I2 = null;
@@ -184,7 +184,7 @@ namespace Monik.Client
 
     public static MonikInstance CreateAdditionalInstance(IBaseSender aSender, string aSourceName, string aSourceInstance)
     {
-      MonikInstance _res = new MonikInstance(aSender, aSourceName, aSourceInstance == null ? "" : aSourceInstance );
+      MonikInstance _res = new MonikInstance(aSender, aSourceName == null ? "" : aSourceName, aSourceInstance == null ? "" : aSourceInstance );
       return _res;
     }
 

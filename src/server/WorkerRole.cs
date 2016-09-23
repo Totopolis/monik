@@ -52,10 +52,12 @@ namespace MonikWorker
       Settings.DBConnectionString = _dbcs;
       Settings.CheckUpdates();
 
-      var _azureSender = new AzureSender(Settings.GetValue("OutcomingConnectionString"), Settings.GetValue("OutcomingQueue"));
-      M.Initialize(_azureSender, "Monik", "Instance1");
+      string _instanceName = RoleEnvironment.IsEmulated ? "Development" : "Production";
 
-      M.MainInstance.AutoKeepAliveInterval = 10000;
+      var _azureSender = new AzureSender(Settings.GetValue("OutcomingConnectionString"), Settings.GetValue("OutcomingQueue"));
+      M.Initialize(_azureSender, "Monik", _instanceName);
+
+      M.MainInstance.AutoKeepAliveInterval = 60000;
       M.MainInstance.AutoKeepAlive = true;
 
       // TODO: retry logic and exit if exceptions...
