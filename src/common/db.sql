@@ -131,3 +131,23 @@ CREATE TABLE [mon].[HourStat](
 ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 )
 
+
+CREATE VIEW dbo.PrettyLogs AS
+ SELECT lg.ID, src.Name as Source, ins.Name as Instance, lg.Created, [Level] =
+  CASE lg.Level
+	WHEN 0 THEN 'SYSTEM'
+	WHEN 1 THEN 'APPLICATION'
+	WHEN 2 THEN 'LOGIC'
+	WHEN 3 THEN 'SECURITY'
+  END,
+  Severity = 
+  CASE lg.Severity
+	WHEN 0 THEN 'INFO'
+	WHEN 1 THEN 'WARNING'
+	WHEN 2 THEN 'ERROR'
+	WHEN 3 THEN 'FATAL'
+  END, 
+  lg.Body
+  FROM mon.Log lg
+  JOIN mon.Instance ins on lg.InstanceID = ins.ID
+  JOIN mon.Source src on src.ID = ins.SourceID

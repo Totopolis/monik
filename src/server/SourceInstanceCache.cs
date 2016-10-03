@@ -10,6 +10,7 @@ using System.Diagnostics;
 
 namespace Monik.Service
 {
+  using Client;
   using InstanceMap = Dictionary<string, Instance>;
 
   public class Source
@@ -48,18 +49,28 @@ namespace Monik.Service
 
       var _sources = SimpleCommand.ExecuteQuery<Source>(FConnectionString, "select * from [mon].[Source]");
       foreach (var _src in _sources)
-      {
-        _srcMap.Add(_src.ID, _src);
-        FSources.Add(_src.Name, _src);
-        FInstances.Add(_src, new InstanceMap());
-      }
+        if (!FSources.ContainsKey(_src.Name))
+        {
+          _srcMap.Add(_src.ID, _src);
+          FSources.Add(_src.Name, _src);
+          FInstances.Add(_src, new InstanceMap());
+        }
+        else
+          M.ApplicationError("Database contains more than one same source name: " + _src.Name);
 
       var _instances = SimpleCommand.ExecuteQuery<Instance>(FConnectionString, "select * from [mon].[Instance]");
       foreach (var _ins in _instances)
-      {
-        Source _src = _srcMap[_ins.SourceID];
-        FInstances[_src].Add(_ins.Name, _ins);
-      }
+        if (_srcMap.ContainsKey(_ins.SourceID))
+        {
+          Source _src = _srcMap[_ins.SourceID];
+
+          if (!FInstances[_src].ContainsKey(_ins.Name))
+            FInstances[_src].Add(_ins.Name, _ins);
+          else
+            M.ApplicationError("Database contains more than one the same instance name '{0}' for the source '{1}'", _ins.Name, _src.Name);
+        }
+        else
+          M.ApplicationError("Database doesnot contains source(id={1}) for the instance '{0}'", _ins.Name, _ins.SourceID);
     }
 
     public Tuple<short, int> CheckSourceAndInstance(string aSourceName, string aInstanceName)

@@ -34,3 +34,12 @@ th.Begin();
 // some code2
 th.EndAndLog("something2");
 ```
+## Methodology (todo):
+1. SecurityInfo: user XX log-in or log-out
+2. SecurityWarning: user XX bad password
+3. SecurityError: domain not accessible
+4. ApplicationInfo: 
+5. ApplicationWarning: service start or shutdown
+6. ApplicationError: any exceptions
+7. LogicInfo: something calculated
+8. LogicWarning: user request's bad params (for the service)
