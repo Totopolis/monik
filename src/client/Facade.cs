@@ -123,7 +123,16 @@ namespace Monik.Client
 
     private void PushLogToSend(string aBody, Log.Types.LevelType aLevel, Log.Types.SeverityType aSeverity, params object[] aParams)
     {
-      string _text = string.Format(aBody, aParams);
+      string _text = "";
+
+      try
+      {
+        _text = aParams.Length == 0 ? aBody : string.Format(aBody, aParams);
+      }
+      catch
+      {
+        _text = aBody;
+      }
 
       Event _msg = NewEvent();
       _msg.Lg = new Log()
