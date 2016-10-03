@@ -116,8 +116,8 @@ namespace Monik.Client
       return new Event()
       {
         Created = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds,
-        Source = Helper.Utf16ToUtf8(FSourceName),
-        Instance = Helper.Utf16ToUtf8(FSourceInstance)
+        Source = FSourceName, //Helper.Utf16ToUtf8(FSourceName),
+        Instance = FSourceInstance//Helper.Utf16ToUtf8(FSourceInstance)
       };
     }
 
@@ -129,7 +129,7 @@ namespace Monik.Client
       _msg.Lg = new Log()
       {
         Format = Log.Types.FormatType.Plain,
-        Body = Helper.Utf16ToUtf8(_text),
+        Body = _text,//Helper.Utf16ToUtf8(_text),
         Level = aLevel,
         Severity = aSeverity
       };
