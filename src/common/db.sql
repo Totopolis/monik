@@ -1,11 +1,12 @@
-DROP TABLE [mon].[Log]
-DROP TABLE [mon].[Source]
-DROP TABLE [mon].[Instance]
-DROP TABLE [mon].[Settings]
-DROP TABLE [mon].[KeepAlive]
-DROP TABLE [mon].[EventQueue]
-DROP TABLE [mon].[HourStat]
+--DROP TABLE [mon].[Log]
+--DROP TABLE [mon].[Source]
+--DROP TABLE [mon].[Instance]
+--DROP TABLE [mon].[Settings]
+--DROP TABLE [mon].[KeepAlive]
+--DROP TABLE [mon].[EventQueue]
+--DROP TABLE [mon].[HourStat]
 
+CREATE SCHEMA mon
 
 CREATE TABLE [mon].[Log](
 	[ID] [bigint] IDENTITY(1,1) NOT NULL,

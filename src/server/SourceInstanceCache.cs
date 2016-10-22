@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using Monik;
 using Monik.Common;
 using System.Diagnostics;
+using Monik.Client;
 
 namespace Monik.Service
 {
-  using Client;
   using InstanceMap = Dictionary<string, Instance>;
 
   public class Source
@@ -30,15 +30,15 @@ namespace Monik.Service
     public string Description { get; set; }
   }
 
-  public class SourceInstanceCache
+  public class SourceInstanceCache : ISourceInstanceCache
   {
-    private string FConnectionString;
+    private IRepository FRepository;
     private Dictionary<string, Source> FSources;
     private Dictionary<Source, InstanceMap> FInstances;
 
-    public SourceInstanceCache(string aConnectionString)
+    public SourceInstanceCache(IRepository aRepository)
     {
-      FConnectionString = aConnectionString;
+      FRepository = aRepository;
       FSources = new Dictionary<string, Source>();
       FInstances = new Dictionary<Source, InstanceMap>();
     }
@@ -47,7 +47,7 @@ namespace Monik.Service
     {
       Dictionary<short, Source> _srcMap = new Dictionary<short, Source>();
 
-      var _sources = SimpleCommand.ExecuteQuery<Source>(FConnectionString, "select * from [mon].[Source]");
+      var _sources = FRepository.GetAllSources();
       foreach (var _src in _sources)
         if (!FSources.ContainsKey(_src.Name))
         {
@@ -58,7 +58,7 @@ namespace Monik.Service
         else
           M.ApplicationError("Database contains more than one same source name: " + _src.Name);
 
-      var _instances = SimpleCommand.ExecuteQuery<Instance>(FConnectionString, "select * from [mon].[Instance]");
+      var _instances = FRepository.GetAllInstances();
       foreach (var _ins in _instances)
         if (_srcMap.ContainsKey(_ins.SourceID))
         {
@@ -73,7 +73,11 @@ namespace Monik.Service
           M.ApplicationError("Database doesnot contains source(id={1}) for the instance '{0}'", _ins.Name, _ins.SourceID);
     }
 
-    public Tuple<short, int> CheckSourceAndInstance(string aSourceName, string aInstanceName)
+    public void OnStop()
+    {
+    }
+
+    public Instance CheckSourceAndInstance(string aSourceName, string aInstanceName)
     {
       Source _src;
       InstanceMap _map;
@@ -82,7 +86,7 @@ namespace Monik.Service
       if (!FSources.ContainsKey(aSourceName))
       {
         _src = new Source() { Name = aSourceName, Created = DateTime.UtcNow };
-        _src.ID = (short)MappedCommand.InsertAndGetId<Source>(FConnectionString, "[mon].[Source]", _src, "ID");
+        FRepository.CreateNewSource(_src);
 
         FSources.Add(aSourceName, _src);
         _map = new InstanceMap();
@@ -97,14 +101,16 @@ namespace Monik.Service
       if (!_map.ContainsKey(aInstanceName))
       {
         _ins = new Instance() { Name = aInstanceName, Created = DateTime.UtcNow, SourceID = _src.ID };
-        _ins.ID = (int)MappedCommand.InsertAndGetId<Instance>(FConnectionString, "[mon].[Instance]", _ins, "ID");
+        FRepository.CreateNewInstance(_ins);
 
         _map.Add(aInstanceName, _ins);
       }
       else
         _ins = _map[aInstanceName];
 
-      return new Tuple<short, int>(_src.ID, _ins.ID);
+      return _ins;
     }
+
+    
   }//end of class
 }

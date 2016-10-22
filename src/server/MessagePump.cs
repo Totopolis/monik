@@ -28,16 +28,16 @@ namespace Monik.Service
     public string QueueName { get; set; }
   }
 
-  public class MessagePump
+  public class MessagePump : IMessagePump
   {
-    private string FConnectionString;
-    private SourceInstanceCache FCache;
-    private MessageProcessor FProcessor;
+    private IRepository FRepository;
+    private ISourceInstanceCache FCache;
+    private IMessageProcessor FProcessor;
     private List<ActiveQueue> FQueues;
 
-    public MessagePump(string aConnectionString, SourceInstanceCache aCache, MessageProcessor aProcessor)
+    public MessagePump(IRepository aRepository, ISourceInstanceCache aCache, IMessageProcessor aProcessor)
     {
-      FConnectionString = aConnectionString;
+      FRepository = aRepository;
       FCache = aCache;
       FProcessor = aProcessor;
       FQueues = null;
@@ -46,7 +46,7 @@ namespace Monik.Service
     public void OnStart()
     {
       FQueues = new List<ActiveQueue>();
-      var _configs = SimpleCommand.ExecuteQuery<EventQueue>(FConnectionString, "select * from [mon].[EventQueue]");
+      var _configs = FRepository.GetEventSources();
       foreach (var it in _configs)
       {
         ActiveQueue _queue = new ActiveQueue()
@@ -62,8 +62,8 @@ namespace Monik.Service
             byte[] _buf = message.GetBody<byte[]>();
             Event _msg = Event.Parser.ParseFrom(_buf);
             
-            var _sourceInstance = FCache.CheckSourceAndInstance(Helper.Utf8ToUtf16(_msg.Source), Helper.Utf8ToUtf16(_msg.Instance));
-            FProcessor.Process(_msg, _sourceInstance);
+            var _instance = FCache.CheckSourceAndInstance(Helper.Utf8ToUtf16(_msg.Source), Helper.Utf8ToUtf16(_msg.Instance));
+            FProcessor.Process(_msg, _instance);
           }
           catch (Exception _e)
           {

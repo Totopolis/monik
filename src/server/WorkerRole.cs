@@ -38,9 +38,7 @@ namespace MonikWorker
       }
     }
 
-    private SourceInstanceCache FSourceInstanceCache;
-    private MessageProcessor FProcessor;
-    private MessagePump FPump;
+    private WebService FService;
 
     public override bool OnStart()
     {
@@ -48,6 +46,8 @@ namespace MonikWorker
       bool result = base.OnStart();
 
       var _dbcs = CloudConfigurationManager.GetSetting("DBConnectionString");
+
+      Repository.ConnectionString = _dbcs;
 
       Settings.DBConnectionString = _dbcs;
       Settings.CheckUpdates();
@@ -57,35 +57,50 @@ namespace MonikWorker
       var _azureSender = new AzureSender(Settings.GetValue("OutcomingConnectionString"), Settings.GetValue("OutcomingQueue"));
       M.Initialize(_azureSender, "Monik", _instanceName);
 
-      M.MainInstance.AutoKeepAliveInterval = 60000;
+      M.MainInstance.AutoKeepAliveInterval = 10000;
       M.MainInstance.AutoKeepAlive = true;
 
       // TODO: retry logic and exit if exceptions...
 
-      FSourceInstanceCache = new SourceInstanceCache(_dbcs);
-      FProcessor = new MessageProcessor(_dbcs);
-      FPump = new MessagePump(_dbcs, FSourceInstanceCache, FProcessor);
+      var container = Nancy.TinyIoc.TinyIoCContainer.Current;
+      container.Register<IRepository, Repository>();
+      container.Register<IDataCache, DataCache>().AsSingleton();
+      container.Register<ISourceInstanceCache, SourceInstanceCache>().AsSingleton();
 
-      FSourceInstanceCache.OnStart();
-      FProcessor.OnStart();
-      FPump.OnStart();
+      container.Resolve<ISourceInstanceCache>().OnStart();
+      container.Resolve<IDataCache>().OnStart();
 
-      M.ApplicationInfo("MonikWorker has been started");
+      container.Register<IMessageProcessor, MessageProcessor>().AsSingleton();
+      container.Resolve<IMessageProcessor>().OnStart();
+
+      container.Register<IMessagePump, MessagePump>().AsSingleton();
+      container.Resolve<IMessagePump>().OnStart();
+
+      string _prefix = RoleEnvironment.CurrentRoleInstance.InstanceEndpoints["HTTP_EP"].IPEndpoint.ToString();
+      FService = new WebService(_prefix);
+      FService.OnStart();
+
+      M.ApplicationWarning("MonikWorker has been started");
 
       return result;
     }
 
     public override void OnStop()
     {
-      M.ApplicationInfo("MonikWorker is stopping");
+      M.ApplicationWarning("MonikWorker is stopping");
 
-      FPump.OnStop();
-      FProcessor.OnStop();
+      // TODO: catch exceptions inside
+
+      FService.OnStop();
+
+      var container = Nancy.TinyIoc.TinyIoCContainer.Current;
+      container.Resolve<IMessagePump>().OnStop();
+      container.Resolve<IMessageProcessor>().OnStop();
 
       this.cancellationTokenSource.Cancel();
       this.runCompleteEvent.WaitOne();
 
-      M.ApplicationInfo("MonikWorker has stopped");
+      M.ApplicationWarning("MonikWorker has stopped");
 
       M.OnStop();
 

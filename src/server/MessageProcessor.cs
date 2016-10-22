@@ -33,13 +33,13 @@ namespace Monik.Service
     public int InstanceID { get; set; }
   }
 
-  public class MessageProcessor
+  public class MessageProcessor : IMessageProcessor
   {
-    private string FConnectionString;
+    private IRepository FRepository;
 
-    public MessageProcessor(string aConnectionString)
+    public MessageProcessor(IRepository aRepository)
     {
-      FConnectionString = aConnectionString;
+      FRepository = aRepository;
       FCleaner = Scheduler.CreatePerHour(CleanerTask, "cleaner");
       FStatist = Scheduler.CreatePerHour(StatistTask, "statist");
     }
@@ -51,11 +51,8 @@ namespace Monik.Service
 
     public void OnStart()
     {
-      var _res1 = SimpleCommand.ExecuteScalar(FConnectionString, "select max(ID) from [mon].[Log]");
-      FLastLogID = _res1 == System.DBNull.Value ? 0 : (long)_res1;
-
-      var _res2 = SimpleCommand.ExecuteScalar(FConnectionString, "select max(ID) from [mon].[KeepAlive]");
-      FLastKeepAliveID = _res2 == System.DBNull.Value ? 0 : (long)_res2;
+      FLastLogID = FRepository.GetMaxLogID();
+      FLastKeepAliveID = FRepository.GetMaxKeepAliveID();
 
       FCleaner.OnStart();
       FStatist.OnStart();
@@ -67,27 +64,25 @@ namespace Monik.Service
       {
         // cleanup logs
         var _logDeep = int.Parse(Settings.GetValue("DayDeepLog"));
-        var _logThreshold = SimpleCommand.ExecuteScalar(FConnectionString, "select max(LastLogID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", _logDeep);
-        if (_logThreshold != System.DBNull.Value)
+        var _logThreshold = FRepository.GetLogThreshold(_logDeep);
+        if (_logThreshold.HasValue)
         {
-          long _val = (long)_logThreshold;
-          var _count = SimpleCommand.ExecuteNonQuery(FConnectionString, "delete from mon.Log where ID < @p0", _val);
-          M.ApplicationInfo("MessageProcessor.CleanerTask delete from mon.Log: {0} rows", _count);
+          var _count = FRepository.CleanUpLog(_logThreshold.Value);
+          M.LogicInfo("CleanerTask delete Log: {0} rows", _count);
         }
 
         // cleanup keep-alive
         var _kaDeep = int.Parse(Settings.GetValue("DayDeepKeepAlive"));
-        var _kaThreshold = SimpleCommand.ExecuteScalar(FConnectionString, "select max(LastKeepAliveID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", _kaDeep);
-        if (_kaThreshold != System.DBNull.Value)
+        var _kaThreshold = FRepository.GetKeepAliveThreshold(_kaDeep);
+        if (_kaThreshold.HasValue)
         {
-          long _val = (long)_kaThreshold;
-          var _count = SimpleCommand.ExecuteNonQuery(FConnectionString, "delete from mon.KeepAlive where ID < @p0", _val);
-          M.ApplicationInfo("MessageProcessor.CleanerTask delete from mon.KeepAlive: {0} rows", _count);
+          var _count = FRepository.CleanUpKeepAlive(_kaThreshold.Value);
+          M.LogicInfo("CleanerTask delete KeepAlive: {0} rows", _count);
         }
       }
       catch (Exception _e)
       {
-        M.ApplicationError("MessageProcessor.CleanerTask: {0}", _e.Message);
+        M.ApplicationError("CleanerTask: {0}", _e.Message);
       }
     }
 
@@ -98,14 +93,15 @@ namespace Monik.Service
         DateTime now = DateTime.UtcNow;
         DateTime hs = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0);
 
-        var stat = new { Hour = hs, LastLogID = FLastLogID, LastKeepAliveID = FLastKeepAliveID };
-        MappedCommand.Insert(FConnectionString, "[mon].[HourStat]", stat);
+        FRepository.CreateHourStat(hs, FLastLogID, FLastKeepAliveID);
       }
       catch (Exception _e)
       {
-        M.ApplicationError("MessageProcessor.StatistTask: {0}", _e.Message);
+        M.ApplicationError("StatistTask: {0}", _e.Message);
       }
     }
+
+    
 
     public void OnStop()
     {
@@ -113,18 +109,18 @@ namespace Monik.Service
       FCleaner.OnStop();
     }
 
-    public void Process(Event aEvent, Tuple<short, int> aSourceAndInstance)
+    public void Process(Event aEvent, Instance aInstance)
     {
       switch (aEvent.MsgCase)
       {
         case Event.MsgOneofCase.None:
           throw new NotSupportedException("Bad event type");
         case Event.MsgOneofCase.Ka:
-          var _ka = WriteKeepAlive(aEvent, aSourceAndInstance);
+          var _ka = WriteKeepAlive(aEvent, aInstance);
           FLastKeepAliveID = _ka.ID;
           break;
         case Event.MsgOneofCase.Lg:
-          var _lg = WriteLog(aEvent, aSourceAndInstance);
+          var _lg = WriteLog(aEvent, aInstance);
           FLastLogID = _lg.ID;
           break;
         default:
@@ -132,21 +128,21 @@ namespace Monik.Service
       }
     }
 
-    private KeepAlive_ WriteKeepAlive(Event aEventLog, Tuple<short, int> aSourceAndInstance)
+    private KeepAlive_ WriteKeepAlive(Event aEventLog, Instance aInstance)
     {
       KeepAlive_ _row = new KeepAlive_()
       {
         Created = Helper.FromMillisecondsSinceUnixEpoch(aEventLog.Created),
         Received = DateTime.UtcNow,
-        InstanceID = aSourceAndInstance.Item2
+        InstanceID = aInstance.ID
       };
 
-      _row.ID = (int)MappedCommand.InsertAndGetId<KeepAlive_>(FConnectionString, "[mon].[KeepAlive]", _row, "ID");
+      FRepository.CreateKeepAlive(_row);
 
       return _row;
     }
 
-    private Log_ WriteLog(Event aEventLog, Tuple<short, int> aSourceAndInstance)
+    private Log_ WriteLog(Event aEventLog, Instance aInstance)
     {
       Log_ _row = new Log_()
       {
@@ -154,13 +150,13 @@ namespace Monik.Service
         Received = DateTime.UtcNow,
         Level = (byte)aEventLog.Lg.Level,
         Severity = (byte)aEventLog.Lg.Severity,
-        InstanceID = aSourceAndInstance.Item2,
+        InstanceID = aInstance.ID,
         Format = (byte)aEventLog.Lg.Format,
         Body = aEventLog.Lg.Body,
         Tags = aEventLog.Lg.Tags
       };
 
-      _row.ID = (int)MappedCommand.InsertAndGetId<Log_>(FConnectionString, "[mon].[Log]", _row, "ID");
+      FRepository.CreateLog(_row);
 
       return _row;
     }
