@@ -25,6 +25,8 @@ namespace Monik.Service
     long GetMaxLogID();
     long GetMaxKeepAliveID();
 
+    List<Log_> GetLastLogs(int aTop);
+
     long? GetLogThreshold(int aDayDeep);
     long? GetKeepAliveThreshold(int aDayDeep);
 
@@ -37,22 +39,27 @@ namespace Monik.Service
     void CreateLog(Log_ aLog);
 
     List<EventQueue> GetEventSources();
-
-    List<WebServiceSourcesResponse> GetSources();
-    List<WebServiceInstancesResponse> GetInstances();
-
-    List<WebServiceLogResponse> GetFilteredLogs(int aTop, LogsFilter[] aFilters);
-    List<WebServiceLogResponse> GetFilteredLogs2(int? aTop, string aOrder, long? aLastID, LogsFilter[] aFilters);
   }
 
   public interface ISourceInstanceCache : IObject
   {
     Instance CheckSourceAndInstance(string aSourceName, string aInstanceName);
+    Source GetSourceByInstanceID(int aInstanceID);
+    Instance GetInstanceByID(int aInstanceID);
   }
 
-  public interface IDataCache : IObject
+  public interface ICacheLog : IObject
   {
+    long LastLogID { get; }
+    void OnNewLog(Log_ aLog);
 
+    List<Log_> GetLogs(int? aTop, Order aOrder, long? aLastID, LogsFilter[] aFilters);
+  }
+
+  public interface ICacheKeepAlive : IObject
+  {
+    long LastKeepAliveID { get; }
+    void OnNewKeepAlive(KeepAlive_ aKeepAlive);
   }
 
   public interface IMessagePump : IObject
@@ -63,6 +70,11 @@ namespace Monik.Service
   public interface IMessageProcessor : IObject
   {
     void Process(Event aEvent, Instance aInstance);
+  }
+
+  public interface IWebService : IObject
+  {
+
   }
 
 }

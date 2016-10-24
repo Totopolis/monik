@@ -62,23 +62,16 @@ namespace MonikWorker
 
       // TODO: retry logic and exit if exceptions...
 
-      var container = Nancy.TinyIoc.TinyIoCContainer.Current;
-      container.Register<IRepository, Repository>();
-      container.Register<IDataCache, DataCache>().AsSingleton();
-      container.Register<ISourceInstanceCache, SourceInstanceCache>().AsSingleton();
-
-      container.Resolve<ISourceInstanceCache>().OnStart();
-      container.Resolve<IDataCache>().OnStart();
-
-      container.Register<IMessageProcessor, MessageProcessor>().AsSingleton();
-      container.Resolve<IMessageProcessor>().OnStart();
-
-      container.Register<IMessagePump, MessagePump>().AsSingleton();
-      container.Resolve<IMessagePump>().OnStart();
-
       string _prefix = RoleEnvironment.CurrentRoleInstance.InstanceEndpoints["HTTP_EP"].IPEndpoint.ToString();
       FService = new WebService(_prefix);
       FService.OnStart();
+
+      var container = Bootstrapper.MainContainer;
+      container.Resolve<ISourceInstanceCache>().OnStart();
+      container.Resolve<ICacheLog>().OnStart();
+      container.Resolve<ICacheKeepAlive>().OnStart();
+      container.Resolve<IMessageProcessor>().OnStart();
+      container.Resolve<IMessagePump>().OnStart();
 
       M.ApplicationWarning("MonikWorker has been started");
 
@@ -93,7 +86,7 @@ namespace MonikWorker
 
       FService.OnStop();
 
-      var container = Nancy.TinyIoc.TinyIoCContainer.Current;
+      var container = Bootstrapper.MainContainer;
       container.Resolve<IMessagePump>().OnStop();
       container.Resolve<IMessageProcessor>().OnStop();
 

@@ -18,17 +18,19 @@ namespace Monik.Service
   public class HelloModule : NancyModule
   {
     private IRepository FRepo;
+    private ICacheLog FCacheLog;
 
-    public HelloModule(IRepository aRepo)
+    public HelloModule(IRepository aRepo, ICacheLog aCacheLog)
     {
       FRepo = aRepo;
+      FCacheLog = aCacheLog;
       
       Get("/sources", args =>
       {
         try
         {
-          List<WebServiceSourcesResponse> _result = FRepo.GetSources();
-          return Response.AsJson<WebServiceSourcesResponse[]>(_result.ToArray());
+          List<Source> _result = FRepo.GetAllSources();
+          return Response.AsJson<Source[]>(_result.ToArray());
         }
         catch { return HttpStatusCode.InternalServerError; }
       });
@@ -37,26 +39,13 @@ namespace Monik.Service
       {
         try
         {
-          List<WebServiceInstancesResponse> _result = FRepo.GetInstances();
-          return Response.AsJson<WebServiceInstancesResponse[]>(_result.ToArray());
+          List<Instance> _result = FRepo.GetAllInstances();
+          return Response.AsJson<Instance[]>(_result.ToArray());
         }
         catch { return HttpStatusCode.InternalServerError; }
       });
 
-      Post("/logs", args =>
-      {
-        var _top = Request.Query["top"];
-        var _filters = this.Bind<LogsFilter[]>();
-
-        try
-        {
-          List<WebServiceLogResponse> _result = FRepo.GetFilteredLogs(_top, _filters);
-          return Response.AsJson<WebServiceLogResponse[]>(_result.ToArray());
-        }
-        catch { return HttpStatusCode.InternalServerError; }
-      });
-
-      Post("/logs2", args =>
+      Post("/logs3", args =>
       {
         int? _top = Request.Query["top"].HasValue ? Request.Query["top"] : null;
         string _order = Request.Query["order"].HasValue ? Request.Query["order"] : string.Empty;
@@ -65,15 +54,15 @@ namespace Monik.Service
 
         try
         {
-          List<WebServiceLogResponse> _result = FRepo.GetFilteredLogs2(_top, _order, _lastid, _filters);
-          return Response.AsJson<WebServiceLogResponse[]>(_result.ToArray());
+          List<Log_> _result = FCacheLog.GetLogs(_top, _order == "desc" ? Order.Desc : Order.Asc, _lastid, _filters);
+          return Response.AsJson<Log_[]>(_result.ToArray());
         }
         catch { return HttpStatusCode.InternalServerError; }
       });
     }
   }
 
-  public class WebService
+  public class WebService : IWebService
   {
     private string FPrefix;
     private NancyHost FWebServer;
@@ -91,11 +80,11 @@ namespace Monik.Service
       try
       {
         FWebServer.Start();
-        M.ApplicationInfo("Nancy web server started with prefix: " + FPrefix);
+        M.ApplicationInfo($"Nancy web server started with prefix: {FPrefix}");
       }
       catch(Exception _e)
       {
-        M.ApplicationError("Nancy web server start error: " + _e.Message);
+        M.ApplicationError($"Nancy web server start error: {_e.Message}");
       }
     }
 
@@ -107,7 +96,7 @@ namespace Monik.Service
       }
       catch (Exception _e)
       {
-        M.ApplicationError("Nancy web server stop error: " + _e.Message);
+        M.ApplicationError($"Nancy web server stop error: {_e.Message}");
       }
     }
   }//end of class

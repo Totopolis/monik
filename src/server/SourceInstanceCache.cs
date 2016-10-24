@@ -11,77 +11,81 @@ using Monik.Client;
 
 namespace Monik.Service
 {
-  using InstanceMap = Dictionary<string, Instance>;
-
-  public class Source
-  {
-    public short ID { get; set; }
-    public DateTime Created { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-  }
-
-  public class Instance
-  {
-    public int ID { get; set; }
-    public DateTime Created { get; set; }
-    public short SourceID { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-  }
-
   public class SourceInstanceCache : ISourceInstanceCache
   {
     private IRepository FRepository;
+
     private Dictionary<string, Source> FSources;
-    private Dictionary<Source, InstanceMap> FInstances;
+    private Dictionary<short, Source> FSourceMap;
+
+    private Dictionary<int, Instance> FInstanceMap;
+    private Dictionary<string, Instance> FSourceInstanceMap;
 
     public SourceInstanceCache(IRepository aRepository)
     {
       FRepository = aRepository;
       FSources = new Dictionary<string, Source>();
-      FInstances = new Dictionary<Source, InstanceMap>();
+      FSourceMap = new Dictionary<short, Source>();
+      FInstanceMap = new Dictionary<int, Instance>();
+      FSourceInstanceMap = new Dictionary<string, Instance>();
+      
+      M.ApplicationInfo("SourceInstanceCache created");
     }
 
     public void OnStart()
     {
-      Dictionary<short, Source> _srcMap = new Dictionary<short, Source>();
-
       var _sources = FRepository.GetAllSources();
       foreach (var _src in _sources)
         if (!FSources.ContainsKey(_src.Name))
         {
-          _srcMap.Add(_src.ID, _src);
+          FSourceMap.Add(_src.ID, _src);
           FSources.Add(_src.Name, _src);
-          FInstances.Add(_src, new InstanceMap());
         }
         else
-          M.ApplicationError("Database contains more than one same source name: " + _src.Name);
+          M.ApplicationError($"Database contains more than one same source name: {_src.Name}");
 
       var _instances = FRepository.GetAllInstances();
       foreach (var _ins in _instances)
-        if (_srcMap.ContainsKey(_ins.SourceID))
+        if (FSourceMap.ContainsKey(_ins.SourceID))
         {
-          Source _src = _srcMap[_ins.SourceID];
+          Source _src = FSourceMap[_ins.SourceID];
+          string _key = $"{_src.Name}*{_ins.Name}";
 
-          if (!FInstances[_src].ContainsKey(_ins.Name))
-            FInstances[_src].Add(_ins.Name, _ins);
+          if (!FSourceInstanceMap.ContainsKey(_key))
+          {
+            _ins.SourceRef(_src);
+            FInstanceMap.Add(_ins.ID, _ins);
+            FSourceInstanceMap.Add(_key, _ins);
+          }
           else
-            M.ApplicationError("Database contains more than one the same instance name '{0}' for the source '{1}'", _ins.Name, _src.Name);
+            M.ApplicationError($"Database contains more than one the same instance name '{_ins.Name}' for the source '{_src.Name}'");
         }
         else
-          M.ApplicationError("Database doesnot contains source(id={1}) for the instance '{0}'", _ins.Name, _ins.SourceID);
+          M.ApplicationError($"Database doesnt contains source(id={_ins.SourceID}) for the instance '{_ins.Name}'");
     }
 
     public void OnStop()
     {
     }
 
+    public Source GetSourceByInstanceID(int aInstanceID)
+    {
+      return FInstanceMap.ContainsKey(aInstanceID) ? FInstanceMap[aInstanceID].SourceRef() : null;
+    }
+
+    public Instance GetInstanceByID(int aInstanceID)
+    {
+      return FInstanceMap.ContainsKey(aInstanceID) ? FInstanceMap[aInstanceID] : null;
+    }
+
     public Instance CheckSourceAndInstance(string aSourceName, string aInstanceName)
     {
+      string _key = $"{aSourceName}*{aInstanceName}";
+
+      if (FSourceInstanceMap.ContainsKey(_key))
+        return FSourceInstanceMap[_key];
+
       Source _src;
-      InstanceMap _map;
-      Instance _ins;
 
       if (!FSources.ContainsKey(aSourceName))
       {
@@ -89,28 +93,20 @@ namespace Monik.Service
         FRepository.CreateNewSource(_src);
 
         FSources.Add(aSourceName, _src);
-        _map = new InstanceMap();
-        FInstances.Add(_src, _map);
+        FSourceMap.Add(_src.ID, _src);
       }
       else
-      {
         _src = FSources[aSourceName];
-        _map = FInstances[_src];
-      }
 
-      if (!_map.ContainsKey(aInstanceName))
-      {
-        _ins = new Instance() { Name = aInstanceName, Created = DateTime.UtcNow, SourceID = _src.ID };
-        FRepository.CreateNewInstance(_ins);
+      Instance _ins = new Instance() { Name = aInstanceName, Created = DateTime.UtcNow, SourceID = _src.ID };
+      FRepository.CreateNewInstance(_ins);
 
-        _map.Add(aInstanceName, _ins);
-      }
-      else
-        _ins = _map[aInstanceName];
+      _ins.SourceRef(_src);
+      FInstanceMap.Add(_ins.ID, _ins);
+
+      FSourceInstanceMap.Add(_key, _ins);
 
       return _ins;
     }
-
-    
   }//end of class
 }

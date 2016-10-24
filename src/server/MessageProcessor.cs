@@ -12,48 +12,27 @@ using System.Threading;
 
 namespace Monik.Service
 {
-  public class Log_
-  {
-    public long ID { get; set; }
-    public DateTime Created { get; set; }
-    public DateTime Received { get; set; }
-    public byte Level { get; set; }
-    public byte Severity { get; set; }
-    public int InstanceID { get; set; }
-    public byte Format { get; set; }
-    public string Body { get; set; }
-    public string Tags { get; set; }
-  }
-
-  public class KeepAlive_
-  {
-    public long ID { get; set; }
-    public DateTime Created { get; set; }
-    public DateTime Received { get; set; }
-    public int InstanceID { get; set; }
-  }
-
   public class MessageProcessor : IMessageProcessor
   {
     private IRepository FRepository;
+    private ICacheLog FCacheLog;
+    private ICacheKeepAlive FCacheKeepAlive;
 
-    public MessageProcessor(IRepository aRepository)
+    public MessageProcessor(IRepository aRepository, ICacheLog aCacheLog, ICacheKeepAlive aCacheKeepAlive)
     {
       FRepository = aRepository;
+      FCacheLog = aCacheLog;
+      FCacheKeepAlive = aCacheKeepAlive;
       FCleaner = Scheduler.CreatePerHour(CleanerTask, "cleaner");
       FStatist = Scheduler.CreatePerHour(StatistTask, "statist");
+      M.ApplicationInfo("MessageProcessor created");
     }
 
-    private long FLastLogID;
-    private long FLastKeepAliveID;
     private Scheduler FCleaner;
     private Scheduler FStatist;
 
     public void OnStart()
     {
-      FLastLogID = FRepository.GetMaxLogID();
-      FLastKeepAliveID = FRepository.GetMaxKeepAliveID();
-
       FCleaner.OnStart();
       FStatist.OnStart();
     }
@@ -93,15 +72,13 @@ namespace Monik.Service
         DateTime now = DateTime.UtcNow;
         DateTime hs = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0);
 
-        FRepository.CreateHourStat(hs, FLastLogID, FLastKeepAliveID);
+        FRepository.CreateHourStat(hs, FCacheLog.LastLogID, FCacheKeepAlive.LastKeepAliveID);
       }
       catch (Exception _e)
       {
         M.ApplicationError("StatistTask: {0}", _e.Message);
       }
     }
-
-    
 
     public void OnStop()
     {
@@ -117,11 +94,11 @@ namespace Monik.Service
           throw new NotSupportedException("Bad event type");
         case Event.MsgOneofCase.Ka:
           var _ka = WriteKeepAlive(aEvent, aInstance);
-          FLastKeepAliveID = _ka.ID;
+          FCacheKeepAlive.OnNewKeepAlive(_ka);
           break;
         case Event.MsgOneofCase.Lg:
           var _lg = WriteLog(aEvent, aInstance);
-          FLastLogID = _lg.ID;
+          FCacheLog.OnNewLog(_lg);
           break;
         default:
           throw new NotSupportedException("Bad event type");
