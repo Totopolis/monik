@@ -22,7 +22,7 @@ namespace Monik.Service
       FLogs = null;
       FCache = aCache;
       FOldestID = 0;
-      M.ApplicationInfo("CacheLog created");
+      //M.ApplicationInfo("CacheLog created");
     }
 
     public void OnStart()
@@ -107,6 +107,7 @@ namespace Monik.Service
         lock (this)
           _res = (aOrder == Order.Desc ? FLogs.OrderByDescending(lg => lg.ID) : FLogs.OrderBy(lg => lg.ID)).ToList();
 
+      // TODO: stop when top reach
       if (aFilters != null && aFilters.Length > 0)
         _res = _res.FindAll(lg => IsFiltered(lg, aFilters)).ToList();
 

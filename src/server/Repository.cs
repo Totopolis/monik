@@ -53,6 +53,11 @@ namespace Monik.Service
       return SimpleCommand.ExecuteQuery<Log_>(ConnectionString, $"select top {aTop} * from [mon].[Log] order by ID desc").ToList();
     }
 
+    public List<KeepAlive_> GetLastKeepAlive(int aTop)
+    {
+      return SimpleCommand.ExecuteQuery<KeepAlive_>(ConnectionString, $"select top {aTop} * from [mon].[KeepAlive] order by ID desc").ToList();
+    }
+
     public long? GetLogThreshold(int aDayDeep)
     {
       var _logThreshold = SimpleCommand.ExecuteScalar(ConnectionString, "select max(LastLogID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", aDayDeep);

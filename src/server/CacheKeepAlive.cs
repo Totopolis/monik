@@ -13,20 +13,30 @@ namespace Monik.Service
   {
     private IRepository FRepository;
 
+    private Dictionary<int, KeepAlive_> FStatus;
+
     public CacheKeepAlive(IRepository aRepository)
     {
       FRepository = aRepository;
-      M.ApplicationInfo("CacheKeepAlive created");
+      FStatus = new Dictionary<int, KeepAlive_>();
+      //M.ApplicationInfo("CacheKeepAlive created");
     }
 
     public void OnStart()
     {
-      // load from database
-
-      // 1. last IDs
+      // fill from database
       LastKeepAliveID = FRepository.GetMaxKeepAliveID();
 
-      // 3. load top ka
+      List<KeepAlive_> _top = FRepository.GetLastKeepAlive(1000);
+      _top.Reverse();
+
+      // fill current status
+      foreach (var ka in _top)
+        if (!FStatus.ContainsKey(ka.InstanceID))
+          FStatus.Add(ka.InstanceID, ka);
+        else
+          if (FStatus[ka.InstanceID].Created < ka.Created)
+          FStatus[ka.InstanceID] = ka;
     }
 
     public void OnStop()
@@ -39,6 +49,25 @@ namespace Monik.Service
     public void OnNewKeepAlive(KeepAlive_ aKeepAlive)
     {
       LastKeepAliveID = aKeepAlive.ID;
+
+      if (FStatus.ContainsKey(aKeepAlive.InstanceID))
+      {
+        if (FStatus[aKeepAlive.InstanceID].Created < aKeepAlive.Created)
+          FStatus[aKeepAlive.InstanceID] = aKeepAlive;
+      }
+      else
+        FStatus.Add(aKeepAlive.InstanceID, aKeepAlive);
+    }
+
+    public List<KeepAlive_> GetKeepAlive(LogsFilter[] aFilters)
+    {
+      //List<KeepAlive_> _res = new List<KeepAlive_>();
+
+      if (aFilters != null || aFilters.Length > 0)
+      {
+      }
+
+      return FStatus.Values.ToList();
     }
 
   }//end of class

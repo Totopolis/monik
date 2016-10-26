@@ -19,11 +19,13 @@ namespace Monik.Service
   {
     private IRepository FRepo;
     private ICacheLog FCacheLog;
+    private ICacheKeepAlive FCacheKeepAlive;
 
-    public HelloModule(IRepository aRepo, ICacheLog aCacheLog)
+    public HelloModule(IRepository aRepo, ICacheLog aCacheLog, ICacheKeepAlive aCacheKeepAlive)
     {
       FRepo = aRepo;
       FCacheLog = aCacheLog;
+      FCacheKeepAlive = aCacheKeepAlive;
       
       Get("/sources", args =>
       {
@@ -56,6 +58,18 @@ namespace Monik.Service
         {
           List<Log_> _result = FCacheLog.GetLogs(_top, _order == "desc" ? Order.Desc : Order.Asc, _lastid, _filters);
           return Response.AsJson<Log_[]>(_result.ToArray());
+        }
+        catch { return HttpStatusCode.InternalServerError; }
+      });
+
+      Post("/keepalive", args =>
+      {
+        var _filters = this.Bind<LogsFilter[]>();
+
+        try
+        {
+          List<KeepAlive_> _result = FCacheKeepAlive.GetKeepAlive(_filters);
+          return Response.AsJson<KeepAlive_[]>(_result.ToArray());
         }
         catch { return HttpStatusCode.InternalServerError; }
       });

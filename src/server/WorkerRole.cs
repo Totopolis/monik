@@ -57,7 +57,7 @@ namespace MonikWorker
       var _azureSender = new AzureSender(Settings.GetValue("OutcomingConnectionString"), Settings.GetValue("OutcomingQueue"));
       M.Initialize(_azureSender, "Monik", _instanceName);
 
-      M.MainInstance.AutoKeepAliveInterval = 10000;
+      M.MainInstance.AutoKeepAliveInterval = 60;
       M.MainInstance.AutoKeepAlive = true;
 
       // TODO: retry logic and exit if exceptions...

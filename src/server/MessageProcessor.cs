@@ -25,7 +25,7 @@ namespace Monik.Service
       FCacheKeepAlive = aCacheKeepAlive;
       FCleaner = Scheduler.CreatePerHour(CleanerTask, "cleaner");
       FStatist = Scheduler.CreatePerHour(StatistTask, "statist");
-      M.ApplicationInfo("MessageProcessor created");
+      //M.ApplicationInfo("MessageProcessor created");
     }
 
     private Scheduler FCleaner;
@@ -47,7 +47,7 @@ namespace Monik.Service
         if (_logThreshold.HasValue)
         {
           var _count = FRepository.CleanUpLog(_logThreshold.Value);
-          M.LogicInfo("CleanerTask delete Log: {0} rows", _count);
+          M.LogicInfo("Cleaner delete Log: {0} rows", _count);
         }
 
         // cleanup keep-alive
@@ -56,7 +56,7 @@ namespace Monik.Service
         if (_kaThreshold.HasValue)
         {
           var _count = FRepository.CleanUpKeepAlive(_kaThreshold.Value);
-          M.LogicInfo("CleanerTask delete KeepAlive: {0} rows", _count);
+          M.LogicInfo("Cleaner delete KeepAlive: {0} rows", _count);
         }
       }
       catch (Exception _e)

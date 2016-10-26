@@ -26,6 +26,7 @@ namespace Monik.Service
     long GetMaxKeepAliveID();
 
     List<Log_> GetLastLogs(int aTop);
+    List<KeepAlive_> GetLastKeepAlive(int aTop);
 
     long? GetLogThreshold(int aDayDeep);
     long? GetKeepAliveThreshold(int aDayDeep);
@@ -46,6 +47,7 @@ namespace Monik.Service
     Instance CheckSourceAndInstance(string aSourceName, string aInstanceName);
     Source GetSourceByInstanceID(int aInstanceID);
     Instance GetInstanceByID(int aInstanceID);
+    List<Instance> GetAllInstances();
   }
 
   public interface ICacheLog : IObject
@@ -60,6 +62,8 @@ namespace Monik.Service
   {
     long LastKeepAliveID { get; }
     void OnNewKeepAlive(KeepAlive_ aKeepAlive);
+
+    List<KeepAlive_> GetKeepAlive(LogsFilter[] aFilters);
   }
 
   public interface IMessagePump : IObject

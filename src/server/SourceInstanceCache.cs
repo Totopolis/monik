@@ -29,7 +29,7 @@ namespace Monik.Service
       FInstanceMap = new Dictionary<int, Instance>();
       FSourceInstanceMap = new Dictionary<string, Instance>();
       
-      M.ApplicationInfo("SourceInstanceCache created");
+      //M.ApplicationInfo("SourceInstanceCache created");
     }
 
     public void OnStart()
@@ -77,6 +77,8 @@ namespace Monik.Service
     {
       return FInstanceMap.ContainsKey(aInstanceID) ? FInstanceMap[aInstanceID] : null;
     }
+
+    public List<Instance> GetAllInstances() { return FInstanceMap.Values.ToList(); }
 
     public Instance CheckSourceAndInstance(string aSourceName, string aInstanceName)
     {

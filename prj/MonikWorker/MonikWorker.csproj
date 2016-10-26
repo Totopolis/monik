@@ -119,6 +119,12 @@
     <Compile Include="..\..\src\client\Facade.cs">
       <Link>Client.Azure\Facade.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\client\Interfaces.cs">
+      <Link>Client.Azure\Interfaces.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\client\MonikInstance.cs">
+      <Link>Client.Azure\MonikInstance.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\client\TimingHelper.cs">
       <Link>Client.Azure\TimingHelper.cs</Link>
     </Compile>

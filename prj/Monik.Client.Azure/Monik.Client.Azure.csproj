@@ -56,6 +56,12 @@
     <Compile Include="..\..\src\client\Facade.cs">
       <Link>Facade.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\client\Interfaces.cs">
+      <Link>Interfaces.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\client\MonikInstance.cs">
+      <Link>MonikInstance.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\client\TimingHelper.cs">
       <Link>TimingHelper.cs</Link>
     </Compile>

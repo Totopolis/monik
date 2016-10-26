@@ -41,7 +41,7 @@ namespace Monik.Service
       FCache = aCache;
       FProcessor = aProcessor;
       FQueues = null;
-      M.ApplicationInfo("MessagePump created");
+      //M.ApplicationInfo("MessagePump created");
     }
 
     public void OnStart()

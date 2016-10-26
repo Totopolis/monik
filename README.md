@@ -21,8 +21,8 @@ M.SecurityInfo("User John log in");
 M.ApplicationError("Some error in application");
 M.LogicInfo("{0} completed, processid={1}", "MyProcess", 1250);
 
-// Enable auto Keep-Alive (per 5 sec)
-M.MainInstance.AutoKeepAliveInterval = 5000;
+// Enable auto Keep-Alive (per 30 sec)
+M.MainInstance.AutoKeepAliveInterval = 30;
 M.MainInstance.AutoKeepAlive = true;
 
 // Profile time of your code
