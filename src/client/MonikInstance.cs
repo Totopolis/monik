@@ -119,7 +119,7 @@ namespace Monik.Client
       };
     }
 
-    private void PushLogToSend(string aBody, Log.Types.LevelType aLevel, Log.Types.SeverityType aSeverity, params object[] aParams)
+    private void PushLogToSend(string aBody, LevelType aLevel, SeverityType aSeverity, params object[] aParams)
     {
       string _text = "";
 
@@ -135,7 +135,7 @@ namespace Monik.Client
       Event _msg = NewEvent();
       _msg.Lg = new Log()
       {
-        Format = Log.Types.FormatType.Plain,
+        Format = FormatType.Plain,
         Body = _text,//Helper.Utf16ToUtf8(_text),
         Level = aLevel,
         Severity = aSeverity
@@ -156,24 +156,24 @@ namespace Monik.Client
       FNewMessageEvent.Set();
     }
 
-    public void SystemInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Info, aParams); }
-    public void SystemWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Warning, aParams); }
-    public void SystemError(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Error, aParams); }
-    public void SystemFatal(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.System, Log.Types.SeverityType.Fatal, aParams); }
+    public void SystemInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.System, SeverityType.Info, aParams); }
+    public void SystemWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.System, SeverityType.Warning, aParams); }
+    public void SystemError(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.System, SeverityType.Error, aParams); }
+    public void SystemFatal(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.System, SeverityType.Fatal, aParams); }
 
-    public void ApplicationInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Info, aParams); }
-    public void ApplicationWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Warning, aParams); }
-    public void ApplicationError(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Error, aParams); }
-    public void ApplicationFatal(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Application, Log.Types.SeverityType.Fatal, aParams); }
+    public void ApplicationInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Application, SeverityType.Info, aParams); }
+    public void ApplicationWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Application, SeverityType.Warning, aParams); }
+    public void ApplicationError(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Application, SeverityType.Error, aParams); }
+    public void ApplicationFatal(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Application, SeverityType.Fatal, aParams); }
 
-    public void LogicInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Info, aParams); }
-    public void LogicWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Warning, aParams); }
-    public void LogicError(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Error, aParams); }
-    public void LogicFatal(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Logic, Log.Types.SeverityType.Fatal, aParams); }
+    public void LogicInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Logic, SeverityType.Info, aParams); }
+    public void LogicWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Logic, SeverityType.Warning, aParams); }
+    public void LogicError(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Logic, SeverityType.Error, aParams); }
+    public void LogicFatal(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Logic, SeverityType.Fatal, aParams); }
 
-    public void SecurityInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Info, aParams); }
-    public void SecurityWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Warning, aParams); }
-    public void SecurityError(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Error, aParams); }
-    public void SecurityFatal(string aBody, params object[] aParams) { PushLogToSend(aBody, Log.Types.LevelType.Security, Log.Types.SeverityType.Fatal, aParams); }
+    public void SecurityInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Security, SeverityType.Info, aParams); }
+    public void SecurityWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Security, SeverityType.Warning, aParams); }
+    public void SecurityError(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Security, SeverityType.Error, aParams); }
+    public void SecurityFatal(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Security, SeverityType.Fatal, aParams); }
   }
 }

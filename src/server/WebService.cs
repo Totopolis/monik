@@ -73,6 +73,9 @@ namespace Monik.Service
         }
         catch { return HttpStatusCode.InternalServerError; }
       });
+
+      // TODO: /status
+      // return: 
     }
   }
 

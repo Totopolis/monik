@@ -7,7 +7,7 @@ message Event
 {
 	sint64 created = 1;
 	string source = 2; // Server, Role, Application, Service, etc
-	string instance = 3; // Instance of the source: app on the server or cloud deployment, concrete instance of desktop application, etc
+	string instance = 3; // Instance of the source
 
 	oneof msg
 	{
@@ -23,31 +23,34 @@ message KeepAlive
 	 uint32 interval = 1;
 }
 
+enum LevelType 
+{
+    SYSTEM = 0;
+    APPLICATION = 10;
+    LOGIC = 20;
+	SECURITY = 30;
+}
+
+enum SeverityType 
+{
+	FATAL = 0;
+	ERROR = 10;
+	WARNING = 20;
+	INFO = 30;
+	VERBOSE = 40;
+}
+
+enum FormatType 
+{
+    PLAIN = 0;
+    JSON = 10;
+    XML = 20;
+}
+
 message Log 
 {
-  enum LevelType {
-    SYSTEM = 0;
-    APPLICATION = 1;
-    LOGIC = 2;
-	SECURITY = 3;
-  }
-
   LevelType level = 1;
-
-  enum SeverityType {
-    INFO = 0;
-    WARNING = 1;
-    ERROR = 2;
-	FATAL = 3;
-  }
-
   SeverityType severity = 2;
-
-  enum FormatType {
-    PLAIN = 0;
-    JSON = 1;
-    XML = 2;
-  }
 
   FormatType format = 3;
   string body = 4;

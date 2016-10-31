@@ -18,9 +18,9 @@ namespace Monik.Test
         Instance = Helper.Utf16ToUtf8("TestInstance"),
         Lg = new Log()
         {
-          Level = Log.Types.LevelType.Application,
-          Severity = Log.Types.SeverityType.Fatal,
-          Format = Log.Types.FormatType.Json,
+          Level = LevelType.Application,
+          Severity = SeverityType.Fatal,
+          Format = FormatType.Json,
           Body = "TestBody"
         }
       };
@@ -50,9 +50,9 @@ namespace Monik.Test
         //Instance = "",
         Lg = new Log()
         {
-          Level = Log.Types.LevelType.Application,
-          Severity = Log.Types.SeverityType.Fatal,
-          Format = Log.Types.FormatType.Json,
+          Level = LevelType.Application,
+          Severity = SeverityType.Fatal,
+          Format = FormatType.Json,
           Body = "TestBody"
         }
       };

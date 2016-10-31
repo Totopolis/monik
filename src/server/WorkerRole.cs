@@ -22,8 +22,6 @@ namespace MonikWorker
     private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
     private readonly ManualResetEvent runCompleteEvent = new ManualResetEvent(false);
 
-    // TODO: ? up GRPC endpoint for incoming connections from ++, ios, andr apps
-
     public override void Run()
     {
       M.ApplicationInfo("MonikWorker is running");
