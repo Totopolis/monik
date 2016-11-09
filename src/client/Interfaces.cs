@@ -9,7 +9,6 @@ using Microsoft.ServiceBus.Messaging;
 using System.IO;
 using System.Threading;
 using Monik.Common;
-using System.Reactive.Subjects;
 
 namespace Monik.Client
 {
@@ -19,7 +18,7 @@ namespace Monik.Client
   }
 
   public interface IClientSettings
-  {
+  {/*
     /// <summary>
     /// Name of the source (app name, service or smthing else)
     /// </summary>
@@ -39,7 +38,7 @@ namespace Monik.Client
     /// <summary>
     /// Enable/disable automatic KeepAlive() method executor
     /// </summary>
-    IObservable<bool> AutoKeepAliveEnableProperty { get; }
+    IObservable<bool> AutoKeepAliveEnableProperty { get; }*/
 
     string SourceName { get; set; }
     string InstanceName { get; set; }

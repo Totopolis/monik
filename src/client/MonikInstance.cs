@@ -65,12 +65,6 @@ namespace Monik.Client
       }
     }
 
-    private IDisposable FSourceNameProperty;
-    private IDisposable FInstanceNameProperty;
-    private IDisposable FSendDelayProperty;
-    private IDisposable FAutoKeepAliveIntervalProperty;
-    private IDisposable FAutoKeepAliveEnableProperty;
-
     public MonikInstance(IClientSender aSender, IClientSettings aSettings)
     {
       FSender = aSender;
@@ -78,29 +72,23 @@ namespace Monik.Client
 
       // TODO: when IDisposable from subscribe will be raise?
 
-      FSourceNameProperty = FSettings.SourceNameProperty.Subscribe(val => FSourceName = val);
-      FInstanceNameProperty = FSettings.InstanceNameProperty.Subscribe(val => FInstanceName = val);
+      FSourceName = FSettings.SourceName;
+      FInstanceName = FSettings.InstanceName;
 
-      FSendDelayProperty = FSettings.SendDelayProperty.Subscribe(val => FSendDelay = val);
+      FSendDelay = FSettings.SendDelay;
 
       FAutoKeepAliveEnable = false;
       FAutoKeepAliveTask = null;
       FAutoKeepAliveCancellationTokenSource = null;
 
-      FAutoKeepAliveIntervalProperty = FSettings.AutoKeepAliveIntervalProperty.Subscribe(val => FAutoKeepAliveInterval = val);
-      FAutoKeepAliveEnableProperty = FSettings.AutoKeepAliveEnableProperty.Subscribe(val => this.AutoKeepAliveEnable = val);
+      FAutoKeepAliveInterval = FSettings.AutoKeepAliveInterval;
+      AutoKeepAliveEnable = FSettings.AutoKeepAliveEnable;
 
       FSenderTask = Task.Run(() => { OnSenderTask(); });
     }
 
     public void OnStop()
     {
-      FSourceNameProperty.Dispose();
-      FInstanceNameProperty.Dispose();
-      FSendDelayProperty.Dispose();
-      FAutoKeepAliveIntervalProperty.Dispose();
-      FAutoKeepAliveEnableProperty.Dispose();
-
       // TODO: is it correct?
       FNewMessageEvent.Set();
       FSenderCancellationTokenSource.Cancel();
