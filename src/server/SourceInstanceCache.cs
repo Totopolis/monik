@@ -14,6 +14,7 @@ namespace Monik.Service
   public class SourceInstanceCache : ISourceInstanceCache
   {
     private IRepository FRepository;
+    private IClientControl FControl;
 
     private Dictionary<string, Source> FSources;
     private Dictionary<short, Source> FSourceMap;
@@ -21,9 +22,10 @@ namespace Monik.Service
     private Dictionary<int, Instance> FInstanceMap;
     private Dictionary<string, Instance> FSourceInstanceMap;
 
-    public SourceInstanceCache(IRepository aRepository)
+    public SourceInstanceCache(IRepository aRepository, IClientControl aControl)
     {
       FRepository = aRepository;
+      FControl = aControl;
       FSources = new Dictionary<string, Source>();
       FSourceMap = new Dictionary<short, Source>();
       FInstanceMap = new Dictionary<int, Instance>();
@@ -42,7 +44,7 @@ namespace Monik.Service
           FSources.Add(_src.Name, _src);
         }
         else
-          M.ApplicationError($"Database contains more than one same source name: {_src.Name}");
+          FControl.ApplicationError($"Database contains more than one same source name: {_src.Name}");
 
       var _instances = FRepository.GetAllInstances();
       foreach (var _ins in _instances)
@@ -58,10 +60,10 @@ namespace Monik.Service
             FSourceInstanceMap.Add(_key, _ins);
           }
           else
-            M.ApplicationError($"Database contains more than one the same instance name '{_ins.Name}' for the source '{_src.Name}'");
+            FControl.ApplicationError($"Database contains more than one the same instance name '{_ins.Name}' for the source '{_src.Name}'");
         }
         else
-          M.ApplicationError($"Database doesnt contains source(id={_ins.SourceID}) for the instance '{_ins.Name}'");
+          FControl.ApplicationError($"Database doesnt contains source(id={_ins.SourceID}) for the instance '{_ins.Name}'");
     }
 
     public void OnStop()

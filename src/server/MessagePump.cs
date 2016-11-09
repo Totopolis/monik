@@ -33,13 +33,15 @@ namespace Monik.Service
     private IRepository FRepository;
     private ISourceInstanceCache FCache;
     private IMessageProcessor FProcessor;
+    private IClientControl FControl;
     private List<ActiveQueue> FQueues;
 
-    public MessagePump(IRepository aRepository, ISourceInstanceCache aCache, IMessageProcessor aProcessor)
+    public MessagePump(IRepository aRepository, ISourceInstanceCache aCache, IMessageProcessor aProcessor, IClientControl aControl)
     {
       FRepository = aRepository;
       FCache = aCache;
       FProcessor = aProcessor;
+      FControl = aControl;
       FQueues = null;
       //M.ApplicationInfo("MessagePump created");
     }
@@ -68,7 +70,7 @@ namespace Monik.Service
           }
           catch (Exception _e)
           {
-            M.ApplicationError("MessagePump.OnMessage: {0}", _e.Message);
+            FControl.ApplicationError("MessagePump.OnMessage: {0}", _e.Message);
           }
         });
 

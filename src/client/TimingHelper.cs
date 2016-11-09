@@ -16,16 +16,21 @@ namespace Monik.Client
   public class TimingHelper
   {
     private DateTime FFrom = DateTime.Now;
-    private TimingHelper() { }
+    private IClientControl FControl;
 
-    public static TimingHelper Create() { return new TimingHelper(); }
+    private TimingHelper(IClientControl aControl)
+    {
+      FControl = aControl;
+    }
+
+    public static TimingHelper Create(IClientControl aControl) { return new TimingHelper(aControl); }
 
     public void Begin() { FFrom = DateTime.Now; }
 
     public void EndAndLog([CallerMemberName] string aSource = "")
     {
       var _delta = DateTime.Now - FFrom;
-      M.ApplicationInfo("{0} execution time: {1}ms", aSource, _delta.TotalMilliseconds);
+      FControl.ApplicationInfo("{0} execution time: {1}ms", aSource, _delta.TotalMilliseconds);
     }
   }
 }

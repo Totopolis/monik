@@ -14,17 +14,22 @@ namespace Monik.Service
 {
   public class MessageProcessor : IMessageProcessor
   {
+    private IServiceSettings FSettings;
     private IRepository FRepository;
     private ICacheLog FCacheLog;
     private ICacheKeepAlive FCacheKeepAlive;
+    private IClientControl FControl;
 
-    public MessageProcessor(IRepository aRepository, ICacheLog aCacheLog, ICacheKeepAlive aCacheKeepAlive)
+    public MessageProcessor(IServiceSettings aSettings, IRepository aRepository, ICacheLog aCacheLog, ICacheKeepAlive aCacheKeepAlive, IClientControl aControl)
     {
+      FSettings = aSettings;
       FRepository = aRepository;
       FCacheLog = aCacheLog;
       FCacheKeepAlive = aCacheKeepAlive;
-      FCleaner = Scheduler.CreatePerHour(CleanerTask, "cleaner");
-      FStatist = Scheduler.CreatePerHour(StatistTask, "statist");
+      FControl = aControl;
+
+      FCleaner = Scheduler.CreatePerHour(FControl, CleanerTask, "cleaner");
+      FStatist = Scheduler.CreatePerHour(FControl, StatistTask, "statist");
       //M.ApplicationInfo("MessageProcessor created");
     }
 
@@ -42,26 +47,26 @@ namespace Monik.Service
       try
       {
         // cleanup logs
-        var _logDeep = int.Parse(Settings.GetValue("DayDeepLog"));
+        var _logDeep = FSettings.DayDeepLog;
         var _logThreshold = FRepository.GetLogThreshold(_logDeep);
         if (_logThreshold.HasValue)
         {
           var _count = FRepository.CleanUpLog(_logThreshold.Value);
-          M.LogicInfo("Cleaner delete Log: {0} rows", _count);
+          FControl.LogicInfo("Cleaner delete Log: {0} rows", _count);
         }
 
         // cleanup keep-alive
-        var _kaDeep = int.Parse(Settings.GetValue("DayDeepKeepAlive"));
+        var _kaDeep = FSettings.DayDeepKeepAlive;
         var _kaThreshold = FRepository.GetKeepAliveThreshold(_kaDeep);
         if (_kaThreshold.HasValue)
         {
           var _count = FRepository.CleanUpKeepAlive(_kaThreshold.Value);
-          M.LogicInfo("Cleaner delete KeepAlive: {0} rows", _count);
+          FControl.LogicInfo("Cleaner delete KeepAlive: {0} rows", _count);
         }
       }
       catch (Exception _e)
       {
-        M.ApplicationError("CleanerTask: {0}", _e.Message);
+        FControl.ApplicationError("CleanerTask: {0}", _e.Message);
       }
     }
 
@@ -76,7 +81,7 @@ namespace Monik.Service
       }
       catch (Exception _e)
       {
-        M.ApplicationError("StatistTask: {0}", _e.Message);
+        FControl.ApplicationError("StatistTask: {0}", _e.Message);
       }
     }
 

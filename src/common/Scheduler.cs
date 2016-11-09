@@ -22,10 +22,12 @@ namespace Monik.Common
 
     public IntervalType Interval { get; private set; }
     private string FName;
+    private IClientControl FControl;
 
     // TODO: options - retry logic and immediatly execute at start
-    private Scheduler(Action aWork, IntervalType aInterval, string aName)
+    private Scheduler(IClientControl aControl, Action aWork, IntervalType aInterval, string aName)
     {
+      FControl = aControl;
       FAction = aWork;
       FName = aName;
       Interval = aInterval;
@@ -81,7 +83,7 @@ namespace Monik.Common
         }
         catch(Exception _e)
         {
-          M.ApplicationError("Scheduler {0} exception: {1}", FName, _e.Message);
+          FControl.ApplicationError("Scheduler {0} exception: {1}", FName, _e.Message);
         }
 
         Runner(getNextDate(date));
@@ -89,9 +91,9 @@ namespace Monik.Common
       }, Cancellation.Token);
     }
 
-    public static Scheduler CreatePerHour(Action aWork, string aName = "")
+    public static Scheduler CreatePerHour(IClientControl aControl, Action aWork, string aName = "")
     {
-      Scheduler _res = new Scheduler(aWork, IntervalType.Hour, aName);
+      Scheduler _res = new Scheduler(aControl, aWork, IntervalType.Hour, aName);
       return _res;
     }
 

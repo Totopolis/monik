@@ -12,11 +12,13 @@ using Monik.Common;
 
 namespace Monik.Client
 {
-  public class MonikInstance : IMonikClient
+  public class MonikInstance : IClientControl
   {
-    private IBaseSender FSender;
+    private IClientSender FSender;
+    private IClientSettings FSettings;
+
     private string FSourceName;
-    private string FSourceInstance;
+    private string FInstanceName;
 
     private ConcurrentQueue<Event> FMsgQueue = new ConcurrentQueue<Event>();
 
@@ -24,25 +26,25 @@ namespace Monik.Client
     private readonly ManualResetEvent FNewMessageEvent = new ManualResetEvent(false);
     private readonly CancellationTokenSource FSenderCancellationTokenSource = new CancellationTokenSource();
 
-    public ushort SendDelay { get; set; } = 1; // in sec, min 1
-    public ushort AutoKeepAliveInterval { get; set; } = 60; //in sec, min 1
+    private ushort FSendDelay;
+    private ushort FAutoKeepAliveInterval;
 
     private CancellationTokenSource FAutoKeepAliveCancellationTokenSource;
 
     private Task FAutoKeepAliveTask;
 
-    private bool FAutoKeepAlive;
-    public bool AutoKeepAlive
+    private bool FAutoKeepAliveEnable;
+    private bool AutoKeepAliveEnable
     {
-      get { return FAutoKeepAlive; }
+      get { return FAutoKeepAliveEnable; }
       set
       {
-        if (FAutoKeepAlive == value)
+        if (FAutoKeepAliveEnable == value)
           return;
 
-        FAutoKeepAlive = value;
+        FAutoKeepAliveEnable = value;
 
-        if (FAutoKeepAlive == false)
+        if (FAutoKeepAliveEnable == false)
           FAutoKeepAliveCancellationTokenSource.Cancel();
         else
         {
@@ -56,32 +58,54 @@ namespace Monik.Client
     {
       while (!FAutoKeepAliveCancellationTokenSource.IsCancellationRequested)
       {
-        int _msDelay = AutoKeepAliveInterval * 1000;
+        int _msDelay = FAutoKeepAliveInterval * 1000;
         Task.Delay(_msDelay).Wait();
 
         KeepAlive();
       }
     }
 
-    public MonikInstance(IBaseSender aSender, string aSourceName, string aSourceInstance)
+    private IDisposable FSourceNameProperty;
+    private IDisposable FInstanceNameProperty;
+    private IDisposable FSendDelayProperty;
+    private IDisposable FAutoKeepAliveIntervalProperty;
+    private IDisposable FAutoKeepAliveEnableProperty;
+
+    public MonikInstance(IClientSender aSender, IClientSettings aSettings)
     {
       FSender = aSender;
-      FSourceName = aSourceName;
-      FSourceInstance = aSourceInstance;
-      FAutoKeepAlive = false;
+      FSettings = aSettings;
+
+      // TODO: when IDisposable from subscribe will be raise?
+
+      FSourceNameProperty = FSettings.SourceNameProperty.Subscribe(val => FSourceName = val);
+      FInstanceNameProperty = FSettings.InstanceNameProperty.Subscribe(val => FInstanceName = val);
+
+      FSendDelayProperty = FSettings.SendDelayProperty.Subscribe(val => FSendDelay = val);
+
+      FAutoKeepAliveEnable = false;
       FAutoKeepAliveTask = null;
       FAutoKeepAliveCancellationTokenSource = null;
+
+      FAutoKeepAliveIntervalProperty = FSettings.AutoKeepAliveIntervalProperty.Subscribe(val => FAutoKeepAliveInterval = val);
+      FAutoKeepAliveEnableProperty = FSettings.AutoKeepAliveEnableProperty.Subscribe(val => this.AutoKeepAliveEnable = val);
 
       FSenderTask = Task.Run(() => { OnSenderTask(); });
     }
 
     public void OnStop()
     {
+      FSourceNameProperty.Dispose();
+      FInstanceNameProperty.Dispose();
+      FSendDelayProperty.Dispose();
+      FAutoKeepAliveIntervalProperty.Dispose();
+      FAutoKeepAliveEnableProperty.Dispose();
+
       // TODO: is it correct?
       FNewMessageEvent.Set();
       FSenderCancellationTokenSource.Cancel();
 
-      if (FAutoKeepAlive)
+      if (FAutoKeepAliveEnable)
         FAutoKeepAliveCancellationTokenSource.Cancel();
 
       // TODO: may be mor efficient?
@@ -94,7 +118,7 @@ namespace Monik.Client
       {
         FNewMessageEvent.WaitOne();
 
-        int _msDelay = SendDelay * 1000;
+        int _msDelay = FSendDelay * 1000;
         Task.Delay(_msDelay).Wait();
 
         try
@@ -115,7 +139,7 @@ namespace Monik.Client
       {
         Created = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds,
         Source = FSourceName, //Helper.Utf16ToUtf8(FSourceName),
-        Instance = FSourceInstance//Helper.Utf16ToUtf8(FSourceInstance)
+        Instance = FInstanceName//Helper.Utf16ToUtf8(FSourceInstance)
       };
     }
 
@@ -149,28 +173,32 @@ namespace Monik.Client
     public void KeepAlive()
     {
       Event _msg = NewEvent();
-      _msg.Ka = new Common.KeepAlive() { Interval = AutoKeepAliveInterval };
+      _msg.Ka = new Common.KeepAlive() { Interval = FAutoKeepAliveInterval };
 
       FMsgQueue.Enqueue(_msg);
 
       FNewMessageEvent.Set();
     }
 
+    public void SystemVerbose(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.System, SeverityType.Verbose, aParams); }
     public void SystemInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.System, SeverityType.Info, aParams); }
     public void SystemWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.System, SeverityType.Warning, aParams); }
     public void SystemError(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.System, SeverityType.Error, aParams); }
     public void SystemFatal(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.System, SeverityType.Fatal, aParams); }
 
+    public void ApplicationVerbose(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Application, SeverityType.Verbose, aParams); }
     public void ApplicationInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Application, SeverityType.Info, aParams); }
     public void ApplicationWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Application, SeverityType.Warning, aParams); }
     public void ApplicationError(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Application, SeverityType.Error, aParams); }
     public void ApplicationFatal(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Application, SeverityType.Fatal, aParams); }
 
+    public void LogicVerbose(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Logic, SeverityType.Verbose, aParams); }
     public void LogicInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Logic, SeverityType.Info, aParams); }
     public void LogicWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Logic, SeverityType.Warning, aParams); }
     public void LogicError(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Logic, SeverityType.Error, aParams); }
     public void LogicFatal(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Logic, SeverityType.Fatal, aParams); }
 
+    public void SecurityVerbose(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Security, SeverityType.Verbose, aParams); }
     public void SecurityInfo(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Security, SeverityType.Info, aParams); }
     public void SecurityWarning(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Security, SeverityType.Warning, aParams); }
     public void SecurityError(string aBody, params object[] aParams) { PushLogToSend(aBody, LevelType.Security, SeverityType.Error, aParams); }

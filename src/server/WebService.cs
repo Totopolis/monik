@@ -97,11 +97,11 @@ namespace Monik.Service
       try
       {
         FWebServer.Start();
-        M.ApplicationInfo($"Nancy web server started with prefix: {FPrefix}");
+        //M.ApplicationInfo($"Nancy web server started with prefix: {FPrefix}");
       }
       catch(Exception _e)
       {
-        M.ApplicationError($"Nancy web server start error: {_e.Message}");
+        //M.ApplicationError($"Nancy web server start error: {_e.Message}");
       }
     }
 
@@ -113,7 +113,7 @@ namespace Monik.Service
       }
       catch (Exception _e)
       {
-        M.ApplicationError($"Nancy web server stop error: {_e.Message}");
+        //M.ApplicationError($"Nancy web server stop error: {_e.Message}");
       }
     }
   }//end of class

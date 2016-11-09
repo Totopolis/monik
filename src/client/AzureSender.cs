@@ -12,7 +12,7 @@ using Monik.Common;
 
 namespace Monik.Client
 {
-  public class AzureSender : IBaseSender
+  public class AzureSender : IClientSender
   {
     private string FServiceBusConnectionString;
     private string FQueueName;

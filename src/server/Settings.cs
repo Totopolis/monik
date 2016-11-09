@@ -6,17 +6,17 @@ using System.Text;
 using System.Threading.Tasks;
 using Monik;
 using Monik.Common;
+using Microsoft.Azure;
+using Microsoft.WindowsAzure.ServiceRuntime;
 
 namespace Monik.Service
 {
-  public class Settings
+  public class ServiceSettings : IServiceSettings
   {
-    public static string DBConnectionString = null;
-
     // TODO: use concurent when online updates
     private static Dictionary<string, string> FSettings = null;
 
-    public static void CheckUpdates()
+    public void OnStart()
     {
       if (FSettings == null)
       {
@@ -29,21 +29,21 @@ namespace Monik.Service
       }
     }
 
-    public static string GetValue(string aName)
+    public void OnStop()
     {
-      if (!FSettings.ContainsKey(aName))
-        throw new KeyNotFoundException("Setting name not found");
-
-      return FSettings[aName];
     }
 
-    public static void SetValue(string aName, string aValue)
-    {
-      if (!FSettings.ContainsKey(aName))
-        throw new KeyNotFoundException("Setting name not found");
+    public string CloudInstanceName { get { return RoleEnvironment.IsEmulated ? "Development" : "Production"; } }
 
-      FSettings[aName] = aValue;
-    }
-  
+    public int DayDeepKeepAlive { get { return int.Parse(FSettings["DayDeepKeepAlive"]); } }
+
+    public int DayDeepLog { get { return int.Parse(FSettings["DayDeepLog"]); } }
+
+    public string DBConnectionString { get { return CloudConfigurationManager.GetSetting("DBConnectionString"); } }
+
+    public string OutcomingConnectionString { get { return FSettings["OutcomingConnectionString"]; } }
+
+    public string OutcomingQueue { get { return FSettings["OutcomingQueue"]; } }
+
   }//end of class
 }

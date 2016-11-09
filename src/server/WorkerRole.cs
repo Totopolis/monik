@@ -24,7 +24,7 @@ namespace MonikWorker
 
     public override void Run()
     {
-      M.ApplicationInfo("MonikWorker is running");
+      FMonikClient.ApplicationVerbose("MonikWorker is running");
 
       try
       {
@@ -37,48 +37,29 @@ namespace MonikWorker
     }
 
     private WebService FService;
+    private IClientControl FMonikClient;
 
     public override bool OnStart()
     {
       ServicePointManager.DefaultConnectionLimit = 12;
       bool result = base.OnStart();
 
-      var _dbcs = CloudConfigurationManager.GetSetting("DBConnectionString");
-
-      Repository.ConnectionString = _dbcs;
-
-      Settings.DBConnectionString = _dbcs;
-      Settings.CheckUpdates();
-
-      string _instanceName = RoleEnvironment.IsEmulated ? "Development" : "Production";
-
-      var _azureSender = new AzureSender(Settings.GetValue("OutcomingConnectionString"), Settings.GetValue("OutcomingQueue"));
-      M.Initialize(_azureSender, "Monik", _instanceName);
-
-      M.MainInstance.AutoKeepAliveInterval = 60;
-      M.MainInstance.AutoKeepAlive = true;
-
-      // TODO: retry logic and exit if exceptions...
+      // TODO: retry logic and exit if exceptions in Bootstrapper...
 
       string _prefix = RoleEnvironment.CurrentRoleInstance.InstanceEndpoints["HTTP_EP"].IPEndpoint.ToString();
       FService = new WebService(_prefix);
       FService.OnStart();
 
-      var container = Bootstrapper.MainContainer;
-      container.Resolve<ISourceInstanceCache>().OnStart();
-      container.Resolve<ICacheLog>().OnStart();
-      container.Resolve<ICacheKeepAlive>().OnStart();
-      container.Resolve<IMessageProcessor>().OnStart();
-      container.Resolve<IMessagePump>().OnStart();
+      FMonikClient = Bootstrapper.MainContainer.Resolve<IClientControl>();
 
-      M.ApplicationWarning("MonikWorker has been started");
+      FMonikClient.ApplicationWarning("MonikWorker has been started");
 
       return result;
     }
 
     public override void OnStop()
     {
-      M.ApplicationWarning("MonikWorker is stopping");
+      FMonikClient.ApplicationWarning("MonikWorker is stopping");
 
       // TODO: catch exceptions inside
 
@@ -91,9 +72,9 @@ namespace MonikWorker
       this.cancellationTokenSource.Cancel();
       this.runCompleteEvent.WaitOne();
 
-      M.ApplicationWarning("MonikWorker has stopped");
+      FMonikClient.ApplicationWarning("MonikWorker has stopped");
 
-      M.OnStop();
+      FMonikClient.OnStop();
 
       base.OnStop();
     }

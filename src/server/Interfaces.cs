@@ -14,6 +14,17 @@ namespace Monik.Service
     void OnStop();
   }
 
+  public interface IServiceSettings : IObject
+  {
+    string DBConnectionString { get; }
+    string CloudInstanceName { get; }
+
+    string OutcomingConnectionString { get; }
+    string OutcomingQueue { get; }
+    int DayDeepLog { get; }
+    int DayDeepKeepAlive { get; }
+  }
+
   public interface IRepository
   {
     List<Source> GetAllSources();
