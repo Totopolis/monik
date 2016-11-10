@@ -71,6 +71,9 @@ namespace Monik.Service
 
     public bool FilterBySeverity { get; set; }
     public int Severity { get; set; }
+
+    public bool EnableCutoffSeverity { get; set; }
+    public int CutoffSeverity { get; set; }
   }
   
 }

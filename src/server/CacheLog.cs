@@ -89,6 +89,9 @@ namespace Monik.Service
         if (it.FilterBySeverity)
           _result &= it.Severity == aLog.Severity;
 
+        if (it.EnableCutoffSeverity)
+          _result &= it.CutoffSeverity >= aLog.Severity;
+
         if (_result)
           return true;
       }//foreach
