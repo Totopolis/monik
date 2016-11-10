@@ -26,15 +26,15 @@ namespace Monik.Client
     public IObservable<bool> AutoKeepAliveEnableProperty { get { return FAutoKeepAliveEnableProperty; } }
     public IObservable<ushort> AutoKeepAliveIntervalProperty { get { return FAutoKeepAliveIntervalProperty; } }*/
 
-    public string SourceName { get; set; }
+    public string SourceName { get; set; } = "UnknownSource";
 
-    public string InstanceName { get; set; }
+    public string InstanceName { get; set; } = "UnknownInstance";
 
-    public ushort SendDelay { get; set; }
+    public ushort SendDelay { get; set; } = 1;
 
-    public bool AutoKeepAliveEnable { get; set; }
+    public bool AutoKeepAliveEnable { get; set; } = false;
 
-    public ushort AutoKeepAliveInterval { get; set; }
+    public ushort AutoKeepAliveInterval { get; set; } = 60;
 
   }//end of class
 }
