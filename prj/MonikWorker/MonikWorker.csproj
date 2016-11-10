@@ -170,6 +170,9 @@
     <Compile Include="..\..\src\server\Repository.cs">
       <Link>Core\Repository.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\server\ServiceSender.cs">
+      <Link>Core\ServiceSender.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\server\Settings.cs">
       <Link>Core\Settings.cs</Link>
     </Compile>

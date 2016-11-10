@@ -15,11 +15,18 @@ namespace Monik.Service
 {
   public class Bootstrapper : DefaultNancyBootstrapper
   {
-    protected override void ConfigureRequestContainer(TinyIoCContainer container, NancyContext context)
-    {
-    }
-
     public static TinyIoCContainer MainContainer { get; private set; } = null;
+
+    protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
+    {
+      container.Resolve<IServiceSettings>().OnStart();
+
+      container.Resolve<ISourceInstanceCache>().OnStart();
+      container.Resolve<ICacheLog>().OnStart();
+      container.Resolve<ICacheKeepAlive>().OnStart();
+      container.Resolve<IMessageProcessor>().OnStart();
+      container.Resolve<IMessagePump>().OnStart();
+    }
 
     protected override void ConfigureApplicationContainer(TinyIoCContainer container)
     {
@@ -34,26 +41,9 @@ namespace Monik.Service
       container.Register<IMessageProcessor, MessageProcessor>().AsSingleton();
       container.Register<IMessagePump, MessagePump>().AsSingleton();
 
-      IServiceSettings _srvSett = container.Resolve<IServiceSettings>();
-      _srvSett.OnStart();
-
-      container.Register<IClientSender>(new AzureSender(_srvSett.OutcomingConnectionString, _srvSett.OutcomingQueue));
-      container.Register<IClientSettings>(new ClientSettings()
-      {
-        SourceName = "Monik",
-        InstanceName = _srvSett.CloudInstanceName,
-        AutoKeepAliveEnable = true
-      });
-
+      container.Register<IClientSender, ServiceSender>().AsSingleton();
+      container.Register<IClientSettings, ServiceClientSettings>().AsSingleton();
       container.Register<IClientControl, MonikInstance>().AsSingleton();
-
-      // old school: M.Initialize(container.Resolve<IClientSender>(), "Monik", _srvSett.CloudInstanceName, aAutoKeepAliveEnable: true);
-
-      container.Resolve<ISourceInstanceCache>().OnStart();
-      container.Resolve<ICacheLog>().OnStart();
-      container.Resolve<ICacheKeepAlive>().OnStart();
-      container.Resolve<IMessageProcessor>().OnStart();
-      container.Resolve<IMessagePump>().OnStart();
 
       MainContainer = container;
     }

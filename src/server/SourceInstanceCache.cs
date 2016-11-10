@@ -31,7 +31,7 @@ namespace Monik.Service
       FInstanceMap = new Dictionary<int, Instance>();
       FSourceInstanceMap = new Dictionary<string, Instance>();
       
-      //M.ApplicationInfo("SourceInstanceCache created");
+      FControl.ApplicationVerbose("SourceInstanceCache created");
     }
 
     public void OnStart()
@@ -64,6 +64,8 @@ namespace Monik.Service
         }
         else
           FControl.ApplicationError($"Database doesnt contains source(id={_ins.SourceID}) for the instance '{_ins.Name}'");
+
+      FControl.ApplicationVerbose("SourceInstanceCache started");
     }
 
     public void OnStop()

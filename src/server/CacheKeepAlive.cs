@@ -12,14 +12,18 @@ namespace Monik.Service
   public class CacheKeepAlive : ICacheKeepAlive
   {
     private IRepository FRepository;
+    private IClientControl FControl;
 
     private Dictionary<int, KeepAlive_> FStatus;
 
-    public CacheKeepAlive(IRepository aRepository)
+    public CacheKeepAlive(IRepository aRepository, IClientControl aControl)
     {
       FRepository = aRepository;
+      FControl = aControl;
+
       FStatus = new Dictionary<int, KeepAlive_>();
-      //M.ApplicationInfo("CacheKeepAlive created");
+
+      FControl.ApplicationVerbose("CacheKeepAlive created");
     }
 
     public void OnStart()
@@ -37,6 +41,8 @@ namespace Monik.Service
         else
           if (FStatus[ka.InstanceID].Created < ka.Created)
           FStatus[ka.InstanceID] = ka;
+
+      FControl.ApplicationVerbose("CacheKeepAlive started");
     }
 
     public void OnStop()

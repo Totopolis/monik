@@ -34,6 +34,7 @@ namespace Monik.Service
     private ISourceInstanceCache FCache;
     private IMessageProcessor FProcessor;
     private IClientControl FControl;
+
     private List<ActiveQueue> FQueues;
 
     public MessagePump(IRepository aRepository, ISourceInstanceCache aCache, IMessageProcessor aProcessor, IClientControl aControl)
@@ -43,7 +44,8 @@ namespace Monik.Service
       FProcessor = aProcessor;
       FControl = aControl;
       FQueues = null;
-      //M.ApplicationInfo("MessagePump created");
+
+      FControl.ApplicationVerbose("MessagePump created");
     }
 
     public void OnStart()
@@ -76,6 +78,8 @@ namespace Monik.Service
 
         FQueues.Add(_queue);
       }//foreach config
+
+      FControl.ApplicationVerbose("MessagePump started");
     }
 
     public void OnStop()

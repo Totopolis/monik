@@ -8,6 +8,7 @@ using Monik;
 using Monik.Common;
 using Microsoft.Azure;
 using Microsoft.WindowsAzure.ServiceRuntime;
+using Monik.Client;
 
 namespace Monik.Service
 {
@@ -46,4 +47,24 @@ namespace Monik.Service
     public string OutcomingQueue { get { return FSettings["OutcomingQueue"]; } }
 
   }//end of class
+
+  public class ServiceClientSettings : IClientSettings
+  {
+    private IServiceSettings FServiceSettings;
+
+    public ServiceClientSettings(IServiceSettings aServiceSettings)
+    {
+      FServiceSettings = aServiceSettings;
+    }
+
+    public bool AutoKeepAliveEnable { get { return true; } set { throw new NotImplementedException(); } }
+
+    public ushort AutoKeepAliveInterval { get { return 60; } set { throw new NotImplementedException(); } }
+
+    public string InstanceName { get { return FServiceSettings.CloudInstanceName; } set { throw new NotImplementedException(); } }
+
+    public ushort SendDelay { get { return 1; } set { throw new NotImplementedException(); } }
+
+    public string SourceName { get { return "Monik"; } set { throw new NotImplementedException(); } }
+  }
 }

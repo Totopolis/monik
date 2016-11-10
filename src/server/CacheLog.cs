@@ -12,17 +12,22 @@ namespace Monik.Service
   public class CacheLog : ICacheLog
   {
     private IRepository FRepository;
+    private IClientControl FControl;
+
     private List<Log_> FLogs;
     private ISourceInstanceCache FCache;
     private long FOldestID;
 
-    public CacheLog(IRepository aRepository, ISourceInstanceCache aCache)
+    public CacheLog(IRepository aRepository, ISourceInstanceCache aCache, IClientControl aControl)
     {
       FRepository = aRepository;
+      FControl = aControl;
+
       FLogs = null;
       FCache = aCache;
       FOldestID = 0;
-      //M.ApplicationInfo("CacheLog created");
+      
+      FControl.ApplicationVerbose("CacheLog created");
     }
 
     public void OnStart()
@@ -36,6 +41,8 @@ namespace Monik.Service
       FLogs = FRepository.GetLastLogs(1000);
 
       FOldestID = FLogs.Min(lg => lg.ID);
+
+      FControl.ApplicationVerbose("CacheLog started");
     }
 
     public void OnStop()

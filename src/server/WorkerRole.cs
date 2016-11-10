@@ -24,7 +24,7 @@ namespace MonikWorker
 
     public override void Run()
     {
-      FMonikClient.ApplicationVerbose("MonikWorker is running");
+      FControl.ApplicationVerbose("MonikWorker is running");
 
       try
       {
@@ -37,7 +37,7 @@ namespace MonikWorker
     }
 
     private WebService FService;
-    private IClientControl FMonikClient;
+    private IClientControl FControl;
 
     public override bool OnStart()
     {
@@ -50,16 +50,16 @@ namespace MonikWorker
       FService = new WebService(_prefix);
       FService.OnStart();
 
-      FMonikClient = Bootstrapper.MainContainer.Resolve<IClientControl>();
+      FControl = Bootstrapper.MainContainer.Resolve<IClientControl>();
 
-      FMonikClient.ApplicationWarning("MonikWorker has been started");
+      FControl.ApplicationWarning("MonikWorker has been started");
 
       return result;
     }
 
     public override void OnStop()
     {
-      FMonikClient.ApplicationWarning("MonikWorker is stopping");
+      FControl.ApplicationWarning("MonikWorker is stopping");
 
       // TODO: catch exceptions inside
 
@@ -72,9 +72,9 @@ namespace MonikWorker
       this.cancellationTokenSource.Cancel();
       this.runCompleteEvent.WaitOne();
 
-      FMonikClient.ApplicationWarning("MonikWorker has stopped");
+      FControl.ApplicationWarning("MonikWorker has stopped");
 
-      FMonikClient.OnStop();
+      FControl.OnStop();
 
       base.OnStop();
     }

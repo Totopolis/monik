@@ -30,7 +30,8 @@ namespace Monik.Service
 
       FCleaner = Scheduler.CreatePerHour(FControl, CleanerTask, "cleaner");
       FStatist = Scheduler.CreatePerHour(FControl, StatistTask, "statist");
-      //M.ApplicationInfo("MessageProcessor created");
+      
+      FControl.ApplicationVerbose("MessageProcessor created");
     }
 
     private Scheduler FCleaner;
@@ -40,6 +41,8 @@ namespace Monik.Service
     {
       FCleaner.OnStart();
       FStatist.OnStart();
+
+      FControl.ApplicationVerbose("MessageProcessor started");
     }
 
     private void CleanerTask()

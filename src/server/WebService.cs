@@ -20,12 +20,14 @@ namespace Monik.Service
     private IRepository FRepo;
     private ICacheLog FCacheLog;
     private ICacheKeepAlive FCacheKeepAlive;
+    private IClientControl FControl;
 
-    public HelloModule(IRepository aRepo, ICacheLog aCacheLog, ICacheKeepAlive aCacheKeepAlive)
+    public HelloModule(IRepository aRepo, ICacheLog aCacheLog, ICacheKeepAlive aCacheKeepAlive, IClientControl aControl)
     {
       FRepo = aRepo;
       FCacheLog = aCacheLog;
       FCacheKeepAlive = aCacheKeepAlive;
+      FControl = aControl;
       
       Get("/sources", args =>
       {
@@ -34,7 +36,11 @@ namespace Monik.Service
           List<Source> _result = FRepo.GetAllSources();
           return Response.AsJson<Source[]>(_result.ToArray());
         }
-        catch { return HttpStatusCode.InternalServerError; }
+        catch(Exception _e)
+        {
+          FControl.ApplicationError($"Method /sources : {_e.Message}");
+          return HttpStatusCode.InternalServerError;
+        }
       });
 
       Get("/instances", args =>
@@ -44,7 +50,11 @@ namespace Monik.Service
           List<Instance> _result = FRepo.GetAllInstances();
           return Response.AsJson<Instance[]>(_result.ToArray());
         }
-        catch { return HttpStatusCode.InternalServerError; }
+        catch (Exception _e)
+        {
+          FControl.ApplicationError($"Method /instances : {_e.Message}");
+          return HttpStatusCode.InternalServerError;
+        }
       });
 
       Post("/logs3", args =>
@@ -59,7 +69,11 @@ namespace Monik.Service
           List<Log_> _result = FCacheLog.GetLogs(_top, _order == "desc" ? Order.Desc : Order.Asc, _lastid, _filters);
           return Response.AsJson<Log_[]>(_result.ToArray());
         }
-        catch { return HttpStatusCode.InternalServerError; }
+        catch (Exception _e)
+        {
+          FControl.ApplicationError($"Method /logs3 : {_e.Message}");
+          return HttpStatusCode.InternalServerError;
+        }
       });
 
       Post("/keepalive", args =>
@@ -71,7 +85,11 @@ namespace Monik.Service
           List<KeepAlive_> _result = FCacheKeepAlive.GetKeepAlive(_filters);
           return Response.AsJson<KeepAlive_[]>(_result.ToArray());
         }
-        catch { return HttpStatusCode.InternalServerError; }
+        catch (Exception _e)
+        {
+          FControl.ApplicationError($"Method /keepalive : {_e.Message}");
+          return HttpStatusCode.InternalServerError;
+        }
       });
 
       // TODO: /status
