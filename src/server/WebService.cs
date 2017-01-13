@@ -57,6 +57,20 @@ namespace Monik.Service
         }
       });
 
+      Get("/groups", args =>
+      {
+        try
+        {
+          List<Group> _result = FRepo.GetAllGroupsAndFill();
+          return Response.AsJson<Group[]>(_result.ToArray());
+        }
+        catch (Exception _e)
+        {
+          FControl.ApplicationError($"Method /instances : {_e.Message}");
+          return HttpStatusCode.InternalServerError;
+        }
+      });
+
       Post("/logs3", args =>
       {
         int? _top = Request.Query["top"].HasValue ? Request.Query["top"] : null;
@@ -76,6 +90,44 @@ namespace Monik.Service
         }
       });
 
+      // only single and stream modes will be
+      // get /logs4?group=main&top=100&lastid=123&severitycutoff=info&level=sec
+      /* TODO: Get("/logs4", args =>
+      {
+        int? _group = Request.Query["group"].HasValue ? Request.Query["group"] : null;
+        long? _lastid = Request.Query["lastid"].HasValue ? Request.Query["lastid"] : null;
+        int? _severityCutoff = Request.Query["severitycutoff"].HasValue ? Request.Query["severitycutoff"] : null;
+        int? _level = Request.Query["level"].HasValue ? Request.Query["level"] : null;
+        int? _top = Request.Query["top"].HasValue ? Request.Query["top"] : null;
+
+        try
+        {
+          List<Log_> _result = FCacheLog.GetLogs4(_group, _lastid, _severityCutoff, _level, _top);
+          return Response.AsJson<Log_[]>(_result.ToArray());
+        }
+        catch (Exception _e)
+        {
+          FControl.ApplicationError($"Method /logs3 : {_e.Message}");
+          return HttpStatusCode.InternalServerError;
+        }
+      });*/
+
+      Post("/logs5", args =>
+      {
+        try
+        {
+          var _filter = this.Bind<LogRequest>();
+
+          List<Log_> _result = FCacheLog.GetLogs5(_filter);
+          return Response.AsJson<Log_[]>(_result.ToArray());
+        }
+        catch (Exception _e)
+        {
+          FControl.ApplicationError($"Method /logs5 : {_e.Message}");
+          return HttpStatusCode.InternalServerError;
+        }
+      });
+
       Post("/keepalive", args =>
       {
         var _filters = this.Bind<LogsFilter[]>();
@@ -83,6 +135,22 @@ namespace Monik.Service
         try
         {
           List<KeepAlive_> _result = FCacheKeepAlive.GetKeepAlive(_filters);
+          return Response.AsJson<KeepAlive_[]>(_result.ToArray());
+        }
+        catch (Exception _e)
+        {
+          FControl.ApplicationError($"Method /keepalive : {_e.Message}");
+          return HttpStatusCode.InternalServerError;
+        }
+      });
+
+      Post("/keepalive2", args =>
+      {
+        var _filter = this.Bind<KeepAliveRequest>();
+
+        try
+        {
+          List<KeepAlive_> _result = FCacheKeepAlive.GetKeepAlive2(_filter);
           return Response.AsJson<KeepAlive_[]>(_result.ToArray());
         }
         catch (Exception _e)

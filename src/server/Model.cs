@@ -31,6 +31,16 @@ namespace Monik.Service
     public void SourceRef(Source aSrc) { FSourceRef = aSrc; }
   }
 
+  public class Group
+  {
+    public short ID { get; set; }
+    public string Name { get; set; }
+    public bool IsDefault { get; set; }
+    public string Description { get; set; }
+
+    public List<int> Instances { get; set; } = new List<int>();
+  }
+
   public class Log_
   {
     public long ID { get; set; }
@@ -75,5 +85,21 @@ namespace Monik.Service
     public bool EnableCutoffSeverity { get; set; }
     public int CutoffSeverity { get; set; }
   }
-  
+
+  public class LogRequest
+  {
+    public short[] Groups { get; set; } = new short[0];
+    public int[] Instances { get; set; } = new int[0];
+
+    public long? LastID { get; set; }
+    public byte? SeverityCutoff { get; set; }
+    public byte? Level { get; set; }
+    public int? Top { get; set; }
+  }
+
+  public class KeepAliveRequest
+  {
+    public short[] Groups { get; set; } = new short[0];
+    public int[] Instances { get; set; } = new int[0];
+  }
 }

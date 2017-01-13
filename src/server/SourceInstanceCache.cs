@@ -22,6 +22,9 @@ namespace Monik.Service
     private Dictionary<int, Instance> FInstanceMap;
     private Dictionary<string, Instance> FSourceInstanceMap;
 
+    private Dictionary<short, Group> FGroups;
+    private List<int> FDefaultInstances; // from default group
+
     public SourceInstanceCache(IRepository aRepository, IClientControl aControl)
     {
       FRepository = aRepository;
@@ -65,6 +68,20 @@ namespace Monik.Service
         else
           FControl.ApplicationError($"Database doesnt contains source(id={_ins.SourceID}) for the instance '{_ins.Name}'");
 
+      var _groups = FRepository.GetAllGroupsAndFill();
+      FDefaultInstances = new List<int>();
+      FGroups = new Dictionary<short, Group>();
+
+      foreach (var it in _groups)
+      {
+        if (it.IsDefault)
+          foreach (var it2 in it.Instances)
+            if (!FDefaultInstances.Contains(it2))
+              FDefaultInstances.Add(it2);
+
+        FGroups.Add(it.ID, it);
+      }
+
       FControl.ApplicationVerbose("SourceInstanceCache started");
     }
 
@@ -72,14 +89,33 @@ namespace Monik.Service
     {
     }
 
+    public bool IsDefaultInstance(int aInstance)
+    {
+      return FDefaultInstances.Contains(aInstance);
+    }
+
+    public bool IsInstanceInGroup(int aInstanceID, short aGroupID)
+    {
+      if (!FGroups.ContainsKey(aGroupID))
+        return false;
+
+      return FGroups[aGroupID].Instances.Contains(aInstanceID);
+    }
+
     public Source GetSourceByInstanceID(int aInstanceID)
     {
-      return FInstanceMap.ContainsKey(aInstanceID) ? FInstanceMap[aInstanceID].SourceRef() : null;
+      lock (this)
+      {
+        return FInstanceMap.ContainsKey(aInstanceID) ? FInstanceMap[aInstanceID].SourceRef() : null;
+      }
     }
 
     public Instance GetInstanceByID(int aInstanceID)
     {
-      return FInstanceMap.ContainsKey(aInstanceID) ? FInstanceMap[aInstanceID] : null;
+      lock (this)
+      {
+        return FInstanceMap.ContainsKey(aInstanceID) ? FInstanceMap[aInstanceID] : null;
+      }
     }
 
     public List<Instance> GetAllInstances() { return FInstanceMap.Values.ToList(); }
@@ -88,31 +124,36 @@ namespace Monik.Service
     {
       string _key = $"{aSourceName}*{aInstanceName}";
 
-      if (FSourceInstanceMap.ContainsKey(_key))
-        return FSourceInstanceMap[_key];
-
-      Source _src;
-
-      if (!FSources.ContainsKey(aSourceName))
+      lock (this)
       {
-        _src = new Source() { Name = aSourceName, Created = DateTime.UtcNow };
-        FRepository.CreateNewSource(_src);
+        if (FSourceInstanceMap.ContainsKey(_key))
+          return FSourceInstanceMap[_key];
 
-        FSources.Add(aSourceName, _src);
-        FSourceMap.Add(_src.ID, _src);
-      }
-      else
-        _src = FSources[aSourceName];
+        Source _src;
 
-      Instance _ins = new Instance() { Name = aInstanceName, Created = DateTime.UtcNow, SourceID = _src.ID };
-      FRepository.CreateNewInstance(_ins);
+        if (!FSources.ContainsKey(aSourceName))
+        {
+          _src = new Source() { Name = aSourceName, Created = DateTime.UtcNow };
+          FRepository.CreateNewSource(_src);
 
-      _ins.SourceRef(_src);
-      FInstanceMap.Add(_ins.ID, _ins);
+          FSources.Add(aSourceName, _src);
+          FSourceMap.Add(_src.ID, _src);
+        }
+        else
+          _src = FSources[aSourceName];
 
-      FSourceInstanceMap.Add(_key, _ins);
+        Instance _ins = new Instance() { Name = aInstanceName, Created = DateTime.UtcNow, SourceID = _src.ID };
+        FRepository.CreateNewInstance(_ins);
 
-      return _ins;
+        _ins.SourceRef(_src);
+        FInstanceMap.Add(_ins.ID, _ins);
+
+        FSourceInstanceMap.Add(_key, _ins);
+
+        return _ins;
+      }// TODO: optimize lock
     }
+
+    
   }//end of class
 }

@@ -5,8 +5,8 @@ option csharp_namespace = "Monik.Common";
 
 message Event
 {
-	sint64 created = 1;
-	string source = 2; // Server, Role, Application, Service, etc
+	sint64 created = 1; // milliseconds
+	string source = 2; // Role Name, Application Name, Service Name, etc
 	string instance = 3; // Instance of the source
 
 	oneof msg
@@ -20,7 +20,7 @@ message Event
 
 message KeepAlive 
 {
-	 uint32 interval = 1;
+	 uint32 interval = 1; // seconds
 }
 
 enum LevelType 

@@ -34,7 +34,7 @@ namespace Monik.Service
     {
     }
 
-    public string CloudInstanceName { get { return RoleEnvironment.IsEmulated ? "Development" : "Production"; } }
+    public string CloudInstanceName { get { return RoleEnvironment.IsEmulated ? "Dev" : "Azure"; } }
 
     public int DayDeepKeepAlive { get { return int.Parse(FSettings["DayDeepKeepAlive"]); } }
 

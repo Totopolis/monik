@@ -29,6 +29,24 @@ namespace Monik.Service
       return SimpleCommand.ExecuteQuery<Instance>(FSettings.DBConnectionString, "select * from [mon].[Instance]").ToList();
     }
 
+    public List<Group> GetAllGroupsAndFill()
+    {
+      List<Group> _res = SimpleCommand.ExecuteQuery<Group>(FSettings.DBConnectionString, "select * from [mon].[Group]").ToList();
+
+      Dictionary<short, Group> _dic = new Dictionary<short, Group>();
+      foreach (var it in _res)
+        _dic.Add(it.ID, it);
+
+      var proto = new { GroupID = default(short), InstanceID = default(int) };
+      var _grInstances = SimpleCommand.ExecuteQueryAnonymous(proto, FSettings.DBConnectionString, "select GroupID, InstanceID from [mon].[GroupInstance]");
+
+      foreach (var it in _grInstances)
+        if (_dic.ContainsKey(it.GroupID))
+          _dic[it.GroupID].Instances.Add(it.InstanceID);
+
+      return _res;
+    }
+
     public void CreateNewSource(Source aSrc)
     {
       aSrc.ID = (short)MappedCommand.InsertAndGetId<Source>(FSettings.DBConnectionString, "[mon].[Source]", aSrc, "ID");
@@ -53,7 +71,7 @@ namespace Monik.Service
 
     public List<Log_> GetLastLogs(int aTop)
     {
-      return SimpleCommand.ExecuteQuery<Log_>(FSettings.DBConnectionString, $"select top {aTop} * from [mon].[Log] order by ID desc").ToList();
+      return SimpleCommand.ExecuteQuery<Log_>(FSettings.DBConnectionString, $"select top {aTop} * from [mon].[Log] order by ID desc").OrderBy(x => x.ID).ToList();
     }
 
     public List<KeepAlive_> GetLastKeepAlive(int aTop)

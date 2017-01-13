@@ -12,13 +12,15 @@ namespace Monik.Service
   public class CacheKeepAlive : ICacheKeepAlive
   {
     private IRepository FRepository;
+    private ISourceInstanceCache FCache;
     private IClientControl FControl;
 
     private Dictionary<int, KeepAlive_> FStatus;
 
-    public CacheKeepAlive(IRepository aRepository, IClientControl aControl)
+    public CacheKeepAlive(IRepository aRepository, ISourceInstanceCache aCache, IClientControl aControl)
     {
       FRepository = aRepository;
+      FCache = aCache;
       FControl = aControl;
 
       FStatus = new Dictionary<int, KeepAlive_>();
@@ -54,26 +56,61 @@ namespace Monik.Service
 
     public void OnNewKeepAlive(KeepAlive_ aKeepAlive)
     {
-      LastKeepAliveID = aKeepAlive.ID;
-
-      if (FStatus.ContainsKey(aKeepAlive.InstanceID))
+      lock (this)
       {
-        if (FStatus[aKeepAlive.InstanceID].Created < aKeepAlive.Created)
-          FStatus[aKeepAlive.InstanceID] = aKeepAlive;
-      }
-      else
-        FStatus.Add(aKeepAlive.InstanceID, aKeepAlive);
+        LastKeepAliveID = aKeepAlive.ID;
+
+        if (FStatus.ContainsKey(aKeepAlive.InstanceID))
+        {
+          if (FStatus[aKeepAlive.InstanceID].Created < aKeepAlive.Created)
+            FStatus[aKeepAlive.InstanceID] = aKeepAlive;
+        }
+        else
+          FStatus.Add(aKeepAlive.InstanceID, aKeepAlive);
+      } // TODO: optimize lock
     }
 
     public List<KeepAlive_> GetKeepAlive(LogsFilter[] aFilters)
     {
-      //List<KeepAlive_> _res = new List<KeepAlive_>();
-
-      if (aFilters != null || aFilters.Length > 0)
+      lock (this)
       {
-      }
+        List<KeepAlive_> _res = FStatus.Values.ToList();
+        _res.RemoveAll(ka => !FCache.IsDefaultInstance(ka.InstanceID));
 
-      return FStatus.Values.ToList();
+        return _res;
+      } // TODO: optimize lock
+    }
+
+    // TODO: use filter
+    public List<KeepAlive_> GetKeepAlive2(KeepAliveRequest aFilter)
+    {
+      lock (this)
+      {
+        List<KeepAlive_> _res = FStatus.Values.ToList();
+
+        if (aFilter.Groups.Length == 0 && aFilter.Instances.Length == 0)
+        {
+          _res.RemoveAll(ka => !FCache.IsDefaultInstance(ka.InstanceID));
+          return _res;
+        }
+        else
+        {
+          var _filteredRes = new List<KeepAlive_>();
+
+          foreach (var ka in _res)
+          {
+            foreach (var gr in aFilter.Groups)
+              if (FCache.IsInstanceInGroup(ka.InstanceID, gr))
+                _filteredRes.Add(ka);
+
+            foreach (var inst in aFilter.Instances)
+              if (inst == ka.InstanceID)
+                _filteredRes.Add(ka);
+          }
+
+          return _filteredRes;
+        }
+      } // TODO: optimize lock
     }
 
   }//end of class

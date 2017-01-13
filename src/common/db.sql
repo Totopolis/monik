@@ -1,30 +1,14 @@
 --DROP TABLE [mon].[Log]
 --DROP TABLE [mon].[Source]
 --DROP TABLE [mon].[Instance]
+--DROP TABLE [mon].[Group]
+--DROP TABLE [mon].[GroupItems]
 --DROP TABLE [mon].[Settings]
 --DROP TABLE [mon].[KeepAlive]
 --DROP TABLE [mon].[EventQueue]
 --DROP TABLE [mon].[HourStat]
 
 CREATE SCHEMA mon
-
-CREATE TABLE [mon].[Log](
-	[ID] [bigint] IDENTITY(1,1) NOT NULL,
-	[Created] [datetime] NOT NULL,
-	[Received] [datetime] NOT NULL,
-	[Level] [tinyint] NOT NULL,
-	[Severity] [tinyint] NOT NULL,
-	[InstanceID] [int] NOT NULL,
-	[Format] [tinyint] NOT NULL,
-	[Body] [nvarchar](max) NOT NULL,
-	[Tags] [nvarchar](256) NOT NULL,
-CONSTRAINT [PK_Log] PRIMARY KEY CLUSTERED 
-(
-	[ID] ASC
-)WITH 
-(PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, 
-ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
-)
 
 
 CREATE TABLE [mon].[Source](
@@ -48,6 +32,33 @@ CREATE TABLE [mon].[Instance](
 	[Name] [nvarchar](256) NOT NULL,
 	[Description] [nvarchar](256) NULL,
  CONSTRAINT [PK_Instance] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH 
+(PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, 
+ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+)
+
+
+CREATE TABLE [mon].[Group](
+	[ID] [smallint] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](256) NOT NULL,
+	[IsDefault] [bool] NOT NULL,
+	[Description] [nvarchar](256) NULL,
+ CONSTRAINT [PK_Group] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH 
+(PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, 
+ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+)
+
+
+CREATE TABLE [mon].[GroupInstance](
+	[ID] [int] IDENTITY(1,1) NOT NULL,
+	[GroupID] [smallint] NOT NULL,
+	[InstanceID] [int] NOT NULL,
+ CONSTRAINT [PK_GroupInstance] PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC
 )WITH 
@@ -83,6 +94,24 @@ VAlUES ('DayDeepLog', '14')
 INSERT INTO mon.Settings (Name, Value)
 VAlUES ('DayDeepKeepAlive', '1')
 
+
+CREATE TABLE [mon].[Log](
+	[ID] [bigint] IDENTITY(1,1) NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[Received] [datetime] NOT NULL,
+	[Level] [tinyint] NOT NULL,
+	[Severity] [tinyint] NOT NULL,
+	[InstanceID] [int] NOT NULL,
+	[Format] [tinyint] NOT NULL,
+	[Body] [nvarchar](max) NOT NULL,
+	[Tags] [nvarchar](256) NOT NULL,
+CONSTRAINT [PK_Log] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH 
+(PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, 
+ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+)
 
 
 CREATE TABLE [mon].[KeepAlive](

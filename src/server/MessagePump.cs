@@ -9,13 +9,16 @@ using Monik.Common;
 using System.Diagnostics;
 using Microsoft.ServiceBus.Messaging;
 using Monik.Client;
+using EasyNetQ;
+using EasyNetQ.Topology;
 
 namespace Monik.Service
 {
   public class ActiveQueue
   {
     public EventQueue Config { get; set; }
-    public QueueClient Queue { get; set; }
+    public QueueClient AzureQueue { get; set; }
+    public IAdvancedBus RabbitQueue { get; set; }
   }
 
   public class EventQueue
@@ -52,41 +55,97 @@ namespace Monik.Service
     {
       FQueues = new List<ActiveQueue>();
       var _configs = FRepository.GetEventSources();
+
       foreach (var it in _configs)
       {
-        ActiveQueue _queue = new ActiveQueue()
+        try
         {
-          Config = it,
-          Queue = QueueClient.CreateFromConnectionString(it.ConnectionString, it.QueueName)
-        };
-
-        _queue.Queue.OnMessage(message =>
-        {
-          try
+          ActiveQueue _queue = new ActiveQueue()
           {
-            byte[] _buf = message.GetBody<byte[]>();
-            Event _msg = Event.Parser.ParseFrom(_buf);
-            
+            Config = it,
+            AzureQueue = null,
+            RabbitQueue = null
+          };
+
+          if (it.Type == 1)
+            InitializeServiceBus(_queue);
+          else
+            if (it.Type == 2)
+            InitializeRabbitMQ(_queue);
+
+          FQueues.Add(_queue);
+        }
+        catch(Exception _e)
+        {
+          FControl.ApplicationError($"MessagePump.OnStart failed initialization {it.Name}: {_e.Message}");
+        }
+      }
+
+      FControl.ApplicationVerbose("MessagePump started");
+    }
+
+    private void InitializeServiceBus(ActiveQueue aActive)
+    {
+      aActive.AzureQueue = QueueClient.CreateFromConnectionString(aActive.Config.ConnectionString, aActive.Config.QueueName);
+
+      aActive.AzureQueue.OnMessage(message =>
+      {
+        try
+        {
+          byte[] _buf = message.GetBody<byte[]>();
+          Event _msg = Event.Parser.ParseFrom(_buf);
+
+          if (_msg.Source.Trim().Length != 0 && _msg.Instance.Trim().Length != 0)
+          {
             var _instance = FCache.CheckSourceAndInstance(Helper.Utf8ToUtf16(_msg.Source), Helper.Utf8ToUtf16(_msg.Instance));
             FProcessor.Process(_msg, _instance);
           }
-          catch (Exception _e)
+          // TODO: else increase ignored counter
+        }
+        catch (Exception _e)
+        {
+          FControl.ApplicationError($"MessagePump.OnMessage ServiceBus: {_e.Message}");
+        }
+      });
+    }
+
+    private void InitializeRabbitMQ(ActiveQueue aActive)
+    {
+      aActive.RabbitQueue = RabbitHutch.CreateBus(aActive.Config.ConnectionString).Advanced;
+      
+      // https://github.com/EasyNetQ/EasyNetQ/wiki/the-advanced-api
+
+      var queue = aActive.RabbitQueue.QueueDeclare(aActive.Config.QueueName);
+
+      aActive.RabbitQueue.Consume(queue, (body, properties, info) => Task.Factory.StartNew(() =>
+      {
+        try
+        {
+          Event _msg = Event.Parser.ParseFrom(body);
+
+          if (_msg.Source.Trim().Length != 0 && _msg.Instance.Trim().Length != 0)
           {
-            FControl.ApplicationError("MessagePump.OnMessage: {0}", _e.Message);
+            var _instance = FCache.CheckSourceAndInstance(Helper.Utf8ToUtf16(_msg.Source), Helper.Utf8ToUtf16(_msg.Instance));
+            FProcessor.Process(_msg, _instance);
           }
-        });
-
-        FQueues.Add(_queue);
-      }//foreach config
-
-      FControl.ApplicationVerbose("MessagePump started");
+          // TODO: else increase ignored counter
+        }
+        catch (Exception _e)
+        {
+          FControl.ApplicationError($"MessagePump.OnMessage RabbitMQ: {_e.Message}");
+        }
+      }));
     }
 
     public void OnStop()
     {
       if (FQueues != null)
         foreach (var it in FQueues)
-          it.Queue.Close();
+          if (it.Config.Type == 1)
+            it.AzureQueue.Close();
+          else
+            if (it.Config.Type == 2)
+            it.RabbitQueue.Dispose();
     }
     
   }//end class

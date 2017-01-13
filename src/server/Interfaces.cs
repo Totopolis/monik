@@ -29,6 +29,7 @@ namespace Monik.Service
   {
     List<Source> GetAllSources();
     List<Instance> GetAllInstances();
+    List<Group> GetAllGroupsAndFill();
 
     void CreateNewSource(Source aSrc);
     void CreateNewInstance(Instance aIns);
@@ -59,6 +60,9 @@ namespace Monik.Service
     Source GetSourceByInstanceID(int aInstanceID);
     Instance GetInstanceByID(int aInstanceID);
     List<Instance> GetAllInstances();
+
+    bool IsDefaultInstance(int aInstance);
+    bool IsInstanceInGroup(int aInstanceID, short aGroupID);
   }
 
   public interface ICacheLog : IObject
@@ -67,6 +71,8 @@ namespace Monik.Service
     void OnNewLog(Log_ aLog);
 
     List<Log_> GetLogs(int? aTop, Order aOrder, long? aLastID, LogsFilter[] aFilters);
+    List<Log_> GetLogs4(int? aGroup, long? aLastID, int? aSeverityCutoff, int? aLevel, int? aTop);
+    List<Log_> GetLogs5(LogRequest aFilter);
   }
 
   public interface ICacheKeepAlive : IObject
@@ -75,6 +81,7 @@ namespace Monik.Service
     void OnNewKeepAlive(KeepAlive_ aKeepAlive);
 
     List<KeepAlive_> GetKeepAlive(LogsFilter[] aFilters);
+    List<KeepAlive_> GetKeepAlive2(KeepAliveRequest aFilter);
   }
 
   public interface IMessagePump : IObject
