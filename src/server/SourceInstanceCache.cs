@@ -1,159 +1,161 @@
-﻿using Gerakul.FastSql;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Monik;
-using Monik.Common;
-using System.Diagnostics;
 using Monik.Client;
 
 namespace Monik.Service
 {
-  public class SourceInstanceCache : ISourceInstanceCache
-  {
-    private IRepository FRepository;
-    private IClientControl FControl;
+	public class SourceInstanceCache : ISourceInstanceCache
+	{
+		private readonly IRepository _repository;
+		private readonly IClientControl _control;
 
-    private Dictionary<string, Source> FSources;
-    private Dictionary<short, Source> FSourceMap;
+		private readonly Dictionary<string, Source> _sources;
+		private readonly Dictionary<short, Source> _sourceMap;
 
-    private Dictionary<int, Instance> FInstanceMap;
-    private Dictionary<string, Instance> FSourceInstanceMap;
+		private readonly Dictionary<int, Instance> _instanceMap;
+		private readonly Dictionary<string, Instance> _sourceInstanceMap;
 
-    private Dictionary<short, Group> FGroups;
-    private List<int> FDefaultInstances; // from default group
+		private Dictionary<short, Group> _groups;
+		private List<int> _defaultInstances; // from default group
 
-    public SourceInstanceCache(IRepository aRepository, IClientControl aControl)
-    {
-      FRepository = aRepository;
-      FControl = aControl;
-      FSources = new Dictionary<string, Source>();
-      FSourceMap = new Dictionary<short, Source>();
-      FInstanceMap = new Dictionary<int, Instance>();
-      FSourceInstanceMap = new Dictionary<string, Instance>();
-      
-      FControl.ApplicationVerbose("SourceInstanceCache created");
-    }
+		public SourceInstanceCache(IRepository aRepository, IClientControl aControl)
+		{
+			_repository = aRepository;
+			_control = aControl;
 
-    public void OnStart()
-    {
-      var _sources = FRepository.GetAllSources();
-      foreach (var _src in _sources)
-        if (!FSources.ContainsKey(_src.Name))
-        {
-          FSourceMap.Add(_src.ID, _src);
-          FSources.Add(_src.Name, _src);
-        }
-        else
-          FControl.ApplicationError($"Database contains more than one same source name: {_src.Name}");
+			_sources = new Dictionary<string, Source>();
+			_sourceMap = new Dictionary<short, Source>();
+			_instanceMap = new Dictionary<int, Instance>();
+			_sourceInstanceMap = new Dictionary<string, Instance>();
 
-      var _instances = FRepository.GetAllInstances();
-      foreach (var _ins in _instances)
-        if (FSourceMap.ContainsKey(_ins.SourceID))
-        {
-          Source _src = FSourceMap[_ins.SourceID];
-          string _key = $"{_src.Name}*{_ins.Name}";
+			_control.ApplicationVerbose("SourceInstanceCache created");
+		}
 
-          if (!FSourceInstanceMap.ContainsKey(_key))
-          {
-            _ins.SourceRef(_src);
-            FInstanceMap.Add(_ins.ID, _ins);
-            FSourceInstanceMap.Add(_key, _ins);
-          }
-          else
-            FControl.ApplicationError($"Database contains more than one the same instance name '{_ins.Name}' for the source '{_src.Name}'");
-        }
-        else
-          FControl.ApplicationError($"Database doesnt contains source(id={_ins.SourceID}) for the instance '{_ins.Name}'");
+		public void OnStart()
+		{
+			// 1. Load all sources in memory
+			var sources = _repository.GetAllSources();
+			foreach (var src in sources)
+				if (!_sources.ContainsKey(src.Name))
+				{
+					_sourceMap.Add(src.ID, src);
+					_sources.Add(src.Name, src);
+				}
+				else
+					_control.ApplicationError($"Database contains more than one same source name: {src.Name}");
 
-      var _groups = FRepository.GetAllGroupsAndFill();
-      FDefaultInstances = new List<int>();
-      FGroups = new Dictionary<short, Group>();
+			// 2. Load all instances in memory
+			var instances = _repository.GetAllInstances();
+			foreach (var ins in instances)
+				if (_sourceMap.ContainsKey(ins.SourceID))
+				{
+					Source src = _sourceMap[ins.SourceID];
+					string key = $"{src.Name}*{ins.Name}";
 
-      foreach (var it in _groups)
-      {
-        if (it.IsDefault)
-          foreach (var it2 in it.Instances)
-            if (!FDefaultInstances.Contains(it2))
-              FDefaultInstances.Add(it2);
+					if (!_sourceInstanceMap.ContainsKey(key))
+					{
+						ins.SourceRef(src);
+						_instanceMap.Add(ins.ID, ins);
+						_sourceInstanceMap.Add(key, ins);
+					}
+					else
+						_control.ApplicationError(
+							$"Database contains more than one the same instance name '{ins.Name}' for the source '{src.Name}'");
+				}
+				else
+					_control.ApplicationError($"Database doesnt contains source(id={ins.SourceID}) for the instance '{ins.Name}'");
 
-        FGroups.Add(it.ID, it);
-      }
+			// 3. Load all groups in memory
+			var groups = _repository.GetAllGroupsAndFill();
+			_defaultInstances = new List<int>();
+			_groups = new Dictionary<short, Group>();
 
-      FControl.ApplicationVerbose("SourceInstanceCache started");
-    }
+			foreach (var it in groups)
+			{
+				if (it.IsDefault)
+					foreach (var it2 in it.Instances)
+						if (!_defaultInstances.Contains(it2))
+							_defaultInstances.Add(it2);
 
-    public void OnStop()
-    {
-    }
+				_groups.Add(it.ID, it);
+			}
 
-    public bool IsDefaultInstance(int aInstance)
-    {
-      return FDefaultInstances.Contains(aInstance);
-    }
+			_control.ApplicationVerbose("SourceInstanceCache started");
+		}
 
-    public bool IsInstanceInGroup(int aInstanceID, short aGroupID)
-    {
-      if (!FGroups.ContainsKey(aGroupID))
-        return false;
+		public void OnStop()
+		{
+		}
 
-      return FGroups[aGroupID].Instances.Contains(aInstanceID);
-    }
+		public bool IsDefaultInstance(int aInstance)
+		{
+			return _defaultInstances.Contains(aInstance);
+		}
 
-    public Source GetSourceByInstanceID(int aInstanceID)
-    {
-      lock (this)
-      {
-        return FInstanceMap.ContainsKey(aInstanceID) ? FInstanceMap[aInstanceID].SourceRef() : null;
-      }
-    }
+		public bool IsInstanceInGroup(int aInstanceID, short aGroupID)
+		{
+			if (!_groups.ContainsKey(aGroupID))
+				return false;
 
-    public Instance GetInstanceByID(int aInstanceID)
-    {
-      lock (this)
-      {
-        return FInstanceMap.ContainsKey(aInstanceID) ? FInstanceMap[aInstanceID] : null;
-      }
-    }
+			return _groups[aGroupID].Instances.Contains(aInstanceID);
+		}
 
-    public List<Instance> GetAllInstances() { return FInstanceMap.Values.ToList(); }
+		public Source GetSourceByInstanceId(int aInstanceID)
+		{
+			lock (this)
+			{
+				return _instanceMap.ContainsKey(aInstanceID) ? _instanceMap[aInstanceID].SourceRef() : null;
+			}
+		}
 
-    public Instance CheckSourceAndInstance(string aSourceName, string aInstanceName)
-    {
-      string _key = $"{aSourceName}*{aInstanceName}";
+		public Instance GetInstanceById(int aInstanceID)
+		{
+			lock (this)
+			{
+				return _instanceMap.ContainsKey(aInstanceID) ? _instanceMap[aInstanceID] : null;
+			}
+		}
 
-      lock (this)
-      {
-        if (FSourceInstanceMap.ContainsKey(_key))
-          return FSourceInstanceMap[_key];
+		public List<Instance> GetAllInstances()
+		{
+			return _instanceMap.Values.ToList();
+		}
 
-        Source _src;
+		public Instance CheckSourceAndInstance(string aSourceName, string aInstanceName)
+		{
+			string key = $"{aSourceName}*{aInstanceName}";
 
-        if (!FSources.ContainsKey(aSourceName))
-        {
-          _src = new Source() { Name = aSourceName, Created = DateTime.UtcNow };
-          FRepository.CreateNewSource(_src);
+			lock (this)
+			{
+				if (_sourceInstanceMap.ContainsKey(key))
+					return _sourceInstanceMap[key];
 
-          FSources.Add(aSourceName, _src);
-          FSourceMap.Add(_src.ID, _src);
-        }
-        else
-          _src = FSources[aSourceName];
+				Source src;
 
-        Instance _ins = new Instance() { Name = aInstanceName, Created = DateTime.UtcNow, SourceID = _src.ID };
-        FRepository.CreateNewInstance(_ins);
+				if (!_sources.ContainsKey(aSourceName))
+				{
+					src = new Source() {Name = aSourceName, Created = DateTime.UtcNow};
+					_repository.CreateNewSource(src);
 
-        _ins.SourceRef(_src);
-        FInstanceMap.Add(_ins.ID, _ins);
+					_sources.Add(aSourceName, src);
+					_sourceMap.Add(src.ID, src);
+				}
+				else
+					src = _sources[aSourceName];
 
-        FSourceInstanceMap.Add(_key, _ins);
+				Instance ins = new Instance() {Name = aInstanceName, Created = DateTime.UtcNow, SourceID = src.ID};
+				_repository.CreateNewInstance(ins);
 
-        return _ins;
-      }// TODO: optimize lock
-    }
+				ins.SourceRef(src);
+				_instanceMap.Add(ins.ID, ins);
 
-    
-  }//end of class
+				_sourceInstanceMap.Add(key, ins);
+
+				return ins;
+			} // TODO: optimize lock
+		}
+
+
+	} //end of class
 }

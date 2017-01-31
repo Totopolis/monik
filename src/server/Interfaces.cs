@@ -1,102 +1,97 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Monik;
 using Monik.Common;
 
 namespace Monik.Service
 {
-  public interface IObject
-  {
-    void OnStart();
-    void OnStop();
-  }
+	public interface IObject
+	{
+		void OnStart();
+		void OnStop();
+	}
 
-  public interface IServiceSettings : IObject
-  {
-    string DBConnectionString { get; }
-    string CloudInstanceName { get; }
+	public interface IServiceSettings : IObject
+	{
+		string DbConnectionString { get; }
+		string CloudInstanceName { get; }
 
-    string OutcomingConnectionString { get; }
-    string OutcomingQueue { get; }
-    int DayDeepLog { get; }
-    int DayDeepKeepAlive { get; }
-  }
+		string OutcomingConnectionString { get; }
+		string OutcomingQueue { get; }
+		int DayDeepLog { get; }
+		int DayDeepKeepAlive { get; }
+	}
 
-  public interface IRepository
-  {
-    List<Source> GetAllSources();
-    List<Instance> GetAllInstances();
-    List<Group> GetAllGroupsAndFill();
+	public interface IRepository
+	{
+		List<Source> GetAllSources();
+		List<Instance> GetAllInstances();
+		List<Group> GetAllGroupsAndFill();
 
-    void CreateNewSource(Source aSrc);
-    void CreateNewInstance(Instance aIns);
+		void CreateNewSource(Source aSrc);
+		void CreateNewInstance(Instance aIns);
 
-    long GetMaxLogID();
-    long GetMaxKeepAliveID();
+		long GetMaxLogId();
+		long GetMaxKeepAliveId();
 
-    List<Log_> GetLastLogs(int aTop);
-    List<KeepAlive_> GetLastKeepAlive(int aTop);
+		List<Log_> GetLastLogs(int aTop);
+		List<KeepAlive_> GetLastKeepAlive(int aTop);
 
-    long? GetLogThreshold(int aDayDeep);
-    long? GetKeepAliveThreshold(int aDayDeep);
+		long? GetLogThreshold(int aDayDeep);
+		long? GetKeepAliveThreshold(int aDayDeep);
 
-    int CleanUpLog(long aLastLog);
-    int CleanUpKeepAlive(long aLastKeepAlive);
+		int CleanUpLog(long aLastLog);
+		int CleanUpKeepAlive(long aLastKeepAlive);
 
-    void CreateHourStat(DateTime aHour, long aLastLogID, long aLastKeepAliveID);
+		void CreateHourStat(DateTime aHour, long aLastLogId, long aLastKeepAliveId);
 
-    void CreateKeepAlive(KeepAlive_ aKeepAlive);
-    void CreateLog(Log_ aLog);
+		void CreateKeepAlive(KeepAlive_ aKeepAlive);
+		void CreateLog(Log_ aLog);
 
-    List<EventQueue> GetEventSources();
-  }
+		List<EventQueue> GetEventSources();
+	}
 
-  public interface ISourceInstanceCache : IObject
-  {
-    Instance CheckSourceAndInstance(string aSourceName, string aInstanceName);
-    Source GetSourceByInstanceID(int aInstanceID);
-    Instance GetInstanceByID(int aInstanceID);
-    List<Instance> GetAllInstances();
+	public interface ISourceInstanceCache : IObject
+	{
+		Instance CheckSourceAndInstance(string aSourceName, string aInstanceName);
+		Source GetSourceByInstanceId(int aInstanceId);
+		Instance GetInstanceById(int aInstanceId);
+		List<Instance> GetAllInstances();
 
-    bool IsDefaultInstance(int aInstance);
-    bool IsInstanceInGroup(int aInstanceID, short aGroupID);
-  }
+		bool IsDefaultInstance(int aInstance);
+		bool IsInstanceInGroup(int aInstanceId, short aGroupId);
+	}
 
-  public interface ICacheLog : IObject
-  {
-    long LastLogID { get; }
-    void OnNewLog(Log_ aLog);
+	public interface ICacheLog : IObject
+	{
+		long LastLogId { get; }
+		void OnNewLog(Log_ aLog);
 
-    List<Log_> GetLogs(int? aTop, Order aOrder, long? aLastID, LogsFilter[] aFilters);
-    List<Log_> GetLogs4(int? aGroup, long? aLastID, int? aSeverityCutoff, int? aLevel, int? aTop);
-    List<Log_> GetLogs5(LogRequest aFilter);
-  }
+		List<Log_> GetLogs(int? aTop, Order aOrder, long? aLastId, LogsFilter[] aFilters);
+		List<Log_> GetLogs4(int? aGroup, long? aLastId, int? aSeverityCutoff, int? aLevel, int? aTop);
+		List<Log_> GetLogs5(LogRequest aFilter);
+	}
 
-  public interface ICacheKeepAlive : IObject
-  {
-    long LastKeepAliveID { get; }
-    void OnNewKeepAlive(KeepAlive_ aKeepAlive);
+	public interface ICacheKeepAlive : IObject
+	{
+		long LastKeepAliveId { get; }
+		void OnNewKeepAlive(KeepAlive_ aKeepAlive);
 
-    List<KeepAlive_> GetKeepAlive(LogsFilter[] aFilters);
-    List<KeepAlive_> GetKeepAlive2(KeepAliveRequest aFilter);
-  }
+		List<KeepAlive_> GetKeepAlive(LogsFilter[] aFilters);
+		List<KeepAlive_> GetKeepAlive2(KeepAliveRequest aFilter);
+	}
 
-  public interface IMessagePump : IObject
-  {
+	public interface IMessagePump : IObject
+	{
 
-  }
+	}
 
-  public interface IMessageProcessor : IObject
-  {
-    void Process(Event aEvent, Instance aInstance);
-  }
+	public interface IMessageProcessor : IObject
+	{
+		void Process(Event aEvent, Instance aInstance);
+	}
 
-  public interface IWebService : IObject
-  {
+	public interface IWebService : IObject
+	{
 
-  }
-
+	}
 }

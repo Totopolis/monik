@@ -1,152 +1,145 @@
-﻿using Gerakul.FastSql;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Monik;
 using Monik.Common;
-using System.Diagnostics;
 using Microsoft.ServiceBus.Messaging;
 using Monik.Client;
 using EasyNetQ;
-using EasyNetQ.Topology;
 
 namespace Monik.Service
 {
-  public class ActiveQueue
-  {
-    public EventQueue Config { get; set; }
-    public QueueClient AzureQueue { get; set; }
-    public IAdvancedBus RabbitQueue { get; set; }
-  }
+	public class ActiveQueue
+	{
+		public EventQueue Config { get; set; }
+		public QueueClient AzureQueue { get; set; }
+		public IAdvancedBus RabbitQueue { get; set; }
+	}
 
-  public class EventQueue
-  {
-    public int ID { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public byte Type { get; set; }
-    public string ConnectionString { get; set; }
-    public string QueueName { get; set; }
-  }
+	public class EventQueue
+	{
+		public int ID { get; set; }
+		public string Name { get; set; }
+		public string Description { get; set; }
+		public byte Type { get; set; }
+		public string ConnectionString { get; set; }
+		public string QueueName { get; set; }
+	}
 
-  public class MessagePump : IMessagePump
-  {
-    private IRepository FRepository;
-    private ISourceInstanceCache FCache;
-    private IMessageProcessor FProcessor;
-    private IClientControl FControl;
+	public class MessagePump : IMessagePump
+	{
+		private readonly IRepository _repository;
+		private readonly ISourceInstanceCache _cache;
+		private readonly IMessageProcessor _processor;
+		private readonly IClientControl _control;
 
-    private List<ActiveQueue> FQueues;
+		private List<ActiveQueue> _queues;
 
-    public MessagePump(IRepository aRepository, ISourceInstanceCache aCache, IMessageProcessor aProcessor, IClientControl aControl)
-    {
-      FRepository = aRepository;
-      FCache = aCache;
-      FProcessor = aProcessor;
-      FControl = aControl;
-      FQueues = null;
+		public MessagePump(IRepository aRepository, ISourceInstanceCache aCache, IMessageProcessor aProcessor,
+			IClientControl aControl)
+		{
+			_repository = aRepository;
+			_cache = aCache;
+			_processor = aProcessor;
+			_control = aControl;
+			_queues = null;
 
-      FControl.ApplicationVerbose("MessagePump created");
-    }
+			_control.ApplicationVerbose("MessagePump created");
+		}
 
-    public void OnStart()
-    {
-      FQueues = new List<ActiveQueue>();
-      var _configs = FRepository.GetEventSources();
+		public void OnStart()
+		{
+			_queues = new List<ActiveQueue>();
+			var configs = _repository.GetEventSources();
 
-      foreach (var it in _configs)
-      {
-        try
-        {
-          ActiveQueue _queue = new ActiveQueue()
-          {
-            Config = it,
-            AzureQueue = null,
-            RabbitQueue = null
-          };
+			foreach (var it in configs)
+			{
+				try
+				{
+					ActiveQueue queue = new ActiveQueue()
+					{
+						Config = it,
+						AzureQueue = null,
+						RabbitQueue = null
+					};
 
-          if (it.Type == 1)
-            InitializeServiceBus(_queue);
-          else
-            if (it.Type == 2)
-            InitializeRabbitMQ(_queue);
+					if (it.Type == 1)
+						InitializeServiceBus(queue);
+					else if (it.Type == 2)
+						InitializeRabbitMq(queue);
 
-          FQueues.Add(_queue);
-        }
-        catch(Exception _e)
-        {
-          FControl.ApplicationError($"MessagePump.OnStart failed initialization {it.Name}: {_e.Message}");
-        }
-      }
+					_queues.Add(queue);
+				}
+				catch (Exception ex)
+				{
+					_control.ApplicationError($"MessagePump.OnStart failed initialization {it.Name}: {ex.Message}");
+				}
+			}
 
-      FControl.ApplicationVerbose("MessagePump started");
-    }
+			_control.ApplicationVerbose("MessagePump started");
+		}
 
-    private void InitializeServiceBus(ActiveQueue aActive)
-    {
-      aActive.AzureQueue = QueueClient.CreateFromConnectionString(aActive.Config.ConnectionString, aActive.Config.QueueName);
+		private void InitializeServiceBus(ActiveQueue aActive)
+		{
+			aActive.AzureQueue = QueueClient.CreateFromConnectionString(aActive.Config.ConnectionString, aActive.Config.QueueName);
 
-      aActive.AzureQueue.OnMessage(message =>
-      {
-        try
-        {
-          byte[] _buf = message.GetBody<byte[]>();
-          Event _msg = Event.Parser.ParseFrom(_buf);
+			aActive.AzureQueue.OnMessage(message =>
+			{
+				try
+				{
+					byte[] buf = message.GetBody<byte[]>();
+					Event msg = Event.Parser.ParseFrom(buf);
 
-          if (_msg.Source.Trim().Length != 0 && _msg.Instance.Trim().Length != 0)
-          {
-            var _instance = FCache.CheckSourceAndInstance(Helper.Utf8ToUtf16(_msg.Source), Helper.Utf8ToUtf16(_msg.Instance));
-            FProcessor.Process(_msg, _instance);
-          }
-          // TODO: else increase ignored counter
-        }
-        catch (Exception _e)
-        {
-          FControl.ApplicationError($"MessagePump.OnMessage ServiceBus: {_e.Message}");
-        }
-      });
-    }
+					if (msg.Source.Trim().Length != 0 && msg.Instance.Trim().Length != 0)
+					{
+						var instance = _cache.CheckSourceAndInstance(Helper.Utf8ToUtf16(msg.Source), Helper.Utf8ToUtf16(msg.Instance));
+						_processor.Process(msg, instance);
+					}
+					// TODO: else increase ignored counter
+				}
+				catch (Exception ex)
+				{
+					_control.ApplicationError($"MessagePump.OnMessage ServiceBus: {ex.Message}");
+				}
+			});
+		}
 
-    private void InitializeRabbitMQ(ActiveQueue aActive)
-    {
-      aActive.RabbitQueue = RabbitHutch.CreateBus(aActive.Config.ConnectionString).Advanced;
-      
-      // https://github.com/EasyNetQ/EasyNetQ/wiki/the-advanced-api
+		private void InitializeRabbitMq(ActiveQueue aActive)
+		{
+			aActive.RabbitQueue = RabbitHutch.CreateBus(aActive.Config.ConnectionString).Advanced;
 
-      var queue = aActive.RabbitQueue.QueueDeclare(aActive.Config.QueueName);
+			// https://github.com/EasyNetQ/EasyNetQ/wiki/the-advanced-api
 
-      aActive.RabbitQueue.Consume(queue, (body, properties, info) => Task.Factory.StartNew(() =>
-      {
-        try
-        {
-          Event _msg = Event.Parser.ParseFrom(body);
+			var queue = aActive.RabbitQueue.QueueDeclare(aActive.Config.QueueName);
 
-          if (_msg.Source.Trim().Length != 0 && _msg.Instance.Trim().Length != 0)
-          {
-            var _instance = FCache.CheckSourceAndInstance(Helper.Utf8ToUtf16(_msg.Source), Helper.Utf8ToUtf16(_msg.Instance));
-            FProcessor.Process(_msg, _instance);
-          }
-          // TODO: else increase ignored counter
-        }
-        catch (Exception _e)
-        {
-          FControl.ApplicationError($"MessagePump.OnMessage RabbitMQ: {_e.Message}");
-        }
-      }));
-    }
+			aActive.RabbitQueue.Consume(queue, (body, properties, info) => Task.Factory.StartNew(() =>
+			{
+				try
+				{
+					Event msg = Event.Parser.ParseFrom(body);
 
-    public void OnStop()
-    {
-      if (FQueues != null)
-        foreach (var it in FQueues)
-          if (it.Config.Type == 1)
-            it.AzureQueue.Close();
-          else
-            if (it.Config.Type == 2)
-            it.RabbitQueue.Dispose();
-    }
-    
-  }//end class
+					if (msg.Source.Trim().Length != 0 && msg.Instance.Trim().Length != 0)
+					{
+						var instance = _cache.CheckSourceAndInstance(Helper.Utf8ToUtf16(msg.Source), Helper.Utf8ToUtf16(msg.Instance));
+						_processor.Process(msg, instance);
+					}
+					// TODO: else increase ignored counter
+				}
+				catch (Exception ex)
+				{
+					_control.ApplicationError($"MessagePump.OnMessage RabbitMQ: {ex.Message}");
+				}
+			}));
+		}
+
+		public void OnStop()
+		{
+			if (_queues != null)
+				foreach (var it in _queues)
+					if (it.Config.Type == 1)
+						it.AzureQueue.Close();
+					else if (it.Config.Type == 2)
+						it.RabbitQueue.Dispose();
+		}
+
+	} //end class
 }

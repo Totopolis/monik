@@ -1,43 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 using Google.Protobuf;
 using Microsoft.ServiceBus.Messaging;
-using System.IO;
-using System.Threading;
 using Monik.Common;
 
 namespace Monik.Client
 {
-  public class AzureSender : IClientSender
-  {
-    private string FServiceBusConnectionString;
-    private string FQueueName;
+	public class AzureSender : IClientSender
+	{
+		private readonly string _serviceBusConnectionString;
+		private readonly string _queueName;
 
-    public AzureSender(string aServiceBusConnectionString, string aQueueName)
-    {
-      FServiceBusConnectionString = aServiceBusConnectionString;
-      FQueueName = aQueueName;
-    }
+		public AzureSender(string aServiceBusConnectionString, string aQueueName)
+		{
+			_serviceBusConnectionString = aServiceBusConnectionString;
+			_queueName = aQueueName;
+		}
 
-    public void SendMessages(ConcurrentQueue<Event> aQueue)
-    {
-      var _client = QueueClient.CreateFromConnectionString(FServiceBusConnectionString, FQueueName);
-      Event _msg;
+		public void SendMessages(ConcurrentQueue<Event> aQueue)
+		{
+			var client = QueueClient.CreateFromConnectionString(_serviceBusConnectionString, _queueName);
 
-      try
-      {
-        while (aQueue.TryDequeue(out _msg))
-        {
-          var _arr = _msg.ToByteArray();
-          var _message = new BrokeredMessage(_arr);
-          _client.Send(_message);
-        }
-      }
-      finally { _client.Close(); }
-    }
-  }
+			try
+			{
+				Event msg;
+
+				while (aQueue.TryDequeue(out msg))
+				{
+					var arr = msg.ToByteArray();
+					var message = new BrokeredMessage(arr);
+					client.Send(message);
+				}
+			}
+			finally
+			{
+				client.Close();
+			}
+		}
+	}
 }

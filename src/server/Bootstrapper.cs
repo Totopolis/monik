@@ -1,52 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Monik;
-using Monik.Common;
-using Nancy;
+﻿using Nancy;
 using Nancy.Bootstrapper;
-using Nancy.Configuration;
 using Nancy.TinyIoc;
 using Monik.Client;
 
 namespace Monik.Service
 {
-  public class Bootstrapper : DefaultNancyBootstrapper
-  {
-    public static TinyIoCContainer MainContainer { get; private set; } = null;
+	public class Bootstrapper : DefaultNancyBootstrapper
+	{
+		public static TinyIoCContainer MainContainer { get; private set; } = null;
 
-    protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
-    {
-      container.Resolve<IServiceSettings>().OnStart();
+		protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
+		{
+			container.Resolve<IServiceSettings>().OnStart();
 
-      container.Resolve<ISourceInstanceCache>().OnStart();
-      container.Resolve<ICacheLog>().OnStart();
-      container.Resolve<ICacheKeepAlive>().OnStart();
-      container.Resolve<IMessageProcessor>().OnStart();
-      container.Resolve<IMessagePump>().OnStart();
-    }
+			container.Resolve<ISourceInstanceCache>().OnStart();
+			container.Resolve<ICacheLog>().OnStart();
+			container.Resolve<ICacheKeepAlive>().OnStart();
+			container.Resolve<IMessageProcessor>().OnStart();
+			container.Resolve<IMessagePump>().OnStart();
+		}
 
-    protected override void ConfigureApplicationContainer(TinyIoCContainer container)
-    {
-      container.Register<IServiceSettings, ServiceSettings>().AsSingleton();
+		protected override void ConfigureApplicationContainer(TinyIoCContainer container)
+		{
+			container.Register<IServiceSettings, ServiceSettings>().AsSingleton();
 
-      container.Register<IRepository, Repository>();
+			container.Register<IRepository, Repository>();
 
-      container.Register<ICacheLog, CacheLog>().AsSingleton();
-      container.Register<ICacheKeepAlive, CacheKeepAlive>().AsSingleton();
-      container.Register<ISourceInstanceCache, SourceInstanceCache>().AsSingleton();
+			container.Register<ICacheLog, CacheLog>().AsSingleton();
+			container.Register<ICacheKeepAlive, CacheKeepAlive>().AsSingleton();
+			container.Register<ISourceInstanceCache, SourceInstanceCache>().AsSingleton();
 
-      container.Register<IMessageProcessor, MessageProcessor>().AsSingleton();
-      container.Register<IMessagePump, MessagePump>().AsSingleton();
+			container.Register<IMessageProcessor, MessageProcessor>().AsSingleton();
+			container.Register<IMessagePump, MessagePump>().AsSingleton();
 
-      container.Register<IClientSender, ServiceSender>().AsSingleton();
-      container.Register<IClientSettings, ServiceClientSettings>().AsSingleton();
-      container.Register<IClientControl, MonikInstance>().AsSingleton();
+			container.Register<IClientSender, ServiceSender>().AsSingleton();
+			container.Register<IClientSettings, ServiceClientSettings>().AsSingleton();
+			container.Register<IClientControl, MonikInstance>().AsSingleton();
 
-      MainContainer = container;
-    }
-  }//end of class
+			MainContainer = container;
+		}
+	} //end of class
 
 }

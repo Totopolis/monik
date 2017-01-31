@@ -1,149 +1,142 @@
-﻿using Gerakul.FastSql;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Monik;
+﻿using System;
 using Monik.Common;
-using System.Diagnostics;
 using Monik.Client;
-using System.Threading;
 
 namespace Monik.Service
 {
-  public class MessageProcessor : IMessageProcessor
-  {
-    private IServiceSettings FSettings;
-    private IRepository FRepository;
-    private ICacheLog FCacheLog;
-    private ICacheKeepAlive FCacheKeepAlive;
-    private IClientControl FControl;
+	public class MessageProcessor : IMessageProcessor
+	{
+		private readonly IServiceSettings _settings;
+		private readonly IRepository _repository;
+		private readonly ICacheLog _cacheLog;
+		private readonly ICacheKeepAlive _cacheKeepAlive;
+		private readonly IClientControl _control;
 
-    public MessageProcessor(IServiceSettings aSettings, IRepository aRepository, ICacheLog aCacheLog, ICacheKeepAlive aCacheKeepAlive, IClientControl aControl)
-    {
-      FSettings = aSettings;
-      FRepository = aRepository;
-      FCacheLog = aCacheLog;
-      FCacheKeepAlive = aCacheKeepAlive;
-      FControl = aControl;
+		public MessageProcessor(IServiceSettings aSettings, IRepository aRepository, ICacheLog aCacheLog,
+			ICacheKeepAlive aCacheKeepAlive, IClientControl aControl)
+		{
+			_settings = aSettings;
+			_repository = aRepository;
+			_cacheLog = aCacheLog;
+			_cacheKeepAlive = aCacheKeepAlive;
+			_control = aControl;
 
-      FCleaner = Scheduler.CreatePerHour(FControl, CleanerTask, "cleaner");
-      FStatist = Scheduler.CreatePerHour(FControl, StatistTask, "statist");
-      
-      FControl.ApplicationVerbose("MessageProcessor created");
-    }
+			_cleaner = Scheduler.CreatePerHour(_control, CleanerTask, "cleaner");
+			_statist = Scheduler.CreatePerHour(_control, StatistTask, "statist");
 
-    private Scheduler FCleaner;
-    private Scheduler FStatist;
+			_control.ApplicationVerbose("MessageProcessor created");
+		}
 
-    public void OnStart()
-    {
-      FCleaner.OnStart();
-      FStatist.OnStart();
+		private readonly Scheduler _cleaner;
+		private readonly Scheduler _statist;
 
-      FControl.ApplicationVerbose("MessageProcessor started");
-    }
+		public void OnStart()
+		{
+			_cleaner.OnStart();
+			_statist.OnStart();
 
-    private void CleanerTask()
-    {
-      try
-      {
-        // cleanup logs
-        var _logDeep = FSettings.DayDeepLog;
-        var _logThreshold = FRepository.GetLogThreshold(_logDeep);
-        if (_logThreshold.HasValue)
-        {
-          var _count = FRepository.CleanUpLog(_logThreshold.Value);
-          FControl.LogicInfo("Cleaner delete Log: {0} rows", _count);
-        }
+			_control.ApplicationVerbose("MessageProcessor started");
+		}
 
-        // cleanup keep-alive
-        var _kaDeep = FSettings.DayDeepKeepAlive;
-        var _kaThreshold = FRepository.GetKeepAliveThreshold(_kaDeep);
-        if (_kaThreshold.HasValue)
-        {
-          var _count = FRepository.CleanUpKeepAlive(_kaThreshold.Value);
-          FControl.LogicInfo("Cleaner delete KeepAlive: {0} rows", _count);
-        }
-      }
-      catch (Exception _e)
-      {
-        FControl.ApplicationError("CleanerTask: {0}", _e.Message);
-      }
-    }
+		private void CleanerTask()
+		{
+			try
+			{
+				// cleanup logs
+				var logDeep = _settings.DayDeepLog;
+				var logThreshold = _repository.GetLogThreshold(logDeep);
+				if (logThreshold.HasValue)
+				{
+					var count = _repository.CleanUpLog(logThreshold.Value);
+					_control.LogicInfo("Cleaner delete Log: {0} rows", count);
+				}
 
-    private void StatistTask()
-    {
-      try
-      {
-        DateTime now = DateTime.UtcNow;
-        DateTime hs = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0);
+				// cleanup keep-alive
+				var kaDeep = _settings.DayDeepKeepAlive;
+				var kaThreshold = _repository.GetKeepAliveThreshold(kaDeep);
+				if (kaThreshold.HasValue)
+				{
+					var count = _repository.CleanUpKeepAlive(kaThreshold.Value);
+					_control.LogicInfo("Cleaner delete KeepAlive: {0} rows", count);
+				}
+			}
+			catch (Exception ex)
+			{
+				_control.ApplicationError("CleanerTask: {0}", ex.Message);
+			}
+		}
 
-        FRepository.CreateHourStat(hs, FCacheLog.LastLogID, FCacheKeepAlive.LastKeepAliveID);
-      }
-      catch (Exception _e)
-      {
-        FControl.ApplicationError("StatistTask: {0}", _e.Message);
-      }
-    }
+		private void StatistTask()
+		{
+			try
+			{
+				DateTime now = DateTime.UtcNow;
+				DateTime hs = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0);
 
-    public void OnStop()
-    {
-      FStatist.OnStop();
-      FCleaner.OnStop();
-    }
+				_repository.CreateHourStat(hs, _cacheLog.LastLogId, _cacheKeepAlive.LastKeepAliveId);
+			}
+			catch (Exception ex)
+			{
+				_control.ApplicationError("StatistTask: {0}", ex.Message);
+			}
+		}
 
-    public void Process(Event aEvent, Instance aInstance)
-    {
-      switch (aEvent.MsgCase)
-      {
-        case Event.MsgOneofCase.None:
-          throw new NotSupportedException("Bad event type");
-        case Event.MsgOneofCase.Ka:
-          var _ka = WriteKeepAlive(aEvent, aInstance);
-          FCacheKeepAlive.OnNewKeepAlive(_ka);
-          break;
-        case Event.MsgOneofCase.Lg:
-          var _lg = WriteLog(aEvent, aInstance);
-          FCacheLog.OnNewLog(_lg);
-          break;
-        default:
-          throw new NotSupportedException("Bad event type");
-      }
-    }
+		public void OnStop()
+		{
+			_statist.OnStop();
+			_cleaner.OnStop();
+		}
 
-    private KeepAlive_ WriteKeepAlive(Event aEventLog, Instance aInstance)
-    {
-      KeepAlive_ _row = new KeepAlive_()
-      {
-        Created = Helper.FromMillisecondsSinceUnixEpoch(aEventLog.Created),
-        Received = DateTime.UtcNow,
-        InstanceID = aInstance.ID
-      };
+		public void Process(Event aEvent, Instance aInstance)
+		{
+			switch (aEvent.MsgCase)
+			{
+				case Event.MsgOneofCase.None:
+					throw new NotSupportedException("Bad event type");
+				case Event.MsgOneofCase.Ka:
+					var ka = WriteKeepAlive(aEvent, aInstance);
+					_cacheKeepAlive.OnNewKeepAlive(ka);
+					break;
+				case Event.MsgOneofCase.Lg:
+					var lg = WriteLog(aEvent, aInstance);
+					_cacheLog.OnNewLog(lg);
+					break;
+				default:
+					throw new NotSupportedException("Bad event type");
+			}
+		}
 
-      FRepository.CreateKeepAlive(_row);
+		private KeepAlive_ WriteKeepAlive(Event aEventLog, Instance aInstance)
+		{
+			KeepAlive_ row = new KeepAlive_()
+			{
+				Created = Helper.FromMillisecondsSinceUnixEpoch(aEventLog.Created),
+				Received = DateTime.UtcNow,
+				InstanceID = aInstance.ID
+			};
 
-      return _row;
-    }
+			_repository.CreateKeepAlive(row);
 
-    private Log_ WriteLog(Event aEventLog, Instance aInstance)
-    {
-      Log_ _row = new Log_()
-      {
-        Created = Helper.FromMillisecondsSinceUnixEpoch(aEventLog.Created),
-        Received = DateTime.UtcNow,
-        Level = (byte)aEventLog.Lg.Level,
-        Severity = (byte)aEventLog.Lg.Severity,
-        InstanceID = aInstance.ID,
-        Format = (byte)aEventLog.Lg.Format,
-        Body = aEventLog.Lg.Body,
-        Tags = aEventLog.Lg.Tags
-      };
+			return row;
+		}
 
-      FRepository.CreateLog(_row);
+		private Log_ WriteLog(Event aEventLog, Instance aInstance)
+		{
+			Log_ row = new Log_()
+			{
+				Created = Helper.FromMillisecondsSinceUnixEpoch(aEventLog.Created),
+				Received = DateTime.UtcNow,
+				Level = (byte) aEventLog.Lg.Level,
+				Severity = (byte) aEventLog.Lg.Severity,
+				InstanceID = aInstance.ID,
+				Format = (byte) aEventLog.Lg.Format,
+				Body = aEventLog.Lg.Body,
+				Tags = aEventLog.Lg.Tags
+			};
 
-      return _row;
-    }
-  }
+			_repository.CreateLog(row);
+
+			return row;
+		}
+	}//end of class
 }

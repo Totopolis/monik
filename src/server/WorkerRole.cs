@@ -1,92 +1,82 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.Azure;
-using Microsoft.ServiceBus.Messaging;
 using Monik.Service;
 using Monik.Client;
-using Monik.Common;
 
 namespace MonikWorker
 {
-  public class WorkerRole : RoleEntryPoint
-  {
-    private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-    private readonly ManualResetEvent runCompleteEvent = new ManualResetEvent(false);
+	public class WorkerRole : RoleEntryPoint
+	{
+		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private readonly ManualResetEvent _runCompleteEvent = new ManualResetEvent(false);
 
-    public override void Run()
-    {
-      FControl.ApplicationVerbose("MonikWorker is running");
+		public override void Run()
+		{
+			_control.ApplicationVerbose("MonikWorker is running");
 
-      try
-      {
-        this.RunAsync(this.cancellationTokenSource.Token).Wait();
-      }
-      finally
-      {
-        this.runCompleteEvent.Set();
-      }
-    }
+			try
+			{
+				this.RunAsync(this._cancellationTokenSource.Token).Wait();
+			}
+			finally
+			{
+				this._runCompleteEvent.Set();
+			}
+		}
 
-    private WebService FService;
-    private IClientControl FControl;
+		private WebService _service;
+		private IClientControl _control;
 
-    public override bool OnStart()
-    {
-      ServicePointManager.DefaultConnectionLimit = 12;
-      bool result = base.OnStart();
+		public override bool OnStart()
+		{
+			ServicePointManager.DefaultConnectionLimit = 12;
+			bool result = base.OnStart();
 
-      // TODO: retry logic and exit if exceptions in Bootstrapper...
+			// TODO: retry logic and exit if exceptions in Bootstrapper...
 
-      string _prefix = RoleEnvironment.CurrentRoleInstance.InstanceEndpoints["HTTP_EP"].IPEndpoint.ToString();
-      FService = new WebService(_prefix);
-      FService.OnStart();
+			string prefix = RoleEnvironment.CurrentRoleInstance.InstanceEndpoints["HTTP_EP"].IPEndpoint.ToString();
+			_service = new WebService(prefix);
+			_service.OnStart();
 
-      FControl = Bootstrapper.MainContainer.Resolve<IClientControl>();
+			_control = Bootstrapper.MainContainer.Resolve<IClientControl>();
 
-      FControl.ApplicationWarning("MonikWorker has been started");
+			_control.ApplicationWarning("MonikWorker has been started");
 
-      return result;
-    }
+			return result;
+		}
 
-    public override void OnStop()
-    {
-      FControl.ApplicationWarning("MonikWorker is stopping");
+		public override void OnStop()
+		{
+			_control.ApplicationWarning("MonikWorker is stopping");
 
-      // TODO: catch exceptions inside
+			// TODO: catch exceptions inside
 
-      FService.OnStop();
+			_service.OnStop();
 
-      var container = Bootstrapper.MainContainer;
-      container.Resolve<IMessagePump>().OnStop();
-      container.Resolve<IMessageProcessor>().OnStop();
+			var container = Bootstrapper.MainContainer;
+			container.Resolve<IMessagePump>().OnStop();
+			container.Resolve<IMessageProcessor>().OnStop();
 
-      this.cancellationTokenSource.Cancel();
-      this.runCompleteEvent.WaitOne();
+			this._cancellationTokenSource.Cancel();
+			this._runCompleteEvent.WaitOne();
 
-      FControl.ApplicationWarning("MonikWorker has stopped");
+			_control.ApplicationWarning("MonikWorker has stopped");
 
-      FControl.OnStop();
+			_control.OnStop();
 
-      base.OnStop();
-    }
+			base.OnStop();
+		}
 
-    private async Task RunAsync(CancellationToken cancellationToken)
-    {
-      // TODO: Replace the following with your own logic.
-      while (!cancellationToken.IsCancellationRequested)
-      {
-        //M.ApplicationInfo("Working");
-        await Task.Delay(10000);
-      }
-    }
-  }
+		private async Task RunAsync(CancellationToken cancellationToken)
+		{
+			// TODO: Replace the following with your own logic.
+			while (!cancellationToken.IsCancellationRequested)
+			{
+				//M.ApplicationInfo("Working");
+				await Task.Delay(10000);
+			}
+		}
+	}
 }

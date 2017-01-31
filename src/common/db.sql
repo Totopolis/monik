@@ -16,6 +16,7 @@ CREATE TABLE [mon].[Source](
 	[Created] [datetime] NOT NULL,
 	[Name] [nvarchar](256) NOT NULL,
 	[Description] [nvarchar](256) NULL,
+	[DefaultGroupID] [smallint] NULL,
 CONSTRAINT [PK_Source] PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC
