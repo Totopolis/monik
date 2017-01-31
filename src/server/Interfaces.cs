@@ -29,6 +29,7 @@ namespace Monik.Service
 
 		void CreateNewSource(Source aSrc);
 		void CreateNewInstance(Instance aIns);
+		void AddInstanceToGroup(Instance aIns, Group aGroup);
 
 		long GetMaxLogId();
 		long GetMaxKeepAliveId();

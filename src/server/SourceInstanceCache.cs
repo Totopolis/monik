@@ -93,27 +93,27 @@ namespace Monik.Service
 			return _defaultInstances.Contains(aInstance);
 		}
 
-		public bool IsInstanceInGroup(int aInstanceID, short aGroupID)
+		public bool IsInstanceInGroup(int aInstanceId, short aGroupId)
 		{
-			if (!_groups.ContainsKey(aGroupID))
+			if (!_groups.ContainsKey(aGroupId))
 				return false;
 
-			return _groups[aGroupID].Instances.Contains(aInstanceID);
+			return _groups[aGroupId].Instances.Contains(aInstanceId);
 		}
 
-		public Source GetSourceByInstanceId(int aInstanceID)
+		public Source GetSourceByInstanceId(int aInstanceId)
 		{
 			lock (this)
 			{
-				return _instanceMap.ContainsKey(aInstanceID) ? _instanceMap[aInstanceID].SourceRef() : null;
+				return _instanceMap.ContainsKey(aInstanceId) ? _instanceMap[aInstanceId].SourceRef() : null;
 			}
 		}
 
-		public Instance GetInstanceById(int aInstanceID)
+		public Instance GetInstanceById(int aInstanceId)
 		{
 			lock (this)
 			{
-				return _instanceMap.ContainsKey(aInstanceID) ? _instanceMap[aInstanceID] : null;
+				return _instanceMap.ContainsKey(aInstanceId) ? _instanceMap[aInstanceId] : null;
 			}
 		}
 
@@ -135,7 +135,7 @@ namespace Monik.Service
 
 				if (!_sources.ContainsKey(aSourceName))
 				{
-					src = new Source() {Name = aSourceName, Created = DateTime.UtcNow};
+					src = new Source() {Name = aSourceName, Created = DateTime.UtcNow, DefaultGroupID = null};
 					_repository.CreateNewSource(src);
 
 					_sources.Add(aSourceName, src);
@@ -152,10 +152,16 @@ namespace Monik.Service
 
 				_sourceInstanceMap.Add(key, ins);
 
+				if (src.DefaultGroupID.HasValue && _groups.ContainsKey(src.DefaultGroupID.Value))
+				{
+					var gr = _groups[src.DefaultGroupID.Value];
+					gr.Instances.Add(ins.ID);
+					_repository.AddInstanceToGroup(ins, gr);
+				}
+
 				return ins;
 			} // TODO: optimize lock
 		}
-
 
 	} //end of class
 }

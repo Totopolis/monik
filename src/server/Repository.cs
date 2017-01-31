@@ -54,6 +54,12 @@ namespace Monik.Service
 			aIns.ID = (int) MappedCommand.InsertAndGetId<Instance>(_settings.DbConnectionString, "[mon].[Instance]", aIns, "ID");
 		}
 
+		public void AddInstanceToGroup(Instance aIns, Group aGroup)
+		{
+			var proto = new { GroupID = aGroup.ID, InstanceID = aIns.ID };
+			MappedCommand.Insert(_settings.DbConnectionString, "mon.GroupInstance", proto, "ID");
+		}
+
 		public long GetMaxLogId()
 		{
 			var result = SimpleCommand.ExecuteScalar(_settings.DbConnectionString, "select max(ID) from [mon].[Log]");
@@ -105,9 +111,9 @@ namespace Monik.Service
 				aLastKeepAlive);
 		}
 
-		public void CreateHourStat(DateTime aHour, long aLastLogID, long aLastKeepAliveID)
+		public void CreateHourStat(DateTime aHour, long aLastLogId, long aLastKeepAliveId)
 		{
-			var stat = new {Hour = aHour, LastLogID = aLastLogID, LastKeepAliveID = aLastKeepAliveID};
+			var stat = new {Hour = aHour, LastLogID = aLastLogId, LastKeepAliveID = aLastKeepAliveId};
 			MappedCommand.Insert(_settings.DbConnectionString, "[mon].[HourStat]", stat);
 		}
 
