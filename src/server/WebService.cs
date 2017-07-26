@@ -58,47 +58,6 @@ namespace Monik.Service
 				}
 			});
 
-			Post("/logs3", args =>
-			{
-				int? top = Request.Query["top"].HasValue ? Request.Query["top"] : null;
-				string order = Request.Query["order"].HasValue ? Request.Query["order"] : string.Empty;
-				long? lastid = Request.Query["lastid"].HasValue ? Request.Query["lastid"] : null;
-				var filters = this.Bind<LogsFilter[]>();
-
-				try
-				{
-					List<Log_> result = cacheLog.GetLogs(top, order == "desc" ? Order.Desc : Order.Asc, lastid, filters);
-					return Response.AsJson<Log_[]>(result.ToArray());
-				}
-				catch (Exception ex)
-				{
-					control.ApplicationError($"Method /logs3 : {ex.Message}");
-					return HttpStatusCode.InternalServerError;
-				}
-			});
-
-			// only single and stream modes will be
-			// get /logs4?group=main&top=100&lastid=123&severitycutoff=info&level=sec
-			/* TODO: Get("/logs4", args =>
-			{
-			  int? _group = Request.Query["group"].HasValue ? Request.Query["group"] : null;
-			  long? _lastid = Request.Query["lastid"].HasValue ? Request.Query["lastid"] : null;
-			  int? _severityCutoff = Request.Query["severitycutoff"].HasValue ? Request.Query["severitycutoff"] : null;
-			  int? _level = Request.Query["level"].HasValue ? Request.Query["level"] : null;
-			  int? _top = Request.Query["top"].HasValue ? Request.Query["top"] : null;
-	  
-			  try
-			  {
-			    List<Log_> _result = _cacheLog.GetLogs4(_group, _lastid, _severityCutoff, _level, _top);
-			    return Response.AsJson<Log_[]>(_result.ToArray());
-			  }
-			  catch (Exception _e)
-			  {
-			    _control.ApplicationError($"Method /logs3 : {_e.Message}");
-			    return HttpStatusCode.InternalServerError;
-			  }
-			});*/
-
 			Post("/logs5", args =>
 			{
 				try

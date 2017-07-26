@@ -67,8 +67,6 @@ namespace Monik.Service
 		long LastLogId { get; }
 		void OnNewLog(Log_ aLog);
 
-		List<Log_> GetLogs(int? aTop, Order aOrder, long? aLastId, LogsFilter[] aFilters);
-		List<Log_> GetLogs4(int? aGroup, long? aLastId, int? aSeverityCutoff, int? aLevel, int? aTop);
 		List<Log_> GetLogs5(LogRequest aFilter);
 	}
 
