@@ -74,22 +74,6 @@ namespace Monik.Service
 				}
 			});
 
-			Post("/keepalive", args =>
-			{
-				var filters = this.Bind<LogsFilter[]>();
-
-				try
-				{
-					List<KeepAlive_> result = cacheKeepAlive.GetKeepAlive(filters);
-					return Response.AsJson<KeepAlive_[]>(result.ToArray());
-				}
-				catch (Exception ex)
-				{
-					control.ApplicationError($"Method /keepalive : {ex.Message}");
-					return HttpStatusCode.InternalServerError;
-				}
-			});
-
 			Post("/keepalive2", args =>
 			{
 				var filter = this.Bind<KeepAliveRequest>();

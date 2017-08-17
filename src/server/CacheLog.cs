@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Monik.Client;
+using System.Collections.Concurrent;
 
 namespace Monik.Service
 {
@@ -10,9 +11,15 @@ namespace Monik.Service
 		private readonly IRepository _repository;
 		private readonly IClientControl _control;
 
-		private List<Log_> _logs;
+		private ConcurrentQueue<Log_> _logs;
 		private ISourceInstanceCache _cache;
-		private long _oldestId;
+
+		private long _oldestLogId;
+		public long OldestLogId
+		{
+			get { lock (this) return _oldestLogId; }
+			private set { lock (this) _oldestLogId = value; }
+		}
 
 		public CacheLog(IRepository aRepository, ISourceInstanceCache aCache, IClientControl aControl)
 		{
@@ -21,10 +28,12 @@ namespace Monik.Service
 
 			_logs = null;
 			_cache = aCache;
-			_oldestId = 0;
+			OldestLogId = 0;
 
 			_control.ApplicationVerbose("CacheLog created");
 		}
+
+		private readonly int _logsDeep = 3000;
 
 		public void OnStart()
 		{
@@ -34,9 +43,10 @@ namespace Monik.Service
 			LastLogId = _repository.GetMaxLogId();
 
 			// 2. load top logs
-			_logs = _repository.GetLastLogs(1000);
+			var lastLogsFromDB = _repository.GetLastLogs(_logsDeep);
+			_logs = new ConcurrentQueue<Log_>(lastLogsFromDB);
 
-			_oldestId = _logs.Count == 0 ? 0 : _logs.Min(lg => lg.ID);
+			OldestLogId = _logs.Count == 0 ? 0 : _logs.Min(lg => lg.ID);
 
 			_control.ApplicationVerbose("CacheLog started");
 		}
@@ -46,17 +56,22 @@ namespace Monik.Service
 			// nothing
 		}
 
-		public long LastLogId { get; private set; }
+		private long _lastLogId;
+		public long LastLogId
+		{
+			get { lock (this) return _lastLogId; }
+			private set { lock (this) _lastLogId = value; }
+		}
 
 		public void OnNewLog(Log_ aLog)
 		{
-			lock (this)
-			{
-				_logs.Add(aLog);
-				LastLogId = aLog.ID;
-			}
+			_logs.Enqueue(aLog);
+			LastLogId = aLog.ID;
 
-			// TODO: pop overhead logs
+			Log_ xx;
+			while (_logs.Count > _logsDeep)
+				if (_logs.TryDequeue(out xx) && xx.ID > OldestLogId) // TODO: remove second condition?
+					OldestLogId = xx.ID;
 		}
 
 		private bool IsFiltered5(Log_ aLog, LogRequest aFilter)
@@ -91,15 +106,12 @@ namespace Monik.Service
 			if (aFilter == null)
 				return result;
 
-			if (aFilter.LastId.HasValue && aFilter.LastId.Value < _oldestId)
+			if (aFilter.LastId.HasValue && aFilter.LastId.Value < OldestLogId)
 				return result;
 
-			lock (this)
-			{
-				result = aFilter.LastId.HasValue
-					? _logs.FindAll(lg => lg.ID > aFilter.LastId.Value).ToList()
-					: _logs.Select(x => x).ToList();
-			}
+			result = aFilter.LastId.HasValue
+				? _logs.Where(lg => lg.ID > aFilter.LastId.Value).ToList()
+				: _logs.ToList();
 
 			// TODO: remove magic number
 			int top = aFilter.Top ?? 10;

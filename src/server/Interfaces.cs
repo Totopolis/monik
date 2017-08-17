@@ -75,7 +75,6 @@ namespace Monik.Service
 		long LastKeepAliveId { get; }
 		void OnNewKeepAlive(KeepAlive_ aKeepAlive);
 
-		List<KeepAlive_> GetKeepAlive(LogsFilter[] aFilters);
 		List<KeepAlive_> GetKeepAlive2(KeepAliveRequest aFilter);
 	}
 

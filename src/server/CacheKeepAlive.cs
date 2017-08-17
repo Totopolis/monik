@@ -64,18 +64,6 @@ namespace Monik.Service
 			} // TODO: optimize lock
 		}
 
-		public List<KeepAlive_> GetKeepAlive(LogsFilter[] aFilters)
-		{
-			lock (this)
-			{
-				List<KeepAlive_> result = _status.Values.ToList();
-				result.RemoveAll(ka => !_cache.IsDefaultInstance(ka.InstanceID));
-
-				return result;
-			} // TODO: optimize lock
-		}
-
-		// TODO: use filter
 		public List<KeepAlive_> GetKeepAlive2(KeepAliveRequest aFilter)
 		{
 			lock (this)

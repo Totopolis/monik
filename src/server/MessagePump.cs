@@ -48,6 +48,7 @@ namespace Monik.Service
 
 		public void OnStart()
 		{
+			// Load events sources
 			_queues = new List<ActiveQueue>();
 			var configs = _repository.GetEventSources();
 
