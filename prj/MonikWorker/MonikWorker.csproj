@@ -167,6 +167,9 @@
     <Compile Include="..\..\src\server\CacheLog.cs">
       <Link>Core\CacheLog.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\server\CacheSourceInstance.cs">
+      <Link>Core\CacheSourceInstance.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\server\Interfaces.cs">
       <Link>Core\Interfaces.cs</Link>
     </Compile>
@@ -187,9 +190,6 @@
     </Compile>
     <Compile Include="..\..\src\server\Settings.cs">
       <Link>Core\Settings.cs</Link>
-    </Compile>
-    <Compile Include="..\..\src\server\SourceInstanceCache.cs">
-      <Link>Core\SourceInstanceCache.cs</Link>
     </Compile>
     <Compile Include="..\..\src\server\WebService.cs">
       <Link>Core\WebService.cs</Link>

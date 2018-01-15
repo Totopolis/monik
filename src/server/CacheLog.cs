@@ -33,7 +33,8 @@ namespace Monik.Service
 			_control.ApplicationVerbose("CacheLog created");
 		}
 
-		private readonly int _logsDeep = 3000;
+		// TODO: use database parameter
+		private readonly int _logsDeep = 20000;
 
 		public void OnStart()
 		{

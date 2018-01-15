@@ -9,11 +9,12 @@ namespace Monik.Service
 {
 	public class HelloModule : NancyModule
 	{
-		public HelloModule(IRepository aRepo, ICacheLog aCacheLog, ICacheKeepAlive aCacheKeepAlive, IClientControl aControl)
+		public HelloModule(IRepository aRepo, ICacheLog aCacheLog, ICacheKeepAlive aCacheKeepAlive, ISourceInstanceCache aSourceInstanceCache, IClientControl aControl)
 		{
 			var repo = aRepo;
 			var cacheLog = aCacheLog;
 			var cacheKeepAlive = aCacheKeepAlive;
+			var cacheSourceInstance = aSourceInstanceCache;
 			var control = aControl;
 
 			Get("/sources", args =>
@@ -29,7 +30,7 @@ namespace Monik.Service
 					return HttpStatusCode.InternalServerError;
 				}
 			});
-
+			// TODO: use cacheSourceInstance
 			Get("/instances", args =>
 			{
 				try
@@ -90,8 +91,42 @@ namespace Monik.Service
 				}
 			});
 
-			// TODO: /status
-			// return: 
+			Get("/keepalive-status", args =>
+			{
+				try
+				{
+					var filter = new KeepAliveRequest();
+					List<KeepAlive_> kaResult = cacheKeepAlive.GetKeepAlive2(filter);
+					var result = new List<KeepAliveStatus>();
+
+					foreach (var ka in kaResult)
+					{
+						var inst = cacheSourceInstance.GetInstanceById(ka.InstanceID);
+
+						KeepAliveStatus status = new KeepAliveStatus()
+						{
+							SourceID = inst.SourceID,
+							InstanceID = inst.ID,
+							SourceName = inst.SourceRef().Name,
+							InstanceName = inst.Name,
+							DisplayName = inst.SourceRef().Name + "." + inst.Name,
+							Created = ka.Created,
+							Received = ka.Received,
+							StatusOK = (DateTime.UtcNow - ka.Created).TotalSeconds < 70 // in seconds
+							// TODO: use param or default value for delta seconds
+						};
+
+						result.Add(status);
+					}
+
+					return Response.AsJson<KeepAliveStatus[]>(result.ToArray());
+				}
+				catch (Exception ex)
+				{
+					control.ApplicationError($"Method /status : {ex.Message}");
+					return HttpStatusCode.InternalServerError;
+				}
+			});
 		}
 	}
 

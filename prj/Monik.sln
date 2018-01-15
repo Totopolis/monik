@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "MonikCloud", "MonikCloud\MonikCloud.ccproj", "{4A6DA3F2-5DFD-4055-BD51-31D250387D15}"
 EndProject
@@ -36,5 +36,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EF63EDB2-706A-43E1-9756-34825B871387}
 	EndGlobalSection
 EndGlobal
