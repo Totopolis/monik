@@ -112,7 +112,7 @@ namespace Monik.Service
 							DisplayName = inst.SourceRef().Name + "." + inst.Name,
 							Created = ka.Created,
 							Received = ka.Received,
-							StatusOK = (DateTime.UtcNow - ka.Created).TotalSeconds < 70 // in seconds
+							StatusOK = (DateTime.UtcNow - ka.Created).TotalSeconds < 120 // in seconds
 							// TODO: use param or default value for delta seconds
 						};
 

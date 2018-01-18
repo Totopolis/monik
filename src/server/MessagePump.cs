@@ -27,6 +27,8 @@ namespace Monik.Service
 
 	public class MessagePump : IMessagePump
 	{
+		public const int DelayOnException = 1000; //in ms
+
 		private readonly IRepository _repository;
 		private readonly ISourceInstanceCache _cache;
 		private readonly IMessageProcessor _processor;
@@ -100,6 +102,7 @@ namespace Monik.Service
 				catch (Exception ex)
 				{
 					_control.ApplicationError($"MessagePump.OnMessage ServiceBus: {ex.Message}");
+					System.Threading.Thread.Sleep(DelayOnException);
 				}
 			});
 		}
@@ -128,6 +131,7 @@ namespace Monik.Service
 				catch (Exception ex)
 				{
 					_control.ApplicationError($"MessagePump.OnMessage RabbitMQ: {ex.Message}");
+					System.Threading.Thread.Sleep(DelayOnException);
 				}
 			}));
 		}
