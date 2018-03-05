@@ -88,7 +88,17 @@ namespace Monik.Service
 		{
 		}
 
-		public bool IsDefaultInstance(int aInstance)
+	    public List<Source> GetAllSources()
+	    {
+	        return _sourceMap.Values.ToList();
+        }
+
+	    public List<Group> GetAllGroups()
+	    {
+	        return _groups.Values.ToList();
+        }
+
+	    public bool IsDefaultInstance(int aInstance)
 		{
 			return _defaultInstances.Contains(aInstance);
 		}

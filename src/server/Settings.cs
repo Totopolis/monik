@@ -1,9 +1,5 @@
-﻿using Gerakul.FastSql;
-using System;
-using System.Collections.Generic;
-using Microsoft.Azure;
-using Microsoft.WindowsAzure.ServiceRuntime;
-using Monik.Client;
+﻿using System.Collections.Generic;
+using Gerakul.FastSql;
 
 namespace Monik.Service
 {
@@ -29,9 +25,9 @@ namespace Monik.Service
 		{
 		}
 
-		public string CloudInstanceName
+		public virtual string InstanceName
 		{
-			get { return RoleEnvironment.IsEmulated ? "Dev" : "Azure"; }
+		    get { return "UnknownInstance"; }
 		}
 
 		public int DayDeepKeepAlive
@@ -44,9 +40,9 @@ namespace Monik.Service
 			get { return int.Parse(_settings["DayDeepLog"]); }
 		}
 
-		public string DbConnectionString
+		public virtual string DbConnectionString
 		{
-			get { return CloudConfigurationManager.GetSetting("DBConnectionString"); }
+		    get { return "Your connection string"; }
 		}
 
 		public string OutcomingConnectionString
@@ -61,43 +57,5 @@ namespace Monik.Service
 
 	} //end of class
 
-	public class ServiceClientSettings : IClientSettings
-	{
-		private readonly IServiceSettings _serviceSettings;
-
-		public ServiceClientSettings(IServiceSettings aServiceSettings)
-		{
-			_serviceSettings = aServiceSettings;
-		}
-
-		public bool AutoKeepAliveEnable
-		{
-			get { return true; }
-			set { throw new NotImplementedException(); }
-		}
-
-		public ushort AutoKeepAliveInterval
-		{
-			get { return 60; }
-			set { throw new NotImplementedException(); }
-		}
-
-		public string InstanceName
-		{
-			get { return _serviceSettings.CloudInstanceName; }
-			set { throw new NotImplementedException(); }
-		}
-
-		public ushort SendDelay
-		{
-			get { return 1; }
-			set { throw new NotImplementedException(); }
-		}
-
-		public string SourceName
-		{
-			get { return "Monik"; }
-			set { throw new NotImplementedException(); }
-		}
-	}
+    //end of class
 }

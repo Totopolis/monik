@@ -9,10 +9,9 @@ namespace Monik.Service
 {
 	public class HelloModule : NancyModule
 	{
-		public HelloModule(IRepository aRepo, ICacheLog aCacheLog, ICacheKeepAlive aCacheKeepAlive, ISourceInstanceCache aSourceInstanceCache, IClientControl aControl)
+		public HelloModule(ICacheLog aCacheLog, ICacheKeepAlive aCacheKeepAlive, ISourceInstanceCache aSourceInstanceCache, IClientControl aControl)
 		{
-			var repo = aRepo;
-			var cacheLog = aCacheLog;
+		    var cacheLog = aCacheLog;
 			var cacheKeepAlive = aCacheKeepAlive;
 			var cacheSourceInstance = aSourceInstanceCache;
 			var control = aControl;
@@ -21,7 +20,7 @@ namespace Monik.Service
 			{
 				try
 				{
-					List<Source> result = repo.GetAllSources();
+					List<Source> result = cacheSourceInstance.GetAllSources();
 					return Response.AsJson<Source[]>(result.ToArray());
 				}
 				catch (Exception ex)
@@ -35,7 +34,7 @@ namespace Monik.Service
 			{
 				try
 				{
-					List<Instance> result = repo.GetAllInstances();
+					List<Instance> result = cacheSourceInstance.GetAllInstances();
 					return Response.AsJson<Instance[]>(result.ToArray());
 				}
 				catch (Exception ex)
@@ -49,7 +48,7 @@ namespace Monik.Service
 			{
 				try
 				{
-					List<Group> result = repo.GetAllGroupsAndFill();
+					List<Group> result = cacheSourceInstance.GetAllGroups();
 					return Response.AsJson<Group[]>(result.ToArray());
 				}
 				catch (Exception ex)

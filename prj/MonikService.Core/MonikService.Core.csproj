@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B59A8A1A-CEAD-474D-A2B5-3A7F6A566DE6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MonikService.Core</RootNamespace>
+    <AssemblyName>MonikService.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EasyNetQ, Version=0.63.5.454, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\EasyNetQ.0.63.5.454\lib\net45\EasyNetQ.dll</HintPath>
+    </Reference>
+    <Reference Include="FastSql, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FastSql.3.3.1\lib\net45\FastSql.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Protobuf, Version=3.1.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Protobuf.3.1.0\lib\net45\Google.Protobuf.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ServiceBus, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAzure.ServiceBus.3.4.3\lib\net45-full\Microsoft.ServiceBus.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitMQ.Client, Version=3.6.0.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
+      <HintPath>..\packages\RabbitMQ.Client.3.6.0\lib\net45\RabbitMQ.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Interactive.Async, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Interactive.Async.3.1.1\lib\net45\System.Interactive.Async.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\src\common\Scheduler.cs">
+      <Link>Common\Scheduler.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\CacheKeepAlive.cs">
+      <Link>Core\CacheKeepAlive.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\CacheLog.cs">
+      <Link>Core\CacheLog.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\CacheSourceInstance.cs">
+      <Link>Core\CacheSourceInstance.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Interfaces.cs">
+      <Link>Core\Interfaces.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\MessageProcessor.cs">
+      <Link>Core\MessageProcessor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\MessagePump.cs">
+      <Link>Core\MessagePump.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Model.cs">
+      <Link>Core\Model.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Repository.cs">
+      <Link>Core\Repository.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\ServiceSender.cs">
+      <Link>Core\ServiceSender.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Settings.cs">
+      <Link>Settings\Settings.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\ServiceClientSettings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Monik.Client.Azure\Monik.Client.Azure.csproj">
+      <Project>{FF0D9AC2-DB23-40ED-8BFD-2F42B406D876}</Project>
+      <Name>Monik.Client.Azure</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
