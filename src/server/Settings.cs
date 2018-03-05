@@ -56,6 +56,4 @@ namespace Monik.Service
 		}
 
 	} //end of class
-
-    //end of class
 }
