@@ -62,9 +62,6 @@
     <Reference Include="Topshelf, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b800c4cfcdeea87b, processorArchitecture=MSIL">
       <HintPath>..\packages\Topshelf.4.0.3\lib\net452\Topshelf.dll</HintPath>
     </Reference>
-    <Reference Include="Topshelf.Nancy, Version=1.0.0.42, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Topshelf.Nancy.1.0.0.42\lib\net452\Topshelf.Nancy.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\src\server\WebService.cs">

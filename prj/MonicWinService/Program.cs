@@ -1,7 +1,6 @@
 ﻿using MonicService.Workers;
 using Monik.Service;
 using Topshelf;
-using Topshelf.Nancy;
 
 namespace MonicService
 {
@@ -16,7 +15,6 @@ namespace MonicService
                     s.ConstructUsing(settings => new ServiceWorker());
                     s.WhenStarted(tc => tc.OnStart());
                     s.WhenStopped(tc => tc.OnStop());
-                    s.WithNancyEndpoint(x, c => c.CreateUrlReservationsOnInstall());
                 });
 
                 x.RunAsLocalSystem();

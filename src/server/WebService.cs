@@ -137,7 +137,8 @@ namespace Monik.Service
 		public WebService(string aPrefix)
 		{
 			_prefix = aPrefix;
-			_webServer = new NancyHost(new Uri("http://" + aPrefix + "/")
+		    var hostConfiguration = new HostConfiguration(){UrlReservations = new UrlReservations(){CreateAutomatically = true}};
+		    _webServer = new NancyHost(hostConfiguration,new Uri("http://" + aPrefix + "/")
 				, new Uri("http://localhost:2211/")
 			);
 		}
