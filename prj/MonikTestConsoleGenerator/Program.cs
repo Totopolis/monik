@@ -28,6 +28,12 @@ namespace MonikTestConsoleGenerator
                 Name = "TestConsole"
             };
 
+            var monikTestGeneratorInstance = new MonikTestGeneratorInstance(asureSender, new ClientSettings()
+            {
+                AutoKeepAliveEnable = true,
+                SourceName = source.Name,
+            });
+
             var instances = new List<InstanceGenerator>();
             for (var i = 0; i < 10000; i++)
             {
@@ -37,26 +43,24 @@ namespace MonikTestConsoleGenerator
                     Instance = new Instance()
                     {
                         Created = DateTime.Now,
-                        Name = instName
+                        Name = instName,
+                        
                     },
                     Source = source,
-                    ClientControl = new MonikInstance(asureSender, new ClientSettings()
-                    {
-                        AutoKeepAliveEnable = true,
-                        InstanceName = instName,
-                        SourceName = source.Name,
-                    })
+                    ClientControl = monikTestGeneratorInstance
                 });
             }
 
             while (true)
             {
-                foreach (var instanceGenerator in instances)
+                for (var counter = 0; counter < instances.Count; counter++)
                 {
-                    instanceGenerator.ClientControl.LogicInfo(instanceGenerator.Instance.Name + " sends some message at "+DateTime.Now);
-                }
+                    var instanceGenerator = instances[counter];
+                    instanceGenerator.ClientControl.LogicInfo(instanceGenerator.Instance.Name + " sends some message at " + DateTime.Now, instanceGenerator.Instance);
 
-                Task.Delay(10000).Wait();
+                    if (counter % 1000 == 0)
+                        Task.Delay(1000).Wait();
+                }
             }
         }
     }
@@ -65,6 +69,6 @@ namespace MonikTestConsoleGenerator
     {
         public Instance       Instance      { get; set; }
         public Source         Source        { get; set; }
-        public IClientControl ClientControl { get; set; }
+        public MonikTestGeneratorInstance ClientControl { get; set; }
     }
 }

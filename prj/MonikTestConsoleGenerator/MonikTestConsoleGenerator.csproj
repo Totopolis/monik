@@ -58,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureParallelSender.cs" />
-    <Compile Include="MonikInstance.cs" />
+    <Compile Include="MonikTestGeneratorInstance.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
