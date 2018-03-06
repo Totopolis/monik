@@ -1,8 +1,7 @@
-﻿using MonicService.Workers;
-using Monik.Service;
+﻿using Monik.Service;
 using Topshelf;
 
-namespace MonicService
+namespace MonicWinService
 {
     class Program
     {

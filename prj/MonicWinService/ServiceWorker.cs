@@ -1,8 +1,9 @@
 ﻿using System.Configuration;
+using MonicWinService.Nancy;
 using Monik.Client;
 using Monik.Service;
 
-namespace MonicService.Workers
+namespace MonicWinService
 {
     public class ServiceWorker : IObject
     {

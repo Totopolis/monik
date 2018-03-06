@@ -2,6 +2,7 @@
 using Nancy.Bootstrapper;
 using Nancy.TinyIoc;
 using Monik.Client;
+using MonikService.Core.Core;
 
 namespace Monik.Service
 {
@@ -33,7 +34,7 @@ namespace Monik.Service
 			container.Register<IMessageProcessor, MessageProcessor>().AsSingleton();
 			container.Register<IMessagePump, MessagePump>().AsSingleton();
 
-			container.Register<IClientSender, ServiceSender>().AsSingleton();
+			container.Register<IClientSender, AzureServiceSender>().AsSingleton();
 			container.Register<IClientSettings, ServiceClientSettings>().AsSingleton();
 			container.Register<IClientControl, MonikInstance>().AsSingleton();
 

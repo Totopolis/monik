@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonikService.Core", "MonikS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonicWinService", "MonicWinService\MonicWinService.csproj", "{5A7CA176-C7FD-458E-B55A-0054D2A45598}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonikTestConsoleGenerator", "MonikTestConsoleGenerator\MonikTestConsoleGenerator.csproj", "{1E0539ED-99B3-4F76-A5D7-2988BED86C10}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{5A7CA176-C7FD-458E-B55A-0054D2A45598}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A7CA176-C7FD-458E-B55A-0054D2A45598}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A7CA176-C7FD-458E-B55A-0054D2A45598}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E0539ED-99B3-4F76-A5D7-2988BED86C10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E0539ED-99B3-4F76-A5D7-2988BED86C10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E0539ED-99B3-4F76-A5D7-2988BED86C10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E0539ED-99B3-4F76-A5D7-2988BED86C10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

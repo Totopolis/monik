@@ -1,8 +1,7 @@
-﻿using Monik.Common;
-using Monik.Client;
-using System.Collections.Concurrent;
+﻿using Monik.Client;
+using Monik.Service;
 
-namespace Monik.Service
+namespace MonikService.Core.Core
 {
 	public class AzureServiceSender : AzureSender
 	{
