@@ -138,6 +138,7 @@
       <Link>WorkerRole.cs</Link>
     </Compile>
     <Compile Include="Core\Bootstrapper.cs" />
+    <Compile Include="Nancy\KeepAliveStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\CloudServiceSettings.cs" />
   </ItemGroup>

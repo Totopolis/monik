@@ -8,17 +8,6 @@ namespace Monik.Service
 		void OnStop();
 	}
 
-	public interface IServiceSettings : IObject
-	{
-		string DbConnectionString { get; }
-		string InstanceName { get; }
-
-		string OutcomingConnectionString { get; }
-		string OutcomingQueue { get; }
-		int DayDeepLog { get; }
-		int DayDeepKeepAlive { get; }
-	}
-
     public interface IMessagePump : IObject
 	{
 

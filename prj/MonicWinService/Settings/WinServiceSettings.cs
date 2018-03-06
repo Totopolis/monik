@@ -5,7 +5,7 @@ namespace Monik.Service
 {
     public class WinServiceSettings : ServiceSettings
     {
-        public override string InstanceName       => "Dev";
-        public override string DbConnectionString => ConfigurationManager.AppSettings["DBConnectionString"];
+        public override string InstanceName       { get; } = "Dev";
+        public override string DbConnectionString { get; } = ConfigurationManager.AppSettings["DBConnectionString"];
     }
 }

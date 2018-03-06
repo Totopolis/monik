@@ -68,6 +68,7 @@
       <Link>Nancy\WebService.cs</Link>
     </Compile>
     <Compile Include="Nancy\Bootstrapper.cs" />
+    <Compile Include="Nancy\KeepAliveStatus.cs" />
     <Compile Include="ServiceWorker.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

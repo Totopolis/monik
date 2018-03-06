@@ -12,7 +12,7 @@ namespace Monik.Service
 
 		protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
 		{
-			container.Resolve<IServiceSettings>().OnStart();
+			//container.Resolve<IServiceSettings>().OnStart();
 
 			container.Resolve<ISourceInstanceCache>().OnStart();
 			container.Resolve<ICacheLog>().OnStart();

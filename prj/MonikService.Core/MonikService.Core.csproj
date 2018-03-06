@@ -93,9 +93,9 @@
     <Compile Include="Cache\ICacheKeepAlive.cs" />
     <Compile Include="Cache\ICacheLog.cs" />
     <Compile Include="Cache\ISourceInstanceCache.cs" />
-    <Compile Include="Core\KeepAliveRequest.cs" />
-    <Compile Include="Core\KeepAliveStatus.cs" />
-    <Compile Include="Core\LogRequest.cs" />
+    <Compile Include="Cache\Model\KeepAliveRequest.cs" />
+    <Compile Include="Cache\Model\LogRequest.cs" />
+    <Compile Include="Settings\IServiceSettings.cs" />
     <Compile Include="Sender\AzureServiceSender.cs" />
     <Compile Include="Repository\IRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
