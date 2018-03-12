@@ -14,6 +14,7 @@ message Event
 		KeepAlive ka = 4;
 		Log lg = 5;
 		PerfCounter pc = 6;
+		Metric metric = 7;
 		// TODO: need reserve for future extensions ??
 	}
 }
@@ -60,4 +61,17 @@ message Log
 
 message PerfCounter
 {
+}
+
+message Metric
+{
+  string Name = 1;
+  sint64 Value = 2;
+  MetricType MetricType = 3;
+}
+
+enum MetricType
+{
+  ACCUMULATOR = 0;
+  GAUGE = 1;
 }
