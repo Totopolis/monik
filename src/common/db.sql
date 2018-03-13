@@ -95,6 +95,12 @@ VAlUES ('DayDeepLog', '14')
 INSERT INTO mon.Settings (Name, Value)
 VAlUES ('DayDeepKeepAlive', '1')
 
+INSERT INTO mon.Settings (Name, Value)
+VAlUES ('MetricDeepMinutes', '1440')
+
+INSERT INTO mon.Settings (Name, Value)
+VAlUES ('MetricInterval', '300')
+
 
 CREATE TABLE [mon].[Log](
 	[ID] [bigint] IDENTITY(1,1) NOT NULL,

@@ -101,6 +101,8 @@ namespace Monik.Service
 					var lg = WriteLog(aEvent, aInstance);
 					_cacheLog.OnNewLog(lg);
 					break;
+                case Event.MsgOneofCase.Metric:
+                    
 				default:
 					throw new NotSupportedException("Bad event type");
 			}

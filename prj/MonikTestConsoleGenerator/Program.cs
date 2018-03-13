@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Gerakul.FastSql;
 using Monik.Client;
+using Monik.Common;
 using Monik.Service;
 using MonikService.Core.Core;
+using MonikTestConsoleGenerator.Metrics;
 
 namespace MonikTestConsoleGenerator
 {
@@ -22,53 +22,19 @@ namespace MonikTestConsoleGenerator
 
             var asureSender = new AzureParallelSender(settings["OutcomingConnectionString"], settings["OutcomingQueue"]);
 
-            var source = new Source()
-            {
-                Created = DateTime.Now,
-                Name = "TestConsole"
-            };
-
             var monikTestGeneratorInstance = new MonikTestGeneratorInstance(asureSender, new ClientSettings()
             {
-                AutoKeepAliveEnable = true,
-                SourceName = source.Name,
+                AutoKeepAliveEnable = false,
+                SourceName = "TestSource",
+                InstanceName = "TestInstance"
             });
 
-            var instances = new List<InstanceGenerator>();
-            for (var i = 0; i < 10000; i++)
-            {
-                var instName = $"TestInst_{i}";
-                instances.Add(new InstanceGenerator()
-                {
-                    Instance = new Instance()
-                    {
-                        Created = DateTime.Now,
-                        Name = instName,
-                        
-                    },
-                    Source = source,
-                    ClientControl = monikTestGeneratorInstance
-                });
-            }
+            //var logsSender = new InstancesLogsSender(10000, source, monikTestGeneratorInstance);
+            //logsSender.StartSendingLogs();
 
-            while (true)
-            {
-                for (var counter = 0; counter < instances.Count; counter++)
-                {
-                    var instanceGenerator = instances[counter];
-                    instanceGenerator.ClientControl.LogicInfo(instanceGenerator.Instance.Name + " sends some message at " + DateTime.Now, instanceGenerator.Instance);
-
-                    if (counter % 1000 == 0)
-                        Task.Delay(1000).Wait();
-                }
-            }
+            var metricSender = new MetricsSender(monikTestGeneratorInstance, TimeSpan.FromMinutes(5));
+            metricSender.StartGeneratingMetrics();
+            metricSender.StartSendingMetrics();
         }
-    }
-
-    public class InstanceGenerator
-    {
-        public Instance       Instance      { get; set; }
-        public Source         Source        { get; set; }
-        public MonikTestGeneratorInstance ClientControl { get; set; }
     }
 }

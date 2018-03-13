@@ -2,7 +2,7 @@
 
 namespace Monik.Service
 {
-    public interface ICacheKeepAlive : IObject
+    public interface ICacheKeepAlive
     {
         long LastKeepAliveId { get; }
         void OnNewKeepAlive(KeepAlive_ aKeepAlive);

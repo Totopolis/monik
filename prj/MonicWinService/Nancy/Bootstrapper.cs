@@ -17,7 +17,7 @@ namespace MonicWinService.Nancy
 
 			container.Resolve<ISourceInstanceCache>().OnStart();
 			container.Resolve<ICacheLog>().OnStart();
-			container.Resolve<ICacheKeepAlive>().OnStart();
+			//container.Resolve<ICacheKeepAlive>().OnStart();
 			container.Resolve<IMessageProcessor>().OnStart();
 			container.Resolve<IMessagePump>().OnStart();
 		}

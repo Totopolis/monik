@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Monik.Client;
 
 namespace Monik.Service
@@ -12,47 +14,31 @@ namespace Monik.Service
 
 		private readonly Dictionary<int, KeepAlive_> _status;
 
-		public CacheKeepAlive(IRepository aRepository, ISourceInstanceCache aCache, IClientControl aControl)
+	    public long LastKeepAliveId { get; private set; }
+
+	    public CacheKeepAlive(IRepository aRepository, ISourceInstanceCache aCache, IClientControl aControl)
 		{
 			_repository = aRepository;
 			_cache = aCache;
 			_control = aControl;
 
-			_status = new Dictionary<int, KeepAlive_>();
+		    // fill from database
+		    List<KeepAlive_> top = _repository.GetLastKeepAlive(1000);
 
-			_control.ApplicationVerbose("CacheKeepAlive created");
+		    LastKeepAliveId = top?.FirstOrDefault()?.ID ?? 0;
+
+		    _status = top?.GroupBy(ka => ka.InstanceID)
+		                  .ToDictionary(g => g.Key, g => g.OrderByDescending(ka => ka.Created).First()) ??
+		              new Dictionary<int, KeepAlive_>();
+
+            _control.ApplicationVerbose("CacheKeepAlive created");
 		}
 
-		public void OnStart()
-		{
-			// fill from database
-			LastKeepAliveId = _repository.GetMaxKeepAliveId();
-
-			List<KeepAlive_> top = _repository.GetLastKeepAlive(1000);
-			top.Reverse();
-
-			// fill current status
-			foreach (var ka in top)
-				if (!_status.ContainsKey(ka.InstanceID))
-					_status.Add(ka.InstanceID, ka);
-				else if (_status[ka.InstanceID].Created < ka.Created)
-					_status[ka.InstanceID] = ka;
-
-			_control.ApplicationVerbose("CacheKeepAlive started");
-		}
-
-		public void OnStop()
-		{
-			// nothing
-		}
-
-		public long LastKeepAliveId { get; private set; }
-
-		public void OnNewKeepAlive(KeepAlive_ aKeepAlive)
+	    public void OnNewKeepAlive(KeepAlive_ aKeepAlive)
 		{
 			lock (this)
 			{
-				LastKeepAliveId = aKeepAlive.ID;
+			    LastKeepAliveId = aKeepAlive.ID;
 
 				if (_status.ContainsKey(aKeepAlive.InstanceID))
 				{
@@ -66,33 +52,28 @@ namespace Monik.Service
 
 		public List<KeepAlive_> GetKeepAlive2(KeepAliveRequest aFilter)
 		{
-			lock (this)
-			{
-				List<KeepAlive_> result = _status.Values.ToList();
+		    List<KeepAlive_> result;
+		    lock (this)
+		    {
+		        result = _status.Values.ToList();
+		    }
 
-				if (aFilter.Groups.Length == 0 && aFilter.Instances.Length == 0)
-				{
-					result.RemoveAll(ka => !_cache.IsDefaultInstance(ka.InstanceID));
-					return result;
-				}
-				else
-				{
-					var filteredRes = new List<KeepAlive_>();
+		    if (aFilter.Groups.Length == 0 && aFilter.Instances.Length == 0)
+		    {
+		        result.RemoveAll(ka => !_cache.IsDefaultInstance(ka.InstanceID));
+		        return result;
+		    }
 
-					foreach (var ka in result)
-					{
-						foreach (var gr in aFilter.Groups)
-							if (_cache.IsInstanceInGroup(ka.InstanceID, gr))
-								filteredRes.Add(ka);
+		    var filteredRes = new List<KeepAlive_>();
 
-						foreach (var inst in aFilter.Instances)
-							if (inst == ka.InstanceID)
-								filteredRes.Add(ka);
-					}
+		    foreach (var ka in result)
+		    {
+		        filteredRes.AddRange(aFilter.Groups.Where(gr => _cache.IsInstanceInGroup(ka.InstanceID, gr)).Select(gr => ka));
 
-					return filteredRes;
-				}
-			} // TODO: optimize lock
+		        filteredRes.AddRange(aFilter.Instances.Where(inst => inst == ka.InstanceID).Select(inst => ka));
+		    }
+
+		    return filteredRes;
 		}
 
 	} //end of class

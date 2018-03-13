@@ -1,6 +1,6 @@
 ﻿namespace Monik.Service
 {
-    public interface IServiceSettings
+    public interface IServiceSettings 
     {
         string DbConnectionString { get; }
         string InstanceName { get; }
@@ -9,5 +9,7 @@
         string OutcomingQueue { get; }
         int DayDeepLog { get; }
         int DayDeepKeepAlive { get; }
+        int MetricDeepMinutes { get; }
+        int MetricInterval { get; }
     }
 }

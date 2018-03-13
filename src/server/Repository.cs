@@ -14,7 +14,9 @@ namespace Monik.Service
 			_settings = aSettings;
 		}
 
-		public List<Source> GetAllSources()
+        #region Sources
+
+        public List<Source> GetAllSources()
 		{
 			return SimpleCommand.ExecuteQuery<Source>(_settings.DbConnectionString, "select * from [mon].[Source]").ToList();
 		}
@@ -60,16 +62,14 @@ namespace Monik.Service
 			MappedCommand.Insert(_settings.DbConnectionString, "mon.GroupInstance", proto, "ID");
 		}
 
-		public long GetMaxLogId()
+        #endregion
+
+	    #region Logs
+
+	    public long GetMaxLogId()
 		{
 			var result = SimpleCommand.ExecuteScalar(_settings.DbConnectionString, "select max(ID) from [mon].[Log]");
 			return result == System.DBNull.Value ? 0 : (long) result;
-		}
-
-		public long GetMaxKeepAliveId()
-		{
-			var result = SimpleCommand.ExecuteScalar(_settings.DbConnectionString, "select max(ID) from [mon].[KeepAlive]");
-			return result == System.DBNull.Value ? 0 : (long)result;
 		}
 
 		public List<Log_> GetLastLogs(int aTop)
@@ -79,25 +79,11 @@ namespace Monik.Service
 					$"select top {aTop} * from [mon].[Log] order by ID desc").OrderBy(x => x.ID).ToList();
 		}
 
-		public List<KeepAlive_> GetLastKeepAlive(int aTop)
-		{
-			return
-				SimpleCommand.ExecuteQuery<KeepAlive_>(_settings.DbConnectionString,
-					$"select top {aTop} * from [mon].[KeepAlive] order by ID desc").ToList();
-		}
-
-		public long? GetLogThreshold(int aDayDeep)
+        public long? GetLogThreshold(int aDayDeep)
 		{
 			var logThreshold = SimpleCommand.ExecuteScalar(_settings.DbConnectionString,
 				"select max(LastLogID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", aDayDeep);
 			return logThreshold == System.DBNull.Value ? null : (long?)logThreshold;
-		}
-
-		public long? GetKeepAliveThreshold(int aDayDeep)
-		{
-			var kaThreshold = SimpleCommand.ExecuteScalar(_settings.DbConnectionString,
-				"select max(LastKeepAliveID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", aDayDeep);
-			return kaThreshold == System.DBNull.Value ? null : (long?)kaThreshold;
 		}
 
 		public int CleanUpLog(long aLastLog)
@@ -105,16 +91,39 @@ namespace Monik.Service
 			return SimpleCommand.ExecuteNonQuery(_settings.DbConnectionString, "delete from mon.Log where ID < @p0", aLastLog);
 		}
 
+		public void CreateLog(Log_ aLog)
+		{
+			aLog.ID = (long) MappedCommand.InsertAndGetId<Log_>(_settings.DbConnectionString, "[mon].[Log]", aLog, "ID");
+		}
+
+        #endregion
+        
+	    #region KeepAlive
+
+        public long GetMaxKeepAliveId()
+		{
+			var result = SimpleCommand.ExecuteScalar(_settings.DbConnectionString, "select max(ID) from [mon].[KeepAlive]");
+			return result == System.DBNull.Value ? 0 : (long)result;
+		}
+
+		public List<KeepAlive_> GetLastKeepAlive(int aTop)
+		{
+			return
+				SimpleCommand.ExecuteQuery<KeepAlive_>(_settings.DbConnectionString,
+					$"select top {aTop} * from [mon].[KeepAlive] order by ID desc").ToList();
+	    }
+
+		public long? GetKeepAliveThreshold(int aDayDeep)
+		{
+			var kaThreshold = SimpleCommand.ExecuteScalar(_settings.DbConnectionString,
+				"select max(LastKeepAliveID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", aDayDeep);
+			return kaThreshold == System.DBNull.Value ? null : (long?)kaThreshold;
+		}
+        
 		public int CleanUpKeepAlive(long aLastKeepAlive)
 		{
 			return SimpleCommand.ExecuteNonQuery(_settings.DbConnectionString, "delete from mon.KeepAlive where ID < @p0",
 				aLastKeepAlive);
-		}
-
-		public void CreateHourStat(DateTime aHour, long aLastLogId, long aLastKeepAliveId)
-		{
-			var stat = new {Hour = aHour, LastLogID = aLastLogId, LastKeepAliveID = aLastKeepAliveId};
-			MappedCommand.Insert(_settings.DbConnectionString, "[mon].[HourStat]", stat);
 		}
 
 		public void CreateKeepAlive(KeepAlive_ aKeepAlive)
@@ -123,9 +132,12 @@ namespace Monik.Service
 				(long) MappedCommand.InsertAndGetId<KeepAlive_>(_settings.DbConnectionString, "[mon].[KeepAlive]", aKeepAlive, "ID");
 		}
 
-		public void CreateLog(Log_ aLog)
+	    #endregion
+        
+		public void CreateHourStat(DateTime aHour, long aLastLogId, long aLastKeepAliveId)
 		{
-			aLog.ID = (long) MappedCommand.InsertAndGetId<Log_>(_settings.DbConnectionString, "[mon].[Log]", aLog, "ID");
+			var stat = new {Hour = aHour, LastLogID = aLastLogId, LastKeepAliveID = aLastKeepAliveId};
+			MappedCommand.Insert(_settings.DbConnectionString, "[mon].[HourStat]", stat);
 		}
 
 		public List<EventQueue> GetEventSources()
@@ -133,5 +145,45 @@ namespace Monik.Service
 			return
 				SimpleCommand.ExecuteQuery<EventQueue>(_settings.DbConnectionString, "select * from [mon].[EventQueue]").ToList();
 		}
-	} //end of class
+        
+	    #region Metric
+
+        public List<MetricDescription> GetMetricDescriptions()
+        {
+            return SimpleCommand.ExecuteQuery<MetricDescription>(_settings.DbConnectionString, $"select * from [mon].[{nameof(MetricDescription)}]").ToList();
+	    }
+
+	    public void AddMetricValueStubs(int stubsCount, int metricId)
+	    {
+	        for (int i = 0; i < stubsCount; i++)
+	            MappedCommand.Insert(_settings.DbConnectionString, "[mon].[MetricValue]",
+	                new MetricValue() {Created = DateTime.Now, MetricId = metricId, Value = 0});
+	    }
+
+	    public int DeleteMetricValueStubs(int stubsCount, int metricId)
+	    {
+	        var stubs = SimpleCommand.ExecuteQuery<MetricValue>(_settings.DbConnectionString,
+	            $"select top {stubsCount} * from [mon].{nameof(MetricValue)} order by Id");
+
+	        return SimpleCommand.ExecuteNonQuery(_settings.DbConnectionString,
+	            $"delete from mon.{nameof(MetricValue)} where Id < {stubs.Max(s => s.Id)}");
+
+	    }
+
+	    public List<MetricValue> GetAllMetricValues()
+	    {
+	        return SimpleCommand
+	            .ExecuteQuery<MetricValue>(_settings.DbConnectionString, $"select * from [mon].{nameof(MetricValue)}")
+	            .ToList();
+	    }
+
+	    public List<MetricValue> GetMetricValues(int metricId)
+	    {
+	        return SimpleCommand
+	            .ExecuteQuery<MetricValue>(_settings.DbConnectionString, $"select * from [mon].{nameof(MetricValue)} where MetricId = {metricId}")
+	            .ToList();
+        }
+
+	    #endregion
+    } //end of class
 }

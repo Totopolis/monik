@@ -23,11 +23,9 @@ namespace MonikTestConsoleGenerator
 
         public void SendMessages(ConcurrentQueue<Event> aQueue)
         {
-            Event msg;
-
             var messages = new List<BrokeredMessage>();
 
-            while (aQueue.TryDequeue(out msg))
+            while (aQueue.TryDequeue(out var msg))
             {
                 var arr = msg.ToByteArray();
                 messages.Add(new BrokeredMessage(arr));

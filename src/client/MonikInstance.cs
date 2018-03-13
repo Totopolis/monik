@@ -157,6 +157,21 @@ namespace Monik.Client
 			FNewMessageEvent.Set();
 		}
 
+		private void PushMetricToSend(string name, int value, MetricType metricType)
+		{
+			Event msg = NewEvent();
+			msg.Metric = new Metric()
+			{
+                Name = name,
+                MetricType = metricType,
+                Value = value,
+			};
+
+			FMsgQueue.Enqueue(msg);
+
+			FNewMessageEvent.Set();
+		}
+
 		public void KeepAlive()
 		{
 			Event msg = NewEvent();
@@ -167,7 +182,9 @@ namespace Monik.Client
 			FNewMessageEvent.Set();
 		}
 
-		public void SystemVerbose(string aBody, params object[] aParams)
+        #region Logs
+
+        public void SystemVerbose(string aBody, params object[] aParams)
 		{
 			PushLogToSend(aBody, LevelType.System, SeverityType.Verbose, aParams);
 		}
@@ -266,5 +283,16 @@ namespace Monik.Client
 		{
 			PushLogToSend(aBody, LevelType.Security, SeverityType.Fatal, aParams);
 		}
-	}
+        
+	    #endregion
+
+        #region Metrics
+
+        public void Metric(string name, int value, MetricType metricType)
+        {
+            PushMetricToSend(name, value, metricType);
+        }
+
+        #endregion
+    }
 }
