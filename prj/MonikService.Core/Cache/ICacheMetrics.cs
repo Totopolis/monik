@@ -2,7 +2,9 @@
 
 namespace Monik.Service
 {
-    public interface ICacheMetrics : IObject
+    public interface ICacheMetrics
     {
+        void AddMetricAggregatingValue(MetricDescription metricDesc, MetricValue value);
+        void OnStop();
     }
 }

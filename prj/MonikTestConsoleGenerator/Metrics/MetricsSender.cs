@@ -48,17 +48,17 @@ namespace MonikTestConsoleGenerator.Metrics
         }
         
         private CancellationTokenSource cancelTokenSource { get; } = new CancellationTokenSource();
-
-        public void StartGeneratingMetrics()
-        {
-            CancellationToken token = cancelTokenSource.Token;
-
-            Task.Run(() => Process(token), token);
-        }
-
+        
         public void Stop()
         {
             cancelTokenSource?.Cancel();
+        }
+        
+        public void StartSendingMetrics()
+        {
+            CancellationToken token = cancelTokenSource.Token;
+            
+            Task.Run(() => Process(token), token).Wait(token);
         }
 
         private void Process(CancellationToken token)
@@ -68,19 +68,6 @@ namespace MonikTestConsoleGenerator.Metrics
                 foreach (var metric in Metrics.Values)
                 {
                     metric.Counter(metric);
-                }
-                Task.Delay(MetricSendingDelay, token).Wait(token);
-            }
-        }
-
-        public void StartSendingMetrics()
-        {
-            CancellationToken token = cancelTokenSource.Token;
-
-            while (!token.IsCancellationRequested)
-            {
-                foreach (var metric in Metrics.Values)
-                {
                     if (metric.Type == MetricType.Accum)
                     {
                         var metricVal = metric.ExchangeCurrentValue(0);
@@ -98,6 +85,7 @@ namespace MonikTestConsoleGenerator.Metrics
                             Monik.Common.MetricType.Gauge);
                     }
                 }
+
                 Task.Delay(MetricSendingDelay, token).Wait(token);
             }
         }

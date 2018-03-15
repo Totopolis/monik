@@ -1,6 +1,7 @@
 ﻿using Gerakul.FastSql;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 
 namespace Monik.Service
@@ -153,20 +154,20 @@ namespace Monik.Service
             return SimpleCommand.ExecuteQuery<MetricDescription>(_settings.DbConnectionString, $"select * from [mon].[{nameof(MetricDescription)}]").ToList();
 	    }
 
-	    public void AddMetricValueStubs(int stubsCount, int metricId)
+	    public void AddMetricValueStubs(List<MetricValue> stabsToAdd)
 	    {
-	        for (int i = 0; i < stubsCount; i++)
-	            MappedCommand.Insert(_settings.DbConnectionString, "[mon].[MetricValue]",
-	                new MetricValue() {Created = DateTime.Now, MetricId = metricId, Value = 0});
+	        foreach (var metricValue in stabsToAdd)
+	            metricValue.Id = (int) MappedCommand.InsertAndGetId(_settings.DbConnectionString, "[mon].[MetricValue]",
+	                metricValue, "Id");
 	    }
 
-	    public int DeleteMetricValueStubs(int stubsCount, int metricId)
+	    public int DeleteMetricValueStubs(int stubsCount, long metricId)
 	    {
 	        var stubs = SimpleCommand.ExecuteQuery<MetricValue>(_settings.DbConnectionString,
 	            $"select top {stubsCount} * from [mon].{nameof(MetricValue)} order by Id");
 
 	        return SimpleCommand.ExecuteNonQuery(_settings.DbConnectionString,
-	            $"delete from mon.{nameof(MetricValue)} where Id < {stubs.Max(s => s.Id)}");
+	            $"delete from mon.{nameof(MetricValue)} where Created < {stubs.Max(s => s.Created)}");
 
 	    }
 
@@ -183,6 +184,16 @@ namespace Monik.Service
 	            .ExecuteQuery<MetricValue>(_settings.DbConnectionString, $"select * from [mon].{nameof(MetricValue)} where MetricId = {metricId}")
 	            .ToList();
         }
+
+	    public void CreateMetricDescription(MetricDescription metricDescription)
+	    {
+	        metricDescription.Id = (int)MappedCommand.InsertAndGetId<MetricDescription>(_settings.DbConnectionString, $"[mon].[{nameof(MetricDescription)}]", metricDescription, "Id");
+        }
+
+	    public void UpdateMetricValue(MetricValue metricValue)
+	    {
+	        MappedCommand.Update(_settings.DbConnectionString, $"[mon].[{nameof(MetricValue)}]", metricValue, "Id");
+	    }
 
 	    #endregion
     } //end of class

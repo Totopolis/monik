@@ -134,6 +134,33 @@ CREATE TABLE [mon].[KeepAlive](
 ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 )
 
+CREATE TABLE [mon].[MetricDescription](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](256) NOT NULL,
+	[InstanceId] [int] NOT NULL,
+	Type [int] NOT NULL,
+ CONSTRAINT [PK_MetricDescription] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH 
+(PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, 
+ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+)
+
+CREATE TABLE [mon].MetricValue(
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	MetricId [bigint] NOT NULL,
+	Value [bigint] NOT NULL,
+	[Created] [datetime] NOT NULL,
+	AggValuesCount [int] NOT NULL,
+ CONSTRAINT [PK_MetricValue] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH 
+(PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, 
+ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+)
+
 
 
 CREATE TABLE [mon].[EventQueue](

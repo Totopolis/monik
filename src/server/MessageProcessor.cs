@@ -11,15 +11,17 @@ namespace Monik.Service
 		private readonly ICacheLog _cacheLog;
 		private readonly ICacheKeepAlive _cacheKeepAlive;
 		private readonly IClientControl _control;
+	    private readonly ICacheMetrics _cacheMetrics;
 
-		public MessageProcessor(IServiceSettings aSettings, IRepository aRepository, ICacheLog aCacheLog,
-			ICacheKeepAlive aCacheKeepAlive, IClientControl aControl)
+        public MessageProcessor(IServiceSettings aSettings, IRepository aRepository, ICacheLog aCacheLog,
+			ICacheKeepAlive aCacheKeepAlive, IClientControl aControl, ICacheMetrics aCacheMetrics)
 		{
 			_settings = aSettings;
 			_repository = aRepository;
 			_cacheLog = aCacheLog;
 			_cacheKeepAlive = aCacheKeepAlive;
-			_control = aControl;
+		    _cacheMetrics = aCacheMetrics;
+            _control = aControl;
 
 			_cleaner = Scheduler.CreatePerHour(_control, CleanerTask, "cleaner");
 			_statist = Scheduler.CreatePerHour(_control, StatistTask, "statist");
@@ -30,7 +32,7 @@ namespace Monik.Service
 		private readonly Scheduler _cleaner;
 		private readonly Scheduler _statist;
 
-		public void OnStart()
+	    public void OnStart()
 		{
 			_cleaner.OnStart();
 			_statist.OnStart();
@@ -94,21 +96,34 @@ namespace Monik.Service
 				case Event.MsgOneofCase.None:
 					throw new NotSupportedException("Bad event type");
 				case Event.MsgOneofCase.Ka:
-					var ka = WriteKeepAlive(aEvent, aInstance);
-					_cacheKeepAlive.OnNewKeepAlive(ka);
+					WriteKeepAlive(aEvent, aInstance);
 					break;
 				case Event.MsgOneofCase.Lg:
-					var lg = WriteLog(aEvent, aInstance);
-					_cacheLog.OnNewLog(lg);
+					WriteLog(aEvent, aInstance);
 					break;
                 case Event.MsgOneofCase.Metric:
-                    
+                    WriteMetrics(aEvent, aInstance);
+                    break;
 				default:
 					throw new NotSupportedException("Bad event type");
 			}
 		}
 
-		private KeepAlive_ WriteKeepAlive(Event aEventLog, Instance aInstance)
+	    private void WriteMetrics(Event aEvent, Instance aInstance)
+	    {
+	        _cacheMetrics.AddMetricAggregatingValue(new MetricDescription()
+	        {
+	            InstanceId = aInstance.ID,
+                Name = aEvent.Metric.Name,
+                Type = aEvent.Metric.MetricType
+	        },new MetricValue()
+	        {
+                Created = Helper.FromMillisecondsSinceUnixEpoch(aEvent.Created),
+                Value = aEvent.Metric.Value
+            });
+        }
+        
+	    private void WriteKeepAlive(Event aEventLog, Instance aInstance)
 		{
 			KeepAlive_ row = new KeepAlive_()
 			{
@@ -119,10 +134,10 @@ namespace Monik.Service
 
 			_repository.CreateKeepAlive(row);
 
-			return row;
+		    _cacheKeepAlive.OnNewKeepAlive(row);
 		}
 
-		private Log_ WriteLog(Event aEventLog, Instance aInstance)
+		private void WriteLog(Event aEventLog, Instance aInstance)
 		{
 			Log_ row = new Log_()
 			{
@@ -138,7 +153,7 @@ namespace Monik.Service
 
 			_repository.CreateLog(row);
 
-			return row;
-		}
+		    _cacheLog.OnNewLog(row);
+        }
 	}//end of class
 }

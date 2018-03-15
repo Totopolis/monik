@@ -33,10 +33,12 @@ namespace Monik.Service
         List<EventQueue> GetEventSources();
 
         List<MetricDescription> GetMetricDescriptions();
-        void AddMetricValueStubs(int stubsCount, int metricId);
-        int DeleteMetricValueStubs(int stubsCount, int metricId);
+        void AddMetricValueStubs(List<MetricValue> stabsToAdd);
+        int DeleteMetricValueStubs(int stubsCount, long metricId);
 
         List<MetricValue> GetAllMetricValues();
         List<MetricValue> GetMetricValues(int metricId);
+        void CreateMetricDescription(MetricDescription metricDescription);
+        void UpdateMetricValue(MetricValue metricValue);
     }
 }

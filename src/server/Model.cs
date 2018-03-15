@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Monik.Common;
 
 namespace Monik.Service
 {
@@ -66,17 +67,18 @@ namespace Monik.Service
 
     public class MetricDescription
     {
-        public int    Id               { get; set; }
-        public string Name             { get; set; }
-        public int    InstanceID       { get; set; }
-        public int    SavedValuesCount { get; set; }
+        public long       Id               { get; set; }
+        public string     Name             { get; set; }
+        public int        InstanceId       { get; set; }
+        public MetricType Type             { get; set; }
     }
 
     public class MetricValue
     {
-        public int      Id       { get; set; }
-        public int      MetricId { get; set; }
-        public int      Value    { get; set; }
-        public DateTime Created  { get; set; }
+        public long     Id             { get; set; }
+        public long     MetricId       { get; set; }
+        public long     Value          { get; set; }
+        public DateTime Created        { get; set; }
+        public int      AggValuesCount { get; set; }
     }
 }

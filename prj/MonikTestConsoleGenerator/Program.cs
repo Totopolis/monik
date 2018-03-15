@@ -33,7 +33,6 @@ namespace MonikTestConsoleGenerator
             //logsSender.StartSendingLogs();
 
             var metricSender = new MetricsSender(monikTestGeneratorInstance, TimeSpan.FromMinutes(5));
-            metricSender.StartGeneratingMetrics();
             metricSender.StartSendingMetrics();
         }
     }

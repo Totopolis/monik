@@ -30,8 +30,9 @@ namespace Monik.Service
 			container.Register<ICacheLog, CacheLog>().AsSingleton();
 			container.Register<ICacheKeepAlive, CacheKeepAlive>().AsSingleton();
 			container.Register<ISourceInstanceCache, SourceInstanceCache>().AsSingleton();
+		    container.Register<ICacheMetrics, CacheMetrics>().AsSingleton();
 
-			container.Register<IMessageProcessor, MessageProcessor>().AsSingleton();
+            container.Register<IMessageProcessor, MessageProcessor>().AsSingleton();
 			container.Register<IMessagePump, MessagePump>().AsSingleton();
 
 			container.Register<IClientSender, AzureServiceSender>().AsSingleton();
