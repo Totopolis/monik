@@ -72,6 +72,10 @@
       <Project>{FF0D9AC2-DB23-40ED-8BFD-2F42B406D876}</Project>
       <Name>Monik.Client.Azure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Monik.Client\Monik.Client.csproj">
+      <Project>{5A0BE34B-4256-4F34-80A3-71F820ED8778}</Project>
+      <Name>Monik.Client</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

@@ -127,16 +127,22 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\src\server\WebService.cs">
-      <Link>Nancy\WebService.cs</Link>
+    <Compile Include="..\..\src\server\CloudWorker\Nancy\Bootstrapper.cs">
+      <Link>Nancy\Bootstrapper.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\server\WorkerRole.cs">
+    <Compile Include="..\..\src\server\CloudWorker\Settings\CloudServiceSettings.cs">
+      <Link>Settings\CloudServiceSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\CloudWorker\WorkerRole.cs">
       <Link>WorkerRole.cs</Link>
     </Compile>
-    <Compile Include="Nancy\Bootstrapper.cs" />
-    <Compile Include="Nancy\KeepAliveStatus.cs" />
+    <Compile Include="..\..\src\server\Nancy\KeepAliveStatus.cs">
+      <Link>Nancy\KeepAliveStatus.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Nancy\WebService.cs">
+      <Link>Nancy\WebService.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\CloudServiceSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
@@ -150,6 +156,10 @@
     <ProjectReference Include="..\Monik.Client.Azure\Monik.Client.Azure.csproj">
       <Project>{FF0D9AC2-DB23-40ED-8BFD-2F42B406D876}</Project>
       <Name>Monik.Client.Azure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Monik.Client\Monik.Client.csproj">
+      <Project>{5A0BE34B-4256-4F34-80A3-71F820ED8778}</Project>
+      <Name>Monik.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\MonikService.Core\MonikService.Core.csproj">
       <Project>{B59A8A1A-CEAD-474D-A2B5-3A7F6A566DE6}</Project>

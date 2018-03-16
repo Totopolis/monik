@@ -75,6 +75,10 @@
       <Project>{FF0D9AC2-DB23-40ED-8BFD-2F42B406D876}</Project>
       <Name>Monik.Client.Azure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Monik.Client\Monik.Client.csproj">
+      <Project>{5A0BE34B-4256-4F34-80A3-71F820ED8778}</Project>
+      <Name>Monik.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MonikService.Core\MonikService.Core.csproj">
       <Project>{B59A8A1A-CEAD-474D-A2B5-3A7F6A566DE6}</Project>
       <Name>MonikService.Core</Name>

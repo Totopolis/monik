@@ -66,34 +66,82 @@
     <Compile Include="..\..\src\common\Scheduler.cs">
       <Link>Common\Scheduler.cs</Link>
     </Compile>
-    <Compile Include="Cache\CacheKeepAlive.cs" />
-    <Compile Include="Cache\CacheLog.cs" />
-    <Compile Include="Cache\CacheMetrics.cs" />
-    <Compile Include="Cache\CacheSourceInstance.cs" />
-    <Compile Include="Cache\ICacheKeepAlive.cs" />
-    <Compile Include="Cache\ICacheLog.cs" />
-    <Compile Include="Cache\ICacheMetrics.cs" />
-    <Compile Include="Cache\ISourceInstanceCache.cs" />
-    <Compile Include="Messages\IMessageProcessor.cs" />
-    <Compile Include="Messages\IMessagePump.cs" />
-    <Compile Include="IObject.cs" />
-    <Compile Include="Messages\MessageProcessor.cs" />
-    <Compile Include="Messages\MessagePump.cs" />
-    <Compile Include="Repository\Model.cs" />
-    <Compile Include="Repository\Repository.cs" />
-    <Compile Include="Request\KeepAliveRequest.cs" />
-    <Compile Include="Request\LogRequest.cs" />
-    <Compile Include="Settings\IServiceSettings.cs" />
-    <Compile Include="Sender\AzureServiceSender.cs" />
-    <Compile Include="Repository\IRepository.cs" />
+    <Compile Include="..\..\src\server\Core\Cache\CacheKeepAlive.cs">
+      <Link>Cache\CacheKeepAlive.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Cache\CacheLog.cs">
+      <Link>Cache\CacheLog.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Cache\CacheMetrics.cs">
+      <Link>Cache\CacheMetrics.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Cache\CacheSourceInstance.cs">
+      <Link>Cache\CacheSourceInstance.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Cache\ICacheKeepAlive.cs">
+      <Link>Cache\ICacheKeepAlive.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Cache\ICacheLog.cs">
+      <Link>Cache\ICacheLog.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Cache\ICacheMetrics.cs">
+      <Link>Cache\ICacheMetrics.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Cache\ISourceInstanceCache.cs">
+      <Link>Cache\ISourceInstanceCache.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\IObject.cs">
+      <Link>IObject.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Messages\IMessageProcessor.cs">
+      <Link>Messages\IMessageProcessor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Messages\IMessagePump.cs">
+      <Link>Messages\IMessagePump.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Messages\MessageProcessor.cs">
+      <Link>Messages\MessageProcessor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Messages\MessagePump.cs">
+      <Link>Messages\MessagePump.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Repository\IRepository.cs">
+      <Link>Repository\IRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Repository\Model.cs">
+      <Link>Repository\Model.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Repository\Repository.cs">
+      <Link>Repository\Repository.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Request\KeepAliveRequest.cs">
+      <Link>Request\KeepAliveRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Request\LogRequest.cs">
+      <Link>Request\LogRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Sender\AzureServiceSender.cs">
+      <Link>Sender\AzureServiceSender.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Settings\IServiceSettings.cs">
+      <Link>Settings\IServiceSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Settings\ServiceClientSettings.cs">
+      <Link>Settings\ServiceClientSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\Core\Settings\Settings.cs">
+      <Link>Settings\Settings.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\ServiceClientSettings.cs" />
-    <Compile Include="Settings\Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Monik.Client.Azure\Monik.Client.Azure.csproj">
       <Project>{FF0D9AC2-DB23-40ED-8BFD-2F42B406D876}</Project>
       <Name>Monik.Client.Azure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Monik.Client\Monik.Client.csproj">
+      <Project>{5A0BE34B-4256-4F34-80A3-71F820ED8778}</Project>
+      <Name>Monik.Client</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

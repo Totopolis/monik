@@ -1,5 +1,4 @@
-﻿using Monik.Client;
-using MonikService.Core.Repository;
+﻿using MonikService.Core.Repository;
 
 namespace MonikTestConsoleGenerator.LogsSender
 {

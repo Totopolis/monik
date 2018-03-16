@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
-using System.Threading.Tasks;
+using Monik.Client.ClientControl;
+using Monik.Client.Sender;
+using Monik.Client.Settings;
 using Monik.Common;
 
-namespace Monik.Client
+namespace MonikTestConsoleGenerator
 {
     public class MonikTestGeneratorInstance : MonikInstance
     {
