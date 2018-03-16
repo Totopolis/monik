@@ -6,7 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Monik")]
-[assembly: AssemblyDescription("Client library to collect messages: logs, performance counters and keep-alive statuses use Azure Service Bus transport")]
+[assembly:
+    AssemblyDescription(
+        "Client library to collect messages: logs, performance counters and keep-alive statuses use Azure Service Bus transport")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Totopolis")]
 [assembly: AssemblyProduct("Monik.Client.Azure")]

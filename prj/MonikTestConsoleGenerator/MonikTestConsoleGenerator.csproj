@@ -57,7 +57,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AzureParallelSender.cs" />
     <Compile Include="LogsSender\InstanceGenerator.cs" />
     <Compile Include="LogsSender\InstancesLogsSender.cs" />
     <Compile Include="Metrics\Metric.cs" />

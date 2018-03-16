@@ -61,17 +61,17 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="..\..\src\common\Helper.cs">
-      <Link>Client.Azure\Helper.cs</Link>
-    </Compile>
-    <Compile Include="..\..\src\common\Monik.cs">
-      <Link>Client.Azure\Monik.cs</Link>
-    </Compile>
     <Compile Include="ProtoTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Monik.Client.Azure\Monik.Client.Azure.csproj">
+      <Project>{FF0D9AC2-DB23-40ED-8BFD-2F42B406D876}</Project>
+      <Name>Monik.Client.Azure</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

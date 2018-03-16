@@ -1,13 +1,14 @@
 ﻿using System.Configuration;
-using MonicWinService.Nancy;
 using Monik.Client;
 using Monik.Service;
+using MonikService.Core;
+using MonikService.Core.Repository;
 
-namespace MonicWinService
+namespace MonikWinService
 {
     public class ServiceWorker : IObject
     {
-        private WebService _service;
+        private WebService     _service;
         private IClientControl _control;
 
         public void OnStart()
@@ -20,7 +21,6 @@ namespace MonicWinService
             _control = Bootstrapper.MainContainer.Resolve<IClientControl>();
 
             _control.ApplicationWarning("MonikWorker has been started");
-
         }
 
         public void OnStop()
@@ -38,8 +38,6 @@ namespace MonicWinService
             _control.ApplicationWarning("MonikWorker has stopped");
 
             _control.OnStop();
-
-
         }
     }
 }

@@ -1,24 +1,8 @@
-﻿using Monik.Common;
+﻿using MonikService.Core.Core;
 
 namespace Monik.Service
 {
-	public interface IObject
-	{
-		void OnStart();
-		void OnStop();
-	}
-
-    public interface IMessagePump : IObject
-	{
-
-	}
-
-	public interface IMessageProcessor : IObject
-	{
-		void Process(Event aEvent, Instance aInstance);
-	}
-
-	public interface IWebService : IObject
+    public interface IWebService : IObject
 	{
 
 	}

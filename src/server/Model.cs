@@ -67,10 +67,10 @@ namespace Monik.Service
 
     public class MetricDescription
     {
-        public long       Id               { get; set; }
-        public string     Name             { get; set; }
-        public int        InstanceId       { get; set; }
-        public MetricType Type             { get; set; }
+        public long       Id         { get; set; }
+        public string     Name       { get; set; }
+        public int        InstanceId { get; set; }
+        public MetricType Type       { get; set; }
     }
 
     public class MetricValue

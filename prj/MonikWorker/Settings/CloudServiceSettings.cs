@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using Microsoft.Azure;
+﻿using Microsoft.Azure;
 using Microsoft.WindowsAzure.ServiceRuntime;
+using MonikService.Core.Settings;
 
-namespace Monik.Service
+namespace MonikWorker.Settings
 {
     public class CloudServiceSettings : ServiceSettings
     {

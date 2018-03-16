@@ -5,6 +5,8 @@ using Monik.Common;
 using Microsoft.ServiceBus.Messaging;
 using Monik.Client;
 using EasyNetQ;
+using MonikService.Core.Cache;
+using MonikService.Core.Repository;
 
 namespace Monik.Service
 {

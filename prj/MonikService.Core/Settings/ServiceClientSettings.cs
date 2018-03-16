@@ -1,7 +1,7 @@
 ﻿using System;
 using Monik.Client;
 
-namespace Monik.Service
+namespace MonikService.Core.Settings
 {
     public class ServiceClientSettings : IClientSettings
     {
@@ -14,32 +14,32 @@ namespace Monik.Service
 
         public bool AutoKeepAliveEnable
         {
-            get { return true; }
-            set { throw new NotImplementedException(); }
+            get => true;
+            set => throw new NotImplementedException();
         }
 
         public ushort AutoKeepAliveInterval
         {
-            get { return 60; }
-            set { throw new NotImplementedException(); }
+            get => 60;
+            set => throw new NotImplementedException();
         }
 
         public string InstanceName
         {
-            get { return _serviceSettings.InstanceName; }
-            set { throw new NotImplementedException(); }
+            get => _serviceSettings.InstanceName;
+            set => throw new NotImplementedException();
         }
 
         public ushort SendDelay
         {
-            get { return 1; }
-            set { throw new NotImplementedException(); }
+            get => 1;
+            set => throw new NotImplementedException();
         }
 
         public string SourceName
         {
-            get { return "Monik"; }
-            set { throw new NotImplementedException(); }
+            get => "Monik";
+            set => throw new NotImplementedException();
         }
     }
 }

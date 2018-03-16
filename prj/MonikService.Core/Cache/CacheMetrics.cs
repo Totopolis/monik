@@ -6,8 +6,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Monik.Client;
 using Monik.Common;
+using MonikService.Core.Repository;
+using MonikService.Core.Settings;
 
-namespace Monik.Service
+namespace MonikService.Core.Cache
 {
     public class CacheMetrics : ICacheMetrics
     {
@@ -140,6 +142,7 @@ namespace Monik.Service
 
                         _repository.UpdateMetricValue(newValue);
                     }
+                    _metricValues[metricAggregatingValue.Key].Enqueue(newValue);
                 }
             }
         }
@@ -221,6 +224,16 @@ namespace Monik.Service
         {
             _tokenSource.Cancel();
             _control.ApplicationVerbose($"{nameof(CacheMetrics)} stopped");
+        }
+
+        public List<MetricDescription> GetMetricDescriptions()
+        {
+            return _metricDescriptions.Values.ToList();
+        }
+
+        public List<MetricValue> GetAllCurrentMetricValues()
+        {
+            return _metricValues.Values.Select(v => v.Last).ToList();
         }
     }
 

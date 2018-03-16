@@ -5,8 +5,6 @@ using System.Text;
 using Gerakul.FastSql;
 using Monik.Client;
 using Monik.Common;
-using Monik.Service;
-using MonikService.Core.Core;
 using MonikTestConsoleGenerator.Metrics;
 
 namespace MonikTestConsoleGenerator
@@ -20,7 +18,7 @@ namespace MonikTestConsoleGenerator
             var proto = new { name = default(string), value = default(string) };
             var settings = SimpleCommand.ExecuteQueryAnonymous(proto, connstr, "select Name, Value from mon.Settings").ToDictionary(p=>p.name, p=>p.value);
 
-            var asureSender = new AzureParallelSender(settings["OutcomingConnectionString"], settings["OutcomingQueue"]);
+            var asureSender = new AzureSender(settings["OutcomingConnectionString"], settings["OutcomingQueue"]);
 
             var monikTestGeneratorInstance = new MonikTestGeneratorInstance(asureSender, new ClientSettings()
             {

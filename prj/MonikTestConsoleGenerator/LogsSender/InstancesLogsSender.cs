@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Monik.Client;
-using Monik.Service;
+using MonikService.Core.Repository;
 
 namespace MonikTestConsoleGenerator.LogsSender
 {

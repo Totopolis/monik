@@ -13,11 +13,16 @@ namespace MonikTestConsoleGenerator.Metrics
         public string         SubSystemName { get; set; }
 
         private int currentValue;
-        public int CurrentValue => currentValue;
-        public int ExchangeCurrentValue(int value) => Interlocked.Exchange(ref currentValue, value);
-        public int AddToCurrentValue(int value) => Interlocked.Add(ref currentValue, value);
+        public  int CurrentValue                    => currentValue;
+        public  int ExchangeCurrentValue(int value) => Interlocked.Exchange(ref currentValue, value);
+        public  int AddToCurrentValue(int    value) => Interlocked.Add(ref currentValue, value);
 
-        public Metric(string serviceName, string subSystemName, string name, DateTime initTime, MetricType type, Action<Metric> counter)
+        public Metric(string         serviceName,
+                      string         subSystemName,
+                      string         name,
+                      DateTime       initTime,
+                      MetricType     type,
+                      Action<Metric> counter)
         {
             ServiceName   = serviceName;
             SubSystemName = subSystemName;

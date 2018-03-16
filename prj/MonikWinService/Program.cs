@@ -1,7 +1,8 @@
 ﻿using Monik.Service;
+using MonikService.Core;
 using Topshelf;
 
-namespace MonicWinService
+namespace MonikWinService
 {
     class Program
     {

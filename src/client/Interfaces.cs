@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using Monik.Common;
 
 namespace Monik.Client
@@ -43,33 +44,57 @@ namespace Monik.Client
 
 	public interface IClientControl
 	{
-		void SystemVerbose(string aBody, params object[] aParams);
-		void SystemInfo   (string aBody, params object[] aParams);
-		void SystemWarning(string aBody, params object[] aParams);
-		void SystemError  (string aBody, params object[] aParams);
-		void SystemFatal  (string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void SystemVerbose(string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void SystemInfo   (string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void SystemWarning(string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void SystemError  (string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void SystemFatal  (string aBody, params object[] aParams);
 
-		void ApplicationVerbose(string aBody, params object[] aParams);
-		void ApplicationInfo   (string aBody, params object[] aParams);
-		void ApplicationWarning(string aBody, params object[] aParams);
-		void ApplicationError  (string aBody, params object[] aParams);
-		void ApplicationFatal  (string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void ApplicationVerbose(string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void ApplicationInfo   (string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void ApplicationWarning(string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void ApplicationError  (string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void ApplicationFatal  (string aBody, params object[] aParams);
 
-		void LogicVerbose(string aBody, params object[] aParams);
-		void LogicInfo   (string aBody, params object[] aParams);
-		void LogicWarning(string aBody, params object[] aParams);
-		void LogicError  (string aBody, params object[] aParams);
-		void LogicFatal  (string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void LogicVerbose(string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void LogicInfo   (string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void LogicWarning(string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void LogicError  (string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void LogicFatal  (string aBody, params object[] aParams);
 
-		void SecurityVerbose(string aBody, params object[] aParams);
-		void SecurityInfo   (string aBody, params object[] aParams);
-		void SecurityWarning(string aBody, params object[] aParams);
-		void SecurityError  (string aBody, params object[] aParams);
-		void SecurityFatal  (string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void SecurityVerbose(string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void SecurityInfo   (string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void SecurityWarning(string aBody, params object[] aParams);
+		[Obsolete("Use fun(string aBody)", true)]void SecurityError  (string aBody, params object[] aParams);
+        [Obsolete("Use fun(string aBody)", true)]void SecurityFatal  (string aBody, params object[] aParams);
+
+		void SystemVerbose(string aBody);
+		void SystemInfo   (string aBody);
+		void SystemWarning(string aBody);
+		void SystemError  (string aBody);
+		void SystemFatal  (string aBody);
+
+		void ApplicationVerbose(string aBody);
+		void ApplicationInfo   (string aBody);
+		void ApplicationWarning(string aBody);
+		void ApplicationError  (string aBody);
+		void ApplicationFatal  (string aBody);
+
+		void LogicVerbose(string aBody);
+		void LogicInfo   (string aBody);
+		void LogicWarning(string aBody);
+		void LogicError  (string aBody);
+		void LogicFatal  (string aBody);
+
+		void SecurityVerbose(string aBody);
+		void SecurityInfo   (string aBody);
+		void SecurityWarning(string aBody);
+		void SecurityError  (string aBody);
+		void SecurityFatal  (string aBody);
 
 		void KeepAlive();
 
-	    void Metric(string name, int value, MetricType metricType);
+	    void Metric(string name, long value, MetricType metricType);
             
         void OnStop();
 	}

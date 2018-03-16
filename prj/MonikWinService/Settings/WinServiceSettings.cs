@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Configuration;
+﻿using System.Configuration;
+using Monik.Service;
+using MonikService.Core.Settings;
 
-namespace Monik.Service
+namespace MonikWinService.Settings
 {
     public class WinServiceSettings : ServiceSettings
     {

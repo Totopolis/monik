@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using MonikService.Core.Repository;
+using MonikService.Core.Request;
 
-namespace Monik.Service
+namespace MonikService.Core.Cache
 {
     public interface ICacheLog : IObject
     {
