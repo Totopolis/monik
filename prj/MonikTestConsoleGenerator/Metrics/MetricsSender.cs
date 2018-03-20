@@ -41,7 +41,7 @@ namespace MonikTestConsoleGenerator.Metrics
             AddMetric(new Metric("FakeMetricsService", "", "SinHourAccum0_100", InitTime.AddMinutes(-15), MetricType.Accum, (metric) =>
             {
                 var rad = (DateTime.Now - metric.InitTime).TotalHours * 2 * Math.PI;
-                metric.AddToCurrentValue((int) ((Math.Cos(rad) + 1) * 50.5));
+                metric.AddToCurrentValue((int) ((Math.Cos(rad) + 1) * 50.5 * MetricSendingDelay.TotalSeconds / (5 * 60)));
             }));
         }
 

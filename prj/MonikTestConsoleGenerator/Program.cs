@@ -29,7 +29,7 @@ namespace MonikTestConsoleGenerator
             //var logsSender = new InstancesLogsSender(10000, source, monikTestGeneratorInstance);
             //logsSender.StartSendingLogs();
 
-            var metricSender = new MetricsSender(monikTestGeneratorInstance, TimeSpan.FromMinutes(5));
+            var metricSender = new MetricsSender(monikTestGeneratorInstance, TimeSpan.FromSeconds(15));
             metricSender.StartSendingMetrics();
         }
     }

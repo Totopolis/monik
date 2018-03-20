@@ -41,5 +41,7 @@ namespace MonikService.Core.Repository
         List<MetricValue> GetMetricValues(int                       metricId);
         void              CreateMetricDescription(MetricDescription metricDescription);
         void              UpdateMetricValue(MetricValue             metricValue);
+        void              DeleteAllMetricStubs();
+        void              DeleteAllMetricDescriptions();
     }
 }

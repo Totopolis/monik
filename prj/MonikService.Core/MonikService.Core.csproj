@@ -120,6 +120,9 @@
     <Compile Include="..\..\src\server\Core\Request\LogRequest.cs">
       <Link>Request\LogRequest.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\server\Core\Request\MonicHistoryRequest.cs">
+      <Link>Request\MonicHistoryRequest.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\server\Core\Sender\AzureServiceSender.cs">
       <Link>Sender\AzureServiceSender.cs</Link>
     </Compile>

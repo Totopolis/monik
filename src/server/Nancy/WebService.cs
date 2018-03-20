@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Monik.Client.ClientControl;
 using MonikService.Core;
 using MonikService.Core.Cache;
+using MonikService.Core.Repository;
 using MonikService.Core.Request;
 using Nancy;
 using Nancy.ModelBinding;
@@ -150,7 +151,7 @@ namespace Monik.Service
                 }
             });
 
-            Get("/metrics", args =>
+            Get("/currentMetrics", args =>
             {
                 try
                 {
@@ -159,7 +160,37 @@ namespace Monik.Service
                 }
                 catch (Exception ex)
                 {
-                    control.ApplicationError($"Method /metrics : {ex.Message}");
+                    control.ApplicationError($"Method /currentMetrics : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
+            });
+
+            Get("/currentMetric/{MetricId}", args =>
+            {
+                try
+                {
+                    MetricValue result = cacheMetrics.GetCurrentMetricValue(args.MetricId);
+                    return Response.AsJson(result);
+                }
+                catch (Exception ex)
+                {
+                    control.ApplicationError($"Method /currentMetric : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
+            });
+
+            Post("/metricHistory/",args =>
+            {
+                var request = this.Bind<MonicHistoryRequest>();
+
+                try
+                {
+                    var result = cacheMetrics.GetHistoryMetricValues(request.MetricId, request.Count, request.LastWindowCreated);
+                    return Response.AsJson(result);
+                }
+                catch (Exception ex)
+                {
+                    control.ApplicationError($"Method /metricHistory : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
             });

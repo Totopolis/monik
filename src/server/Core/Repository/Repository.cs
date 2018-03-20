@@ -215,7 +215,17 @@ namespace MonikService.Core.Repository
 
         public void UpdateMetricValue(MetricValue metricValue)
         {
-            MappedCommand.Update(_settings.DbConnectionString, $"[mon].[{nameof(MetricValue)}]", metricValue, "Id");
+            MappedCommand.UpdateAsync(_settings.DbConnectionString, $"[mon].[{nameof(MetricValue)}]", metricValue, "Id");
+        }
+
+        public void DeleteAllMetricStubs()
+        {
+            SimpleCommand.ExecuteNonQuery(_settings.DbConnectionString, $"delete from [mon].[{nameof(MetricValue)}]");
+        }
+
+        public void DeleteAllMetricDescriptions()
+        {
+            SimpleCommand.ExecuteNonQuery(_settings.DbConnectionString, $"delete from [mon].[{nameof(MetricDescription)}]");
         }
 
         #endregion

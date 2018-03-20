@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MonikService.Core.Repository;
 
 namespace MonikService.Core.Cache
@@ -9,5 +10,7 @@ namespace MonikService.Core.Cache
         void                    OnStop();
         List<MetricDescription> GetMetricDescriptions();
         List<MetricValue>       GetAllCurrentMetricValues();
+        MetricValue             GetCurrentMetricValue(long  metricId);
+        List<MetricValue>       GetHistoryMetricValues(long metricId, int count, DateTime? last);
     }
 }
