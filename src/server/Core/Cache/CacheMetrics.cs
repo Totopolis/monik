@@ -41,16 +41,16 @@ namespace MonikService.Core.Cache
             _stubsCount = _settings.MetricDeepMinutes * 60 / _settings.MetricInterval;
 
             var values = _repository
-                        .GetAllMetricValues()
-                        .GroupBy(mv => mv.MetricId)
-                        .ToDictionary(g => g.Key, g => g.OrderBy(mv => mv.Created).ToList());
+               .GetAllMetricValues()
+               .GroupBy(mv => mv.MetricId)
+               .ToDictionary(g => g.Key, g => g.OrderBy(mv => mv.Created).ToList());
 
             _metricInterval = TimeSpan.FromSeconds(_settings.MetricInterval);
 
             _timeWindowBegin = DateTime.UtcNow;
 
             _timeWindowBegin = _timeWindowBegin.Add(-_timeWindowBegin.TimeOfDay +
-                                                  TimeSpan.FromSeconds((int)_timeWindowBegin.TimeOfDay.TotalSeconds / _settings.MetricInterval * _settings.MetricInterval));
+                                                    TimeSpan.FromSeconds((int) _timeWindowBegin.TimeOfDay.TotalSeconds / _settings.MetricInterval * _settings.MetricInterval));
 
             if (values.Any() && _stubsCount != values.First().Value.Count)
             {
@@ -217,6 +217,9 @@ namespace MonikService.Core.Cache
                         newValue.Value          = metricAggregatingValue.Value.Value;
                         newValue.Created        = _timeWindowBegin;
 
+                        metricAggregatingValue.Value.AggsCount = 0;
+                        metricAggregatingValue.Value.Value     = 0;
+
                         switch (_metricDescriptions[newValue.MetricId].Type)
                         {
                             case MetricType.Gauge:
@@ -252,34 +255,35 @@ namespace MonikService.Core.Cache
         public List<MetricValue> GetAllCurrentMetricValues()
         {
             return _metricAggregatingValues.Select(v =>
-            {
-                var locker = _metricValuesLockers.GetOrAdd(v.Key, new object());
-
-                lock (locker)
                 {
-                    var metricValue = new MetricValue()
-                    {
-                        AggValuesCount = v.Value.AggsCount,
-                        MetricId       = v.Key,
-                        Created        = DateTime.UtcNow,
-                        Value          = v.Value.Value
-                    };
+                    var locker = _metricValuesLockers.GetOrAdd(v.Key, new object());
 
-                    switch (_metricDescriptions[v.Key].Type)
+                    lock (locker)
                     {
-                        case MetricType.Accumulator:
-                            break;
-                        case MetricType.Gauge:
-                            if (metricValue.AggValuesCount != 0) metricValue.Value /= metricValue.AggValuesCount;
-                            break;
+                        var metricValue = new MetricValue()
+                        {
+                            AggValuesCount = v.Value.AggsCount,
+                            MetricId       = v.Key,
+                            Created        = DateTime.UtcNow,
+                            Value          = v.Value.Value
+                        };
 
-                        default:
-                            throw new NotImplementedException();
+                        switch (_metricDescriptions[v.Key].Type)
+                        {
+                            case MetricType.Accumulator:
+                                break;
+                            case MetricType.Gauge:
+                                if (metricValue.AggValuesCount != 0) metricValue.Value /= metricValue.AggValuesCount;
+                                break;
+
+                            default:
+                                throw new NotImplementedException();
+                        }
+
+                        return metricValue;
                     }
-
-                    return metricValue;
-                }
-            }).ToList();
+                })
+               .ToList();
         }
 
         public MetricValue GetCurrentMetricValue(long metricId)
@@ -323,10 +327,11 @@ namespace MonikService.Core.Cache
             var lastWindowCreationTime = _timeWindowBegin;
             last = last ?? _timeWindowBegin;
 
-            for (; lastWindowCreationTime > last; lastWindowCreationTime-= _metricInterval){}
+            for (; lastWindowCreationTime > last; lastWindowCreationTime -= _metricInterval) { }
 
             var pop = lastWindowCreationTime;
-            for (int i = 0; i < count && pop > _metricValues[metricId].First; i++, pop-= _metricInterval)
+
+            for (int i = 0; i < count && pop > _metricValues[metricId].First; i++, pop -= _metricInterval)
             {
                 rez.Add(_metricValues[metricId][pop]);
             }
@@ -351,7 +356,7 @@ namespace MonikService.Core.Cache
             {
                 First = Keys.Min();
                 Last  = Keys.Max();
-            }            
+            }
         }
     }
 }

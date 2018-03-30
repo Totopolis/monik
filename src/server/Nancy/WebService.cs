@@ -181,7 +181,7 @@ namespace Monik.Service
 
             Post("/metricHistory/",args =>
             {
-                var request = this.Bind<MonicHistoryRequest>();
+                var request = this.Bind<MetricHistoryRequest>();
 
                 try
                 {

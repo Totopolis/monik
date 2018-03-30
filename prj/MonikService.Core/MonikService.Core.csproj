@@ -120,9 +120,6 @@
     <Compile Include="..\..\src\server\Core\Request\LogRequest.cs">
       <Link>Request\LogRequest.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\server\Core\Request\MonicHistoryRequest.cs">
-      <Link>Request\MonicHistoryRequest.cs</Link>
-    </Compile>
     <Compile Include="..\..\src\server\Core\Sender\AzureServiceSender.cs">
       <Link>Sender\AzureServiceSender.cs</Link>
     </Compile>
@@ -136,6 +133,7 @@
       <Link>Settings\Settings.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Request\MetricHistoryRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Monik.Client.Azure\Monik.Client.Azure.csproj">
