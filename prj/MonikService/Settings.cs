@@ -1,13 +1,15 @@
 ﻿using Gerakul.FastSql;
 using System;
+using System.Configuration;
 using System.Collections.Generic;
-using Microsoft.Azure;
-using Microsoft.WindowsAzure.ServiceRuntime;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Monik.Client;
 
 namespace Monik.Service
 {
-    public class ServiceSettings : IMonikServiceSettings
+    public class MonikServiceSettings : IMonikServiceSettings
     {
         // TODO: use concurent when online updates
         private static Dictionary<string, string> _settings = null;
@@ -31,7 +33,7 @@ namespace Monik.Service
 
         public string InstanceName
         {
-            get { return RoleEnvironment.IsEmulated ? "Dev" : "Azure"; }
+            get { return ConfigurationManager.AppSettings["InstanceName"]; }
         }
 
         public int DayDeepKeepAlive
@@ -46,7 +48,7 @@ namespace Monik.Service
 
         public string DbConnectionString
         {
-            get { return CloudConfigurationManager.GetSetting("DBConnectionString"); }
+            get { return ConfigurationManager.AppSettings["DBConnectionString"]; }
         }
 
         public string OutcomingConnectionString
@@ -61,11 +63,11 @@ namespace Monik.Service
 
     } //end of class
 
-    public class ServiceClientSettings : IMonikSettings
+    public class MonikClientSettings : IMonikSettings
     {
         private readonly IMonikServiceSettings _serviceSettings;
 
-        public ServiceClientSettings(IMonikServiceSettings aServiceSettings)
+        public MonikClientSettings(IMonikServiceSettings aServiceSettings)
         {
             _serviceSettings = aServiceSettings;
         }
@@ -99,5 +101,6 @@ namespace Monik.Service
             get { return "Monik"; }
             set { throw new NotImplementedException(); }
         }
-    }
+
+    }//end of class
 }

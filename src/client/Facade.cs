@@ -1,13 +1,15 @@
-﻿namespace Monik.Client
+﻿using Monik.Common;
+
+namespace Monik.Client
 {
     public class M
     {
-        private static IClientControl _instance = null;
+        private static IMonik _instance = null;
 
         public static void Initialize(IClientSender aSender, string aSourceName, string aInstanceName,
             bool aAutoKeepAliveEnable = false)
         {
-            IClientSettings settings = new ClientSettings()
+            IMonikSettings settings = new ClientSettings()
             {
                 SourceName = aSourceName ?? "",
                 InstanceName = aInstanceName ?? "",

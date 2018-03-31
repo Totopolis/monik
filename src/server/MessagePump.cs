@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Monik.Common;
 using Microsoft.ServiceBus.Messaging;
-using Monik.Client;
+using Monik.Common;
 using EasyNetQ;
 
 namespace Monik.Service
@@ -15,16 +14,6 @@ namespace Monik.Service
         public IAdvancedBus RabbitQueue { get; set; }
     }
 
-    public class EventQueue
-    {
-        public int ID { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public byte Type { get; set; }
-        public string ConnectionString { get; set; }
-        public string QueueName { get; set; }
-    }
-
     public class MessagePump : IMessagePump
     {
         public const int DelayOnException = 1000; //in ms
@@ -32,20 +21,20 @@ namespace Monik.Service
         private readonly IRepository _repository;
         private readonly ISourceInstanceCache _cache;
         private readonly IMessageProcessor _processor;
-        private readonly IClientControl _control;
+        private readonly IMonik _monik;
 
         private List<ActiveQueue> _queues;
 
         public MessagePump(IRepository aRepository, ISourceInstanceCache aCache, IMessageProcessor aProcessor,
-            IClientControl aControl)
+            IMonik monik)
         {
             _repository = aRepository;
             _cache = aCache;
             _processor = aProcessor;
-            _control = aControl;
+            _monik = monik;
             _queues = null;
 
-            _control.ApplicationVerbose("MessagePump created");
+            _monik.ApplicationVerbose("MessagePump created");
         }
 
         public void OnStart()
@@ -74,11 +63,11 @@ namespace Monik.Service
                 }
                 catch (Exception ex)
                 {
-                    _control.ApplicationError($"MessagePump.OnStart failed initialization {it.Name}: {ex.Message}");
+                    _monik.ApplicationError($"MessagePump.OnStart failed initialization {it.Name}: {ex.Message}");
                 }
             }
 
-            _control.ApplicationVerbose("MessagePump started");
+            _monik.ApplicationVerbose("MessagePump started");
         }
 
         private void InitializeServiceBus(ActiveQueue aActive)
@@ -101,7 +90,7 @@ namespace Monik.Service
                 }
                 catch (Exception ex)
                 {
-                    _control.ApplicationError($"MessagePump.OnMessage ServiceBus: {ex.Message}");
+                    _monik.ApplicationError($"MessagePump.OnMessage ServiceBus: {ex.Message}");
                     System.Threading.Thread.Sleep(DelayOnException);
                 }
             });
@@ -130,7 +119,7 @@ namespace Monik.Service
                 }
                 catch (Exception ex)
                 {
-                    _control.ApplicationError($"MessagePump.OnMessage RabbitMQ: {ex.Message}");
+                    _monik.ApplicationError($"MessagePump.OnMessage RabbitMQ: {ex.Message}");
                     System.Threading.Thread.Sleep(DelayOnException);
                 }
             }));

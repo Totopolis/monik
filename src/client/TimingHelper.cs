@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Monik.Common;
 
 namespace Monik.Client
 {
     public class TimingHelper
     {
         private DateTime _from;
-        private readonly IClientControl _control;
+        private readonly IMonik _control;
 
-        private TimingHelper(IClientControl aControl)
+        private TimingHelper(IMonik aControl)
         {
             _from = DateTime.Now;
             _control = aControl;
         }
 
-        public static TimingHelper Create(IClientControl aControl)
+        public static TimingHelper Create(IMonik aControl)
         {
             return new TimingHelper(aControl);
         }

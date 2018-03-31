@@ -10,15 +10,25 @@ namespace Monik.Service
         void OnStop();
     }
 
-    public interface IServiceSettings : IObject
+    public interface IMonikServiceSettings : IObject
     {
         string DbConnectionString { get; }
-        string CloudInstanceName { get; }
+        string InstanceName { get; }
 
         string OutcomingConnectionString { get; }
         string OutcomingQueue { get; }
         int DayDeepLog { get; }
         int DayDeepKeepAlive { get; }
+    }
+
+    public class EventQueue
+    {
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public byte Type { get; set; }
+        public string ConnectionString { get; set; }
+        public string QueueName { get; set; }
     }
 
     public interface IRepository

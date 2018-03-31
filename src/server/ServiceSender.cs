@@ -6,10 +6,10 @@ namespace Monik.Service
 {
     public class ServiceSender : IClientSender
     {
-        private readonly IServiceSettings _serviceSettings;
+        private readonly IMonikServiceSettings _serviceSettings;
         private readonly IClientSender _sender;
 
-        public ServiceSender(IServiceSettings aSettings)
+        public ServiceSender(IMonikServiceSettings aSettings)
         {
             _serviceSettings = aSettings;
             _sender = new AzureSender(aSettings.OutcomingConnectionString, aSettings.OutcomingQueue);

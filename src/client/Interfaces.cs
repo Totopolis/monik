@@ -8,7 +8,7 @@ namespace Monik.Client
         void SendMessages(ConcurrentQueue<Event> aQueue);
     }
 
-    public interface IClientSettings
+    public interface IMonikSettings
     {
         /*
             /// <summary>
@@ -41,7 +41,7 @@ namespace Monik.Client
         // TODO: logging level cut support
     }
 
-    public interface IClientControl
+    /*public interface IMonik
     {
         void SystemVerbose(string aBody, params object[] aParams);
         void SystemInfo(string aBody, params object[] aParams);
@@ -70,5 +70,5 @@ namespace Monik.Client
         void KeepAlive();
 
         void OnStop();
-    }
+    }*/
 }

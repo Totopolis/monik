@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Monik.Client;
+using Monik.Common;
 
 namespace Monik.Service
 {
@@ -8,11 +8,11 @@ namespace Monik.Service
     {
         private readonly IRepository _repository;
         private readonly ISourceInstanceCache _cache;
-        private readonly IClientControl _control;
+        private readonly IMonik _control;
 
         private readonly Dictionary<int, KeepAlive_> _status;
 
-        public CacheKeepAlive(IRepository aRepository, ISourceInstanceCache aCache, IClientControl aControl)
+        public CacheKeepAlive(IRepository aRepository, ISourceInstanceCache aCache, IMonik aControl)
         {
             _repository = aRepository;
             _cache = aCache;

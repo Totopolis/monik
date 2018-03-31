@@ -1,5 +1,4 @@
-﻿using Monik.Client;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,15 +18,15 @@ namespace Monik.Common
 
         public IntervalType Interval { get; private set; }
         private readonly string _name;
-        private readonly IClientControl _control;
+        private readonly IMonik _monik;
 
         // TODO: options - retry logic and immediatly execute at start
-        private Scheduler(IClientControl aControl, Action aWork, IntervalType aInterval, string aName)
+        private Scheduler(IMonik monik, Action work, IntervalType interval, string name)
         {
-            _control = aControl;
-            _action = aWork;
-            _name = aName;
-            Interval = aInterval;
+            _monik = monik;
+            _action = work;
+            _name = name;
+            Interval = interval;
         }
 
         public void OnStart()
@@ -80,7 +79,7 @@ namespace Monik.Common
                 }
                 catch (Exception ex)
                 {
-                    _control.ApplicationError($"Scheduler {_name} exception: {ex.Message}");
+                    _monik.ApplicationError($"Scheduler {_name} exception: {ex.Message}");
                 }
 
                 Runner(GetNextDate(date));
@@ -88,9 +87,9 @@ namespace Monik.Common
             }, Cancellation.Token);
         }
 
-        public static Scheduler CreatePerHour(IClientControl aControl, Action aWork, string aName = "")
+        public static Scheduler CreatePerHour(IMonik monik, Action work, string name = "")
         {
-            Scheduler result = new Scheduler(aControl, aWork, IntervalType.Hour, aName);
+            Scheduler result = new Scheduler(monik, work, IntervalType.Hour, name);
             return result;
         }
 

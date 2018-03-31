@@ -6,25 +6,25 @@ namespace Monik.Service
 {
     public class MessageProcessor : IMessageProcessor
     {
-        private readonly IServiceSettings _settings;
+        private readonly IMonikServiceSettings _settings;
         private readonly IRepository _repository;
         private readonly ICacheLog _cacheLog;
         private readonly ICacheKeepAlive _cacheKeepAlive;
-        private readonly IClientControl _control;
+        private readonly IMonik _monik;
 
-        public MessageProcessor(IServiceSettings aSettings, IRepository aRepository, ICacheLog aCacheLog,
-            ICacheKeepAlive aCacheKeepAlive, IClientControl aControl)
+        public MessageProcessor(IMonikServiceSettings settings, IRepository repository, 
+            ICacheLog cacheLog, ICacheKeepAlive cacheKeepAlive, IMonik monik)
         {
-            _settings = aSettings;
-            _repository = aRepository;
-            _cacheLog = aCacheLog;
-            _cacheKeepAlive = aCacheKeepAlive;
-            _control = aControl;
+            _settings = settings;
+            _repository = repository;
+            _cacheLog = cacheLog;
+            _cacheKeepAlive = cacheKeepAlive;
+            _monik = monik;
 
-            _cleaner = Scheduler.CreatePerHour(_control, CleanerTask, "cleaner");
-            _statist = Scheduler.CreatePerHour(_control, StatistTask, "statist");
+            _cleaner = Scheduler.CreatePerHour(_monik, CleanerTask, "cleaner");
+            _statist = Scheduler.CreatePerHour(_monik, StatistTask, "statist");
 
-            _control.ApplicationVerbose("MessageProcessor created");
+            _monik.ApplicationVerbose("MessageProcessor created");
         }
 
         private readonly Scheduler _cleaner;
@@ -35,7 +35,7 @@ namespace Monik.Service
             _cleaner.OnStart();
             _statist.OnStart();
 
-            _control.ApplicationVerbose("MessageProcessor started");
+            _monik.ApplicationVerbose("MessageProcessor started");
         }
 
         private void CleanerTask()
@@ -48,7 +48,7 @@ namespace Monik.Service
                 if (logThreshold.HasValue)
                 {
                     var count = _repository.CleanUpLog(logThreshold.Value);
-                    _control.LogicInfo("Cleaner delete Log: {0} rows", count);
+                    _monik.LogicInfo("Cleaner delete Log: {0} rows", count);
                 }
 
                 // cleanup keep-alive
@@ -57,12 +57,12 @@ namespace Monik.Service
                 if (kaThreshold.HasValue)
                 {
                     var count = _repository.CleanUpKeepAlive(kaThreshold.Value);
-                    _control.LogicInfo("Cleaner delete KeepAlive: {0} rows", count);
+                    _monik.LogicInfo("Cleaner delete KeepAlive: {0} rows", count);
                 }
             }
             catch (Exception ex)
             {
-                _control.ApplicationError("CleanerTask: {0}", ex.Message);
+                _monik.ApplicationError("CleanerTask: {0}", ex.Message);
             }
         }
 
@@ -77,7 +77,7 @@ namespace Monik.Service
             }
             catch (Exception ex)
             {
-                _control.ApplicationError("StatistTask: {0}", ex.Message);
+                _monik.ApplicationError("StatistTask: {0}", ex.Message);
             }
         }
 

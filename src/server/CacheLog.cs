@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Monik.Client;
+using Monik.Common;
 using System.Collections.Concurrent;
 
 namespace Monik.Service
@@ -9,7 +9,7 @@ namespace Monik.Service
     public class CacheLog : ICacheLog
     {
         private readonly IRepository _repository;
-        private readonly IClientControl _control;
+        private readonly IMonik _control;
 
         private ConcurrentQueue<Log_> _logs;
         private ISourceInstanceCache _cache;
@@ -21,7 +21,7 @@ namespace Monik.Service
             private set { lock (this) _oldestLogId = value; }
         }
 
-        public CacheLog(IRepository aRepository, ISourceInstanceCache aCache, IClientControl aControl)
+        public CacheLog(IRepository aRepository, ISourceInstanceCache aCache, IMonik aControl)
         {
             _repository = aRepository;
             _control = aControl;

@@ -1,6 +1,6 @@
 ﻿namespace Monik.Client
 {
-    public class ClientSettings : IClientSettings
+    public class ClientSettings : IMonikSettings
     {
         /*private BehaviorSubject<string> FSourceNameProperty = new BehaviorSubject<string>("UnknownSource");
 		private BehaviorSubject<string> FInstanceNameProperty = new BehaviorSubject<string>("UnknownInstance");

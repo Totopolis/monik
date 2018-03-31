@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Monik.Client;
+using Monik.Common;
 
 namespace Monik.Service
 {
     public class SourceInstanceCache : ISourceInstanceCache
     {
         private readonly IRepository _repository;
-        private readonly IClientControl _control;
+        private readonly IMonik _monik;
 
         private readonly Dictionary<string, Source> _sources;
         private readonly Dictionary<short, Source> _sourceMap;
@@ -19,17 +19,17 @@ namespace Monik.Service
         private Dictionary<short, Group> _groups;
         private List<int> _defaultInstances; // from default group
 
-        public SourceInstanceCache(IRepository aRepository, IClientControl aControl)
+        public SourceInstanceCache(IRepository aRepository, IMonik monik)
         {
             _repository = aRepository;
-            _control = aControl;
+            _monik = monik;
 
             _sources = new Dictionary<string, Source>();
             _sourceMap = new Dictionary<short, Source>();
             _instanceMap = new Dictionary<int, Instance>();
             _sourceInstanceMap = new Dictionary<string, Instance>();
 
-            _control.ApplicationVerbose("SourceInstanceCache created");
+            _monik.ApplicationVerbose("SourceInstanceCache created");
         }
 
         public void OnStart()
@@ -43,7 +43,7 @@ namespace Monik.Service
                     _sources.Add(src.Name, src);
                 }
                 else
-                    _control.ApplicationError($"Database contains more than one same source name: {src.Name}");
+                    _monik.ApplicationError($"Database contains more than one same source name: {src.Name}");
 
             // 2. Load all instances in memory
             var instances = _repository.GetAllInstances();
@@ -60,11 +60,11 @@ namespace Monik.Service
                         _sourceInstanceMap.Add(key, ins);
                     }
                     else
-                        _control.ApplicationError(
+                        _monik.ApplicationError(
                             $"Database contains more than one the same instance name '{ins.Name}' for the source '{src.Name}'");
                 }
                 else
-                    _control.ApplicationError($"Database doesnt contains source(id={ins.SourceID}) for the instance '{ins.Name}'");
+                    _monik.ApplicationError($"Database doesnt contains source(id={ins.SourceID}) for the instance '{ins.Name}'");
 
             // 3. Load all groups in memory
             var groups = _repository.GetAllGroupsAndFill();
@@ -81,7 +81,7 @@ namespace Monik.Service
                 _groups.Add(it.ID, it);
             }
 
-            _control.ApplicationVerbose("SourceInstanceCache started");
+            _monik.ApplicationVerbose("SourceInstanceCache started");
         }
 
         public void OnStop()

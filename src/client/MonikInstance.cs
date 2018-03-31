@@ -6,7 +6,7 @@ using Monik.Common;
 
 namespace Monik.Client
 {
-    public class MonikInstance : IClientControl
+    public class MonikInstance : IMonik
     {
         private readonly IClientSender _sender;
 
@@ -59,23 +59,23 @@ namespace Monik.Client
             }
         }
 
-        public MonikInstance(IClientSender aSender, IClientSettings aSettings)
+        public MonikInstance(IClientSender sender, IMonikSettings settings)
         {
-            _sender = aSender;
+            _sender = sender;
 
             // TODO: when IDisposable from subscribe will be raise?
 
-            FSourceName = aSettings.SourceName;
-            FInstanceName = aSettings.InstanceName;
+            FSourceName = settings.SourceName;
+            FInstanceName = settings.InstanceName;
 
-            FSendDelay = aSettings.SendDelay;
+            FSendDelay = settings.SendDelay;
 
             FAutoKeepAliveEnable = false;
             FAutoKeepAliveTask = null;
             FAutoKeepAliveCancellationTokenSource = null;
 
-            FAutoKeepAliveInterval = aSettings.AutoKeepAliveInterval;
-            AutoKeepAliveEnable = aSettings.AutoKeepAliveEnable;
+            FAutoKeepAliveInterval = settings.AutoKeepAliveInterval;
+            AutoKeepAliveEnable = settings.AutoKeepAliveEnable;
 
             FSenderTask = Task.Run(() => { OnSenderTask(); });
         }

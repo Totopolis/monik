@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using Monik.Service;
-using Monik.Client;
+using Monik.Common;
 
 namespace MonikWorker
 {
@@ -27,7 +27,7 @@ namespace MonikWorker
         }
 
         private WebService _service;
-        private IClientControl _control;
+        private IMonik _control;
 
         public override bool OnStart()
         {
@@ -40,7 +40,7 @@ namespace MonikWorker
             _service = new WebService(prefix);
             _service.OnStart();
 
-            _control = Bootstrapper.MainContainer.Resolve<IClientControl>();
+            _control = Bootstrapper.MainContainer.Resolve<IMonik>();
 
             _control.ApplicationWarning("MonikWorker has been started");
 

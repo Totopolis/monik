@@ -1,6 +1,7 @@
 ﻿using Nancy;
 using Nancy.Bootstrapper;
 using Nancy.TinyIoc;
+using Monik.Common;
 using Monik.Client;
 
 namespace Monik.Service
@@ -11,7 +12,7 @@ namespace Monik.Service
 
         protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
         {
-            container.Resolve<IServiceSettings>().OnStart();
+            container.Resolve<IMonikServiceSettings>().OnStart();
 
             container.Resolve<ISourceInstanceCache>().OnStart();
             container.Resolve<ICacheLog>().OnStart();
@@ -22,7 +23,7 @@ namespace Monik.Service
 
         protected override void ConfigureApplicationContainer(TinyIoCContainer container)
         {
-            container.Register<IServiceSettings, ServiceSettings>().AsSingleton();
+            container.Register<IMonikServiceSettings, ServiceSettings>().AsSingleton();
 
             container.Register<IRepository, Repository>();
 
@@ -34,8 +35,8 @@ namespace Monik.Service
             container.Register<IMessagePump, MessagePump>().AsSingleton();
 
             container.Register<IClientSender, ServiceSender>().AsSingleton();
-            container.Register<IClientSettings, ServiceClientSettings>().AsSingleton();
-            container.Register<IClientControl, MonikInstance>().AsSingleton();
+            container.Register<IMonikSettings, ServiceClientSettings>().AsSingleton();
+            container.Register<IMonik, MonikInstance>().AsSingleton();
 
             MainContainer = container;
         }

@@ -7,9 +7,9 @@ namespace Monik.Service
 {
     public class Repository : IRepository
     {
-        private readonly IServiceSettings _settings;
+        private readonly IMonikServiceSettings _settings;
 
-        public Repository(IServiceSettings aSettings)
+        public Repository(IMonikServiceSettings aSettings)
         {
             _settings = aSettings;
         }
