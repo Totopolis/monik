@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monik.Client.Azure", "Monik
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monik.Test", "Monik.Test\Monik.Test.csproj", "{49BB1B73-4F74-4163-9447-3D5155875F61}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonikService", "MonikService\MonikService.csproj", "{EECC0530-1EE3-481D-94FA-2DDA9B0EEE72}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{49BB1B73-4F74-4163-9447-3D5155875F61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49BB1B73-4F74-4163-9447-3D5155875F61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49BB1B73-4F74-4163-9447-3D5155875F61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EECC0530-1EE3-481D-94FA-2DDA9B0EEE72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EECC0530-1EE3-481D-94FA-2DDA9B0EEE72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EECC0530-1EE3-481D-94FA-2DDA9B0EEE72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EECC0530-1EE3-481D-94FA-2DDA9B0EEE72}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

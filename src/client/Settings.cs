@@ -1,8 +1,8 @@
 ﻿namespace Monik.Client
 {
-	public class ClientSettings : IClientSettings
-	{
-		/*private BehaviorSubject<string> FSourceNameProperty = new BehaviorSubject<string>("UnknownSource");
+    public class ClientSettings : IClientSettings
+    {
+        /*private BehaviorSubject<string> FSourceNameProperty = new BehaviorSubject<string>("UnknownSource");
 		private BehaviorSubject<string> FInstanceNameProperty = new BehaviorSubject<string>("UnknownInstance");
 		private BehaviorSubject<ushort> FSendDelayProperty = new BehaviorSubject<ushort>(1);
 		private BehaviorSubject<bool> FAutoKeepAliveEnableProperty = new BehaviorSubject<bool>(false);
@@ -14,15 +14,15 @@
 		public IObservable<bool> AutoKeepAliveEnableProperty { get { return FAutoKeepAliveEnableProperty; } }
 		public IObservable<ushort> AutoKeepAliveIntervalProperty { get { return FAutoKeepAliveIntervalProperty; } }*/
 
-		public string SourceName { get; set; } = "UnknownSource";
+        public string SourceName { get; set; } = "UnknownSource";
 
-		public string InstanceName { get; set; } = "UnknownInstance";
+        public string InstanceName { get; set; } = "UnknownInstance";
 
-		public ushort SendDelay { get; set; } = 1;
+        public ushort SendDelay { get; set; } = 1;
 
-		public bool AutoKeepAliveEnable { get; set; } = false;
+        public bool AutoKeepAliveEnable { get; set; } = false;
 
-		public ushort AutoKeepAliveInterval { get; set; } = 60;
+        public ushort AutoKeepAliveInterval { get; set; } = 60;
 
-	} //end of class
+    } //end of class
 }

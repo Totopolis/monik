@@ -5,36 +5,36 @@ using Monik.Common;
 
 namespace Monik.Client
 {
-	public class AzureSender : IClientSender
-	{
-		private readonly string _serviceBusConnectionString;
-		private readonly string _queueName;
+    public class AzureSender : IClientSender
+    {
+        private readonly string _serviceBusConnectionString;
+        private readonly string _queueName;
 
-		public AzureSender(string aServiceBusConnectionString, string aQueueName)
-		{
-			_serviceBusConnectionString = aServiceBusConnectionString;
-			_queueName = aQueueName;
-		}
+        public AzureSender(string aServiceBusConnectionString, string aQueueName)
+        {
+            _serviceBusConnectionString = aServiceBusConnectionString;
+            _queueName = aQueueName;
+        }
 
-		public void SendMessages(ConcurrentQueue<Event> aQueue)
-		{
-			var client = QueueClient.CreateFromConnectionString(_serviceBusConnectionString, _queueName);
+        public void SendMessages(ConcurrentQueue<Event> aQueue)
+        {
+            var client = QueueClient.CreateFromConnectionString(_serviceBusConnectionString, _queueName);
 
-			try
-			{
-				Event msg;
+            try
+            {
+                Event msg;
 
-				while (aQueue.TryDequeue(out msg))
-				{
-					var arr = msg.ToByteArray();
-					var message = new BrokeredMessage(arr);
-					client.Send(message);
-				}
-			}
-			finally
-			{
-				client.Close();
-			}
-		}
-	}
+                while (aQueue.TryDequeue(out msg))
+                {
+                    var arr = msg.ToByteArray();
+                    var message = new BrokeredMessage(arr);
+                    client.Send(message);
+                }
+            }
+            finally
+            {
+                client.Close();
+            }
+        }
+    }
 }
