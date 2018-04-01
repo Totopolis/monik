@@ -20,6 +20,10 @@ namespace Monik.Service
             // No registrations should be performed in here, however you may
             // resolve things that are needed during application startup.
 
+            Nancy.Json.JsonSettings.MaxJsonLength = int.MaxValue;
+            Nancy.Json.JsonSettings.MaxRecursions = 100;
+            Nancy.Json.JsonSettings.RetainCasing = true;
+
             container.Resolve<IMonikServiceSettings>().OnStart();
             container.Resolve<ISourceInstanceCache>().OnStart();
             container.Resolve<ICacheLog>().OnStart();
@@ -35,7 +39,7 @@ namespace Monik.Service
 
             existingContainer.RegisterImplementation<IRepository, Repository>();
 
-            existingContainer.RegisterImplementation<IClientSender, ServiceSender>();
+            existingContainer.RegisterSingleton<IClientSender, ServiceSender>();
             existingContainer.RegisterSingleton<IMonikSettings, MonikClientSettings>();
             existingContainer.RegisterSingleton<IMonik, MonikInstance>();
 

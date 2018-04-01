@@ -12,6 +12,10 @@ namespace Monik.Service
 
         protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
         {
+            Nancy.Json.JsonSettings.MaxJsonLength = int.MaxValue;
+            Nancy.Json.JsonSettings.MaxRecursions = 100;
+            Nancy.Json.JsonSettings.RetainCasing = true;
+
             container.Resolve<IMonikServiceSettings>().OnStart();
 
             container.Resolve<ISourceInstanceCache>().OnStart();

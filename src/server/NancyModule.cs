@@ -8,55 +8,47 @@ namespace Monik.Service
 {
     public class MainNancyModule : NancyModule
     {
-        public MainNancyModule(IRepository aRepo, ICacheLog aCacheLog, ICacheKeepAlive aCacheKeepAlive,
-            ISourceInstanceCache aSourceInstanceCache, IMonik aControl)
+        public MainNancyModule(IRepository repo, ICacheLog cacheLog, ICacheKeepAlive cacheKeepAlive,
+            ISourceInstanceCache sourceInstanceCache, IMonik monik)
         {
-            var repo = aRepo;
-            var cacheLog = aCacheLog;
-            var cacheKeepAlive = aCacheKeepAlive;
-            var cacheSourceInstance = aSourceInstanceCache;
-            var control = aControl;
-
             Get["/sources"] = args =>
             {
                 try
                 {
-                    List<Source> result = repo.GetAllSources();
+                    List<Source> result = sourceInstanceCache.GetAllSources();
                     return Response.AsJson<Source[]>(result.ToArray());
                 }
                 catch (Exception ex)
                 {
-                    control.ApplicationError($"Method /sources : {ex.Message}");
+                    monik.ApplicationError($"Method /sources : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
             };
 
-            // TODO: use cacheSourceInstance
             Get["/instances"] = args =>
             {
                 try
                 {
-                    List<Instance> result = repo.GetAllInstances();
+                    List<Instance> result = sourceInstanceCache.GetAllInstances();
                     return Response.AsJson<Instance[]>(result.ToArray());
                 }
                 catch (Exception ex)
                 {
-                    control.ApplicationError($"Method /instances : {ex.Message}");
+                    monik.ApplicationError($"Method /instances : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
             };
-
 
             Get["/groups"] = args =>
             {
                 try
                 {
-                    List<Group> result = repo.GetAllGroupsAndFill();
+                    List<Group> result = sourceInstanceCache.GetAllGroups();
                     return Response.AsJson<Group[]>(result.ToArray());
                 }
                 catch (Exception ex)
                 {
-                    control.ApplicationError($"Method /instances : {ex.Message}");
+                    monik.ApplicationError($"Method /instances : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
             };
@@ -72,7 +64,7 @@ namespace Monik.Service
                 }
                 catch (Exception ex)
                 {
-                    control.ApplicationError($"Method /logs5 : {ex.Message}");
+                    monik.ApplicationError($"Method /logs5 : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
             };
@@ -88,7 +80,7 @@ namespace Monik.Service
                 }
                 catch (Exception ex)
                 {
-                    control.ApplicationError($"Method /keepalive : {ex.Message}");
+                    monik.ApplicationError($"Method /keepalive : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
             };
@@ -103,7 +95,7 @@ namespace Monik.Service
 
                     foreach (var ka in kaResult)
                     {
-                        var inst = cacheSourceInstance.GetInstanceById(ka.InstanceID);
+                        var inst = sourceInstanceCache.GetInstanceById(ka.InstanceID);
 
                         KeepAliveStatus status = new KeepAliveStatus()
                         {
@@ -125,7 +117,7 @@ namespace Monik.Service
                 }
                 catch (Exception ex)
                 {
-                    control.ApplicationError($"Method /status : {ex.Message}");
+                    monik.ApplicationError($"Method /status : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
             };

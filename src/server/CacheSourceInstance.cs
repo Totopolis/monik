@@ -122,6 +122,16 @@ namespace Monik.Service
             return _instanceMap.Values.ToList();
         }
 
+        public List<Source> GetAllSources()
+        {
+            return _sources.Values.ToList();
+        }
+
+        public List<Group> GetAllGroups()
+        {
+            return _groups.Values.ToList();
+        }
+
         public Instance CheckSourceAndInstance(string aSourceName, string aInstanceName)
         {
             string key = $"{aSourceName}*{aInstanceName}";
