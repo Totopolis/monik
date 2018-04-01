@@ -56,8 +56,8 @@
     <Reference Include="Gerakul.FastSql, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Gerakul.FastSql.1.0.2\lib\net46\Gerakul.FastSql.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Protobuf, Version=3.1.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Protobuf.3.1.0\lib\net45\Google.Protobuf.dll</HintPath>
+    <Reference Include="Google.Protobuf, Version=3.5.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Protobuf.3.5.1\lib\net45\Google.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Diagnostics.Tracing.EventSource, Version=1.1.28.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Diagnostics.Tracing.EventSource.Redist.1.1.28\lib\net46\Microsoft.Diagnostics.Tracing.EventSource.dll</HintPath>
@@ -74,8 +74,8 @@
     <Reference Include="Nancy.Hosting.Self, Version=1.4.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Nancy.Hosting.Self.1.4.1\lib\net40\Nancy.Hosting.Self.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="RabbitMQ.Client, Version=5.0.0.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
       <HintPath>..\packages\RabbitMQ.Client.5.0.1\lib\net451\RabbitMQ.Client.dll</HintPath>
@@ -120,18 +120,6 @@
     </Compile>
     <Compile Include="..\..\src\client\MonikInstance.cs">
       <Link>client\MonikInstance.cs</Link>
-    </Compile>
-    <Compile Include="..\..\src\common\Helper.cs">
-      <Link>common\Helper.cs</Link>
-    </Compile>
-    <Compile Include="..\..\src\common\IMonik.cs">
-      <Link>common\IMonik.cs</Link>
-    </Compile>
-    <Compile Include="..\..\src\common\Monik.cs">
-      <Link>common\Monik.cs</Link>
-    </Compile>
-    <Compile Include="..\..\src\common\Scheduler.cs">
-      <Link>common\Scheduler.cs</Link>
     </Compile>
     <Compile Include="..\..\src\server\Bootstrap.cs">
       <Link>server\Bootstrap.cs</Link>
@@ -188,6 +176,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Monik.Common\Monik.Common.csproj">
+      <Project>{5faf8edf-464a-431e-b3d6-c33b3e297313}</Project>
+      <Name>Monik.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
