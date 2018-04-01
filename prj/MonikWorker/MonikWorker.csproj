@@ -144,9 +144,6 @@
     <Compile Include="..\..\src\client\Settings.cs">
       <Link>Client.Azure\Settings.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\client\TimingHelper.cs">
-      <Link>Client.Azure\TimingHelper.cs</Link>
-    </Compile>
     <Compile Include="..\..\src\server\Bootstrapper.cs">
       <Link>Core\Bootstrapper.cs</Link>
     </Compile>

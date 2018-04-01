@@ -69,9 +69,6 @@
     <Compile Include="..\..\src\client\Settings.cs">
       <Link>Settings.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\client\TimingHelper.cs">
-      <Link>TimingHelper.cs</Link>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
