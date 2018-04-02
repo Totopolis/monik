@@ -3,7 +3,7 @@ using Monik.Common;
 
 namespace Monik.Client
 {
-    public interface IClientSender
+    public interface IMonikSender
     {
         void SendMessages(ConcurrentQueue<Event> aQueue);
     }
