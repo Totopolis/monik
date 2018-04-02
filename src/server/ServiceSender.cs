@@ -4,10 +4,10 @@ using System.Collections.Concurrent;
 
 namespace Monik.Service
 {
-    public class ServiceSender : IClientSender
+    public class ServiceSender : IMonikSender
     {
         private readonly IMonikServiceSettings _serviceSettings;
-        private readonly IClientSender _sender;
+        private readonly IMonikSender _sender;
 
         public ServiceSender(IMonikServiceSettings aSettings)
         {

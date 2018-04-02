@@ -52,8 +52,8 @@
     <Compile Include="..\..\src\common\Monik.cs">
       <Link>Monik.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\common\MonikRouter.cs">
-      <Link>MonikRouter.cs</Link>
+    <Compile Include="..\..\src\common\MonikInstanceBase.cs">
+      <Link>MonikInstanceBase.cs</Link>
     </Compile>
     <Compile Include="..\..\src\common\Scheduler.cs">
       <Link>Scheduler.cs</Link>

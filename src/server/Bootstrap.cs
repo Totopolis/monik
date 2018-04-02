@@ -39,7 +39,7 @@ namespace Monik.Service
 
             existingContainer.RegisterImplementation<IRepository, Repository>();
 
-            existingContainer.RegisterSingleton<IClientSender, ServiceSender>();
+            existingContainer.RegisterSingleton<IMonikSender, ServiceSender>();
             existingContainer.RegisterSingleton<IMonikSettings, MonikClientSettings>();
             existingContainer.RegisterSingleton<IMonik, MonikInstance>();
 

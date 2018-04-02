@@ -38,7 +38,7 @@ namespace Monik.Service
             container.Register<IMessageProcessor, MessageProcessor>().AsSingleton();
             container.Register<IMessagePump, MessagePump>().AsSingleton();
 
-            container.Register<IClientSender, ServiceSender>().AsSingleton();
+            container.Register<IMonikSender, ServiceSender>().AsSingleton();
             container.Register<IMonikSettings, ServiceClientSettings>().AsSingleton();
             container.Register<IMonik, MonikInstance>().AsSingleton();
 

@@ -6,7 +6,7 @@ namespace Monik.Client
     {
         private static IMonik _instance = null;
 
-        public static void Initialize(IClientSender aSender, string aSourceName, string aInstanceName,
+        public static void Initialize(IMonikSender aSender, string aSourceName, string aInstanceName,
             bool aAutoKeepAliveEnable = false)
         {
             IMonikSettings settings = new ClientSettings()

@@ -5,7 +5,7 @@ using Monik.Common;
 
 namespace Monik.Client
 {
-    public class AzureSender : IClientSender
+    public class AzureSender : IMonikSender
     {
         private readonly string _serviceBusConnectionString;
         private readonly string _queueName;
