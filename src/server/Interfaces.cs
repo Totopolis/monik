@@ -38,58 +38,58 @@ namespace Monik.Service
         List<Instance> GetAllInstances();
         List<Group> GetAllGroupsAndFill();
 
-        void CreateNewSource(Source aSrc);
-        void CreateNewInstance(Instance aIns);
-        void AddInstanceToGroup(Instance aIns, Group aGroup);
+        void CreateNewSource(Source src);
+        void CreateNewInstance(Instance ins);
+        void AddInstanceToGroup(Instance ins, Group group);
 
         long GetMaxLogId();
         long GetMaxKeepAliveId();
 
-        List<Log_> GetLastLogs(int aTop);
-        List<KeepAlive_> GetLastKeepAlive(int aTop);
+        List<Log_> GetLastLogs(int top);
+        List<KeepAlive_> GetLastKeepAlive(int top);
 
-        long? GetLogThreshold(int aDayDeep);
-        long? GetKeepAliveThreshold(int aDayDeep);
+        long? GetLogThreshold(int dayDeep);
+        long? GetKeepAliveThreshold(int dayDeep);
 
-        int CleanUpLog(long aLastLog);
-        int CleanUpKeepAlive(long aLastKeepAlive);
+        int CleanUpLog(long lastLog);
+        int CleanUpKeepAlive(long lastKeepAlive);
 
-        void CreateHourStat(DateTime aHour, long aLastLogId, long aLastKeepAliveId);
+        void CreateHourStat(DateTime hour, long lastLogId, long lastKeepAliveId);
 
-        void CreateKeepAlive(KeepAlive_ aKeepAlive);
-        void CreateLog(Log_ aLog);
+        void CreateKeepAlive(KeepAlive_ keepAlive);
+        void CreateLog(Log_ log);
 
         List<EventQueue> GetEventSources();
     }
 
     public interface ISourceInstanceCache : IObject
     {
-        Instance CheckSourceAndInstance(string aSourceName, string aInstanceName);
-        Source GetSourceByInstanceId(int aInstanceId);
-        Instance GetInstanceById(int aInstanceId);
+        Instance CheckSourceAndInstance(string sourceName, string instanceName);
+        Source GetSourceByInstanceId(int instanceId);
+        Instance GetInstanceById(int instanceId);
 
         List<Instance> GetAllInstances();
         List<Source> GetAllSources();
         List<Group> GetAllGroups();
 
-        bool IsDefaultInstance(int aInstance);
-        bool IsInstanceInGroup(int aInstanceId, short aGroupId);
+        bool IsDefaultInstance(int instance);
+        bool IsInstanceInGroup(int instanceId, short groupId);
     }
 
     public interface ICacheLog : IObject
     {
         long LastLogId { get; }
-        void OnNewLog(Log_ aLog);
+        void OnNewLog(Log_ log);
 
-        List<Log_> GetLogs5(LogRequest aFilter);
+        List<Log_> GetLogs5(LogRequest filter);
     }
 
     public interface ICacheKeepAlive : IObject
     {
         long LastKeepAliveId { get; }
-        void OnNewKeepAlive(KeepAlive_ aKeepAlive);
+        void OnNewKeepAlive(KeepAlive_ keepAlive);
 
-        List<KeepAlive_> GetKeepAlive2(KeepAliveRequest aFilter);
+        List<KeepAlive_> GetKeepAlive2(KeepAliveRequest filter);
     }
 
     public interface IMessagePump : IObject
@@ -99,8 +99,6 @@ namespace Monik.Service
 
     public interface IMessageProcessor : IObject
     {
-        void Process(Event aEvent, Instance aInstance);
+        void Process(Event ev, Instance instance);
     }
-
-    public interface IWebService : IObject { }
 }

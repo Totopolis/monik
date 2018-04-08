@@ -9,9 +9,9 @@ namespace Monik.Service
     {
         private readonly IMonikServiceSettings _settings;
 
-        public Repository(IMonikServiceSettings aSettings)
+        public Repository(IMonikServiceSettings settings)
         {
-            _settings = aSettings;
+            _settings = settings;
         }
 
         public List<Source> GetAllSources()
@@ -44,19 +44,19 @@ namespace Monik.Service
             return result;
         }
 
-        public void CreateNewSource(Source aSrc)
+        public void CreateNewSource(Source src)
         {
-            aSrc.ID = (short)MappedCommand.InsertAndGetId<Source>(_settings.DbConnectionString, "[mon].[Source]", aSrc, "ID");
+            src.ID = (short)MappedCommand.InsertAndGetId<Source>(_settings.DbConnectionString, "[mon].[Source]", src, "ID");
         }
 
-        public void CreateNewInstance(Instance aIns)
+        public void CreateNewInstance(Instance ins)
         {
-            aIns.ID = (int)MappedCommand.InsertAndGetId<Instance>(_settings.DbConnectionString, "[mon].[Instance]", aIns, "ID");
+            ins.ID = (int)MappedCommand.InsertAndGetId<Instance>(_settings.DbConnectionString, "[mon].[Instance]", ins, "ID");
         }
 
-        public void AddInstanceToGroup(Instance aIns, Group aGroup)
+        public void AddInstanceToGroup(Instance ins, Group group)
         {
-            var proto = new { GroupID = aGroup.ID, InstanceID = aIns.ID };
+            var proto = new { GroupID = group.ID, InstanceID = ins.ID };
             MappedCommand.Insert(_settings.DbConnectionString, "mon.GroupInstance", proto, "ID");
         }
 
@@ -72,66 +72,65 @@ namespace Monik.Service
             return result == System.DBNull.Value ? 0 : (long)result;
         }
 
-        public List<Log_> GetLastLogs(int aTop)
+        public List<Log_> GetLastLogs(int top)
         {
             return
                 SimpleCommand.ExecuteQuery<Log_>(_settings.DbConnectionString,
-                    $"select top {aTop} * from [mon].[Log] order by ID desc").OrderBy(x => x.ID).ToList();
+                    $"select top {top} * from [mon].[Log] order by ID desc").OrderBy(x => x.ID).ToList();
         }
 
-        public List<KeepAlive_> GetLastKeepAlive(int aTop)
+        public List<KeepAlive_> GetLastKeepAlive(int top)
         {
             return
                 SimpleCommand.ExecuteQuery<KeepAlive_>(_settings.DbConnectionString,
-                    $"select top {aTop} * from [mon].[KeepAlive] order by ID desc").ToList();
+                    $"select top {top} * from [mon].[KeepAlive] order by ID desc").ToList();
         }
 
-        public long? GetLogThreshold(int aDayDeep)
+        public long? GetLogThreshold(int dayDeep)
         {
             var logThreshold = SimpleCommand.ExecuteScalar(_settings.DbConnectionString,
-                "select max(LastLogID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", aDayDeep);
+                "select max(LastLogID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", dayDeep);
             return logThreshold == System.DBNull.Value ? null : (long?)logThreshold;
         }
 
-        public long? GetKeepAliveThreshold(int aDayDeep)
+        public long? GetKeepAliveThreshold(int dayDeep)
         {
             var kaThreshold = SimpleCommand.ExecuteScalar(_settings.DbConnectionString,
-                "select max(LastKeepAliveID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", aDayDeep);
+                "select max(LastKeepAliveID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", dayDeep);
             return kaThreshold == System.DBNull.Value ? null : (long?)kaThreshold;
         }
 
-        public int CleanUpLog(long aLastLog)
+        public int CleanUpLog(long lastLog)
         {
-            return SimpleCommand.ExecuteNonQuery(_settings.DbConnectionString, "delete from mon.Log where ID < @p0", aLastLog);
+            return SimpleCommand.ExecuteNonQuery(_settings.DbConnectionString, "delete from mon.Log where ID < @p0", lastLog);
         }
 
-        public int CleanUpKeepAlive(long aLastKeepAlive)
+        public int CleanUpKeepAlive(long lastKeepAlive)
         {
             return SimpleCommand.ExecuteNonQuery(_settings.DbConnectionString, "delete from mon.KeepAlive where ID < @p0",
-                aLastKeepAlive);
+                lastKeepAlive);
         }
 
-        public void CreateHourStat(DateTime aHour, long aLastLogId, long aLastKeepAliveId)
+        public void CreateHourStat(DateTime hour, long lastLogId, long lastKeepAliveId)
         {
-            var stat = new { Hour = aHour, LastLogID = aLastLogId, LastKeepAliveID = aLastKeepAliveId };
+            var stat = new { Hour = hour, LastLogID = lastLogId, LastKeepAliveID = lastKeepAliveId };
             MappedCommand.Insert(_settings.DbConnectionString, "[mon].[HourStat]", stat);
         }
 
-        public void CreateKeepAlive(KeepAlive_ aKeepAlive)
+        public void CreateKeepAlive(KeepAlive_ keepAlive)
         {
-            aKeepAlive.ID =
-                (long)MappedCommand.InsertAndGetId<KeepAlive_>(_settings.DbConnectionString, "[mon].[KeepAlive]", aKeepAlive, "ID");
+            keepAlive.ID =
+                (long)MappedCommand.InsertAndGetId<KeepAlive_>(_settings.DbConnectionString, "[mon].[KeepAlive]", keepAlive, "ID");
         }
 
-        public void CreateLog(Log_ aLog)
+        public void CreateLog(Log_ log)
         {
-            aLog.ID = (long)MappedCommand.InsertAndGetId<Log_>(_settings.DbConnectionString, "[mon].[Log]", aLog, "ID");
+            log.ID = (long)MappedCommand.InsertAndGetId<Log_>(_settings.DbConnectionString, "[mon].[Log]", log, "ID");
         }
 
         public List<EventQueue> GetEventSources()
         {
-            return
-                SimpleCommand.ExecuteQuery<EventQueue>(_settings.DbConnectionString, "select * from [mon].[EventQueue]").ToList();
+            return SimpleCommand.ExecuteQuery<EventQueue>(_settings.DbConnectionString, "select * from [mon].[EventQueue]").ToList();
         }
     } //end of class
 }

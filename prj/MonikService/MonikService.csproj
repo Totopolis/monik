@@ -151,6 +151,12 @@
     <Compile Include="..\..\src\server\Settings.cs">
       <Link>server\Settings.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\test\MessageEmulator.cs">
+      <Link>test\MessageEmulator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\test\RepositoryStub.cs">
+      <Link>test\RepositoryStub.cs</Link>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

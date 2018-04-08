@@ -84,7 +84,7 @@ namespace Monik.Service
                 }
                 catch
                 {
-                    // TODO: trace
+                    // TODO: trace and handle Repository problems...
                 }
                 finally
                 {

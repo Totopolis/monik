@@ -1,5 +1,4 @@
 ﻿using System;
-using Autofac;
 using Monik.Common;
 using Nancy.Hosting.Self;
 
@@ -17,7 +16,7 @@ namespace Monik.Service
                 new Bootstrapper(), 
                 HostConfigs);
 
-            _monik = Bootstrapper.Global.Resolve<IMonik>();
+            _monik = Bootstrapper.Singleton.Resolve<IMonik>();
             _monik.ApplicationInfo("HostHolder.ctor");
         }
 
@@ -48,9 +47,7 @@ namespace Monik.Service
             {
                 _nancyHost.Stop();
 
-                Bootstrapper.Global.Resolve<IMonik>().OnStop();
-                Bootstrapper.Global.Resolve<IMessagePump>().OnStop();
-                Bootstrapper.Global.Resolve<IMessageProcessor>().OnStop();
+                Bootstrapper.Singleton.OnApplicationStop();
             }
             catch (Exception e)
             {

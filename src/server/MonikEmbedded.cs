@@ -33,10 +33,4 @@ namespace Monik.Service
         }
 
     }//end of class
-
-    // TODO: move to test project and test bootstrap
-    public class MonikEmulator
-    {
-
-    }
 }

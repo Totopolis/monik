@@ -1,4 +1,9 @@
-﻿using System.Configuration;
+﻿#define NOT_EMULATOR
+
+#if (EMULATOR)
+using Monik.Service.Test;
+#endif
+
 using Autofac;
 using Monik.Common;
 using Nancy;
@@ -9,13 +14,17 @@ namespace Monik.Service
 {
     public partial class Bootstrapper : AutofacNancyBootstrapper
     {
-        public static ILifetimeScope Global;
+        public static Bootstrapper Singleton;
 
-        public ILifetimeScope Container => ApplicationContainer;
+        public T Resolve<T>() => ApplicationContainer.Resolve<T>();
 
         protected override void ApplicationStartup(ILifetimeScope container, IPipelines pipelines)
         {
-            Global = Container;
+            if (Singleton != null)
+                throw new BootstrapperException("Duplicate");
+
+            Singleton = this;
+
             // No registrations should be performed in here, however you may
             // resolve things that are needed during application startup.
 
@@ -30,15 +39,32 @@ namespace Monik.Service
 
             container.Resolve<IMessageProcessor>().OnStart();
             container.Resolve<IMessagePump>().OnStart();
+
+#if (EMULATOR)
+            container.Resolve<MessageEmulator>().OnStart();
+#endif
         }
 
-        // TODO: implement stop logic !!! in nanccy hostHolder OnStop() ???
+        // Raise at NancyHostHolder.Stop() when service shutdown
+        public void OnApplicationStop()
+        {
+#if (EMULATOR)
+            Singleton.Resolve<MessageEmulator>().OnStop();
+#endif
+            Singleton.Resolve<IMonik>().OnStop();
+            Singleton.Resolve<IMessagePump>().OnStop();
+            Singleton.Resolve<IMessageProcessor>().OnStop();
+        }
 
         protected override void ConfigureApplicationContainer(ILifetimeScope existingContainer)
         {
             existingContainer.RegisterSingleton<IMonikServiceSettings, MonikServiceSettings>();
 
+#if (EMULATOR)
+            existingContainer.RegisterImplementation<IRepository, RepositoryStub>();
+#else
             existingContainer.RegisterImplementation<IRepository, Repository>();
+#endif
 
             existingContainer.RegisterSingleton<IMonik, MonikEmbedded>();
 
@@ -50,6 +76,10 @@ namespace Monik.Service
             existingContainer.RegisterSingleton<IMessagePump, MessagePump>();
 
             existingContainer.Update(builder => builder.Register(c => existingContainer));
+
+#if (EMULATOR)
+            existingContainer.Update(builder => builder.RegisterType<MessageEmulator>());
+#endif
         }
 
         protected override void ConfigureRequestContainer(ILifetimeScope container, NancyContext context)

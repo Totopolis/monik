@@ -14,6 +14,7 @@ message Event
 		KeepAlive ka = 4;
 		Log lg = 5;
 		PerfCounter pc = 6;
+		Metric mc = 7;
 		// TODO: need reserve for future extensions ??
 	}
 }
@@ -60,4 +61,19 @@ message Log
 
 message PerfCounter
 {
+  // TODO
+}
+
+enum AggregationType
+{
+  ACCUMULATOR = 0;
+  GAUGE = 10;
+  // TODO: UNIQUE VALUES COUNT IN WINDOW
+}
+
+message Metric
+{
+  string name = 1;
+  AggregationType aggregation = 2;
+  double value = 3;
 }

@@ -44,7 +44,7 @@ namespace MonikWorker
             _nancyHost = new NancyHostHolder();
             _nancyHost.Start();
 
-            _monik = Bootstrapper.Global.Resolve<IMonik>();
+            _monik = Bootstrapper.Singleton.Resolve<IMonik>();
             _monik.ApplicationWarning("MonikWorker has been started");
 
             return result;
