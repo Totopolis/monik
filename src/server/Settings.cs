@@ -1,13 +1,14 @@
 ﻿using Gerakul.FastSql;
 using System;
+using System.Configuration;
 using System.Collections.Generic;
-using Microsoft.Azure;
-using Microsoft.WindowsAzure.ServiceRuntime;
-using Monik.Client;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Monik.Service
 {
-    public class ServiceSettings : IMonikServiceSettings
+    public class MonikServiceSettings : IMonikServiceSettings
     {
         // TODO: use concurent when online updates
         private static Dictionary<string, string> _settings = null;
@@ -31,7 +32,7 @@ namespace Monik.Service
 
         public string InstanceName
         {
-            get { return RoleEnvironment.IsEmulated ? "Dev" : "Azure"; }
+            get { return ConfigurationManager.AppSettings["InstanceName"]; }
         }
 
         public int DayDeepKeepAlive
@@ -46,7 +47,7 @@ namespace Monik.Service
 
         public string DbConnectionString
         {
-            get { return CloudConfigurationManager.GetSetting("DBConnectionString"); }
+            get { return ConfigurationManager.AppSettings["DBConnectionString"]; }
         }
 
         public string OutcomingConnectionString
@@ -60,44 +61,4 @@ namespace Monik.Service
         }
 
     } //end of class
-
-    public class ServiceClientSettings : IMonikSettings
-    {
-        private readonly IMonikServiceSettings _serviceSettings;
-
-        public ServiceClientSettings(IMonikServiceSettings aServiceSettings)
-        {
-            _serviceSettings = aServiceSettings;
-        }
-
-        public bool AutoKeepAliveEnable
-        {
-            get { return true; }
-            set { throw new NotImplementedException(); }
-        }
-
-        public ushort AutoKeepAliveInterval
-        {
-            get { return 60; }
-            set { throw new NotImplementedException(); }
-        }
-
-        public string InstanceName
-        {
-            get { return _serviceSettings.InstanceName; }
-            set { throw new NotImplementedException(); }
-        }
-
-        public ushort SendDelay
-        {
-            get { return 1; }
-            set { throw new NotImplementedException(); }
-        }
-
-        public string SourceName
-        {
-            get { return "Monik"; }
-            set { throw new NotImplementedException(); }
-        }
-    }
 }

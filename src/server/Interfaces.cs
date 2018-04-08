@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Monik.Common;
 
@@ -93,7 +94,7 @@ namespace Monik.Service
 
     public interface IMessagePump : IObject
     {
-
+        void OnEmbeddedEvents(ConcurrentQueue<Event> events);
     }
 
     public interface IMessageProcessor : IObject
@@ -101,8 +102,5 @@ namespace Monik.Service
         void Process(Event aEvent, Instance aInstance);
     }
 
-    public interface IWebService : IObject
-    {
-
-    }
+    public interface IWebService : IObject { }
 }

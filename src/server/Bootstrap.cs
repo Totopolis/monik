@@ -1,6 +1,5 @@
 ﻿using System.Configuration;
 using Autofac;
-using Monik.Client;
 using Monik.Common;
 using Nancy;
 using Nancy.Bootstrapper;
@@ -33,15 +32,15 @@ namespace Monik.Service
             container.Resolve<IMessagePump>().OnStart();
         }
 
+        // TODO: implement stop logic !!! in nanccy hostHolder OnStop() ???
+
         protected override void ConfigureApplicationContainer(ILifetimeScope existingContainer)
         {
             existingContainer.RegisterSingleton<IMonikServiceSettings, MonikServiceSettings>();
 
             existingContainer.RegisterImplementation<IRepository, Repository>();
 
-            existingContainer.RegisterSingleton<IMonikSender, ServiceSender>();
-            existingContainer.RegisterSingleton<IMonikSettings, MonikClientSettings>();
-            existingContainer.RegisterSingleton<IMonik, MonikInstance>();
+            existingContainer.RegisterSingleton<IMonik, MonikEmbedded>();
 
             existingContainer.RegisterSingleton<ISourceInstanceCache, SourceInstanceCache>();
             existingContainer.RegisterSingleton<ICacheLog, CacheLog>();
@@ -49,6 +48,8 @@ namespace Monik.Service
 
             existingContainer.RegisterSingleton<IMessageProcessor, MessageProcessor>();
             existingContainer.RegisterSingleton<IMessagePump, MessagePump>();
+
+            existingContainer.Update(builder => builder.Register(c => existingContainer));
         }
 
         protected override void ConfigureRequestContainer(ILifetimeScope container, NancyContext context)
@@ -70,6 +71,15 @@ namespace Monik.Service
             container.Update(builder => builder
                 .RegisterType<TImplementation>()
                 .As<TInterface>()
+                .SingleInstance());
+        }
+
+        public static void RegisterMultiplySingleton<TI1, TI2, TImplementation>(this ILifetimeScope container)
+        {
+            container.Update(builder => builder
+                .RegisterType<TImplementation>()
+                .As<TI1>()
+                .As<TI2>()
                 .SingleInstance());
         }
 

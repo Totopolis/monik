@@ -2,11 +2,5 @@
 <ServiceConfiguration serviceName="MonikCloud" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="5" osVersion="*" schemaVersion="2015-04.2.6">
   <Role name="MonikWorker">
     <Instances count="1" />
-    
-    <ConfigurationSettings>
-      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="DBConnectionString" value="[Your database connection string]" />
-    </ConfigurationSettings>
-    
   </Role>
 </ServiceConfiguration>

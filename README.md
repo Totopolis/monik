@@ -13,14 +13,14 @@ Backend and client libraries to collect and process messages: logs, performance 
 3. Sample:
 ```csharp
 // Initialize (DI container use, tinyioc)
-container.Register<IClientSender>(new AzureSender("[Service Bus connection string]", "[Queue name]"));
-container.Register<IClientSettings>(new ClientSettings()
+container.Register<IMonikSender>(new AzureSender("[Service Bus connection string]", "[Queue name]"));
+container.Register<IMonikSettings>(new ClientSettings()
 {
     SourceName = "[Source name]",
     InstanceName = "[Instance name]",
     AutoKeepAliveEnable = true
 });
-container.Register<IClientControl, MonikInstance>().AsSingleton();
+container.Register<IMonik, MonikClient>().AsSingleton();
 
 // Old-school initialize
 var sender = new AzureSender("[Service Bus connection string]", "[Queue name]");

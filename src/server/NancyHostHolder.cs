@@ -28,7 +28,7 @@ namespace Monik.Service
 
         public void Start()
         {
-            _monik.ApplicationWarning("Started");
+            _monik.ApplicationWarning("HostHolder starting");
 
             try
             {
@@ -42,10 +42,13 @@ namespace Monik.Service
 
         public void Stop()
         {
+            _monik.ApplicationWarning("HostHolder stopping");
+
             try
             {
                 _nancyHost.Stop();
 
+                Bootstrapper.Global.Resolve<IMonik>().OnStop();
                 Bootstrapper.Global.Resolve<IMessagePump>().OnStop();
                 Bootstrapper.Global.Resolve<IMessageProcessor>().OnStop();
             }
@@ -54,8 +57,9 @@ namespace Monik.Service
                 _monik.ApplicationError(e.Message);
             }
 
-            _monik.ApplicationWarning("Stopped");
-            _monik.OnStop();
+            // TODO: pump already stopped ! msg will be lost !!!
+            //_monik.ApplicationWarning("Stopped");
+            //_monik.OnStop();
         }
     }
 }

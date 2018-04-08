@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using Monik.Service;
 using Monik.Common;
+using Autofac;
 
 namespace MonikWorker
 {
@@ -14,7 +15,7 @@ namespace MonikWorker
 
         public override void Run()
         {
-            _control.ApplicationVerbose("MonikWorker is running");
+            _monik.ApplicationVerbose("MonikWorker is running");
 
             try
             {
@@ -26,8 +27,8 @@ namespace MonikWorker
             }
         }
 
-        private WebService _service;
-        private IMonik _control;
+        private NancyHostHolder _nancyHost;
+        private IMonik _monik;
 
         public override bool OnStart()
         {
@@ -36,35 +37,32 @@ namespace MonikWorker
 
             // TODO: retry logic and exit if exceptions in Bootstrapper...
 
-            string prefix = RoleEnvironment.CurrentRoleInstance.InstanceEndpoints["HTTP_EP"].IPEndpoint.ToString();
-            _service = new WebService(prefix);
-            _service.OnStart();
+            //string prefix = RoleEnvironment.CurrentRoleInstance.InstanceEndpoints["HTTP_EP"].IPEndpoint.ToString();
 
-            _control = Bootstrapper.MainContainer.Resolve<IMonik>();
+            // TODO : port mapping
 
-            _control.ApplicationWarning("MonikWorker has been started");
+            _nancyHost = new NancyHostHolder();
+            _nancyHost.Start();
+
+            _monik = Bootstrapper.Global.Resolve<IMonik>();
+            _monik.ApplicationWarning("MonikWorker has been started");
 
             return result;
         }
 
         public override void OnStop()
         {
-            _control.ApplicationWarning("MonikWorker is stopping");
+            _monik.ApplicationWarning("MonikWorker is stopping");
 
             // TODO: catch exceptions inside
 
-            _service.OnStop();
-
-            var container = Bootstrapper.MainContainer;
-            container.Resolve<IMessagePump>().OnStop();
-            container.Resolve<IMessageProcessor>().OnStop();
+            _nancyHost.Stop();
 
             this._cancellationTokenSource.Cancel();
             this._runCompleteEvent.WaitOne();
 
-            _control.ApplicationWarning("MonikWorker has stopped");
-
-            _control.OnStop();
+            // TODO: Pump already stopped !!! msg will be lost !!!
+            // _monik.ApplicationWarning("MonikWorker has stopped");
 
             base.OnStop();
         }

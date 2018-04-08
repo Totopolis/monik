@@ -16,7 +16,7 @@ namespace Monik.Client
                 AutoKeepAliveEnable = aAutoKeepAliveEnable
             };
 
-            _instance = new MonikInstance(aSender, settings);
+            _instance = new MonikClient(aSender, settings);
         }
 
         public static void OnStop()

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Microsoft.ServiceBus.Messaging;
 using Monik.Common;
 using EasyNetQ;
+using System.Threading;
 
 namespace Monik.Service
 {
@@ -16,31 +18,84 @@ namespace Monik.Service
 
     public class MessagePump : IMessagePump
     {
-        public const int DelayOnException = 1000; //in ms
+        private const int DelayOnException = 1000; //in ms
+        private const int DelayOnProcess = 1000; //in ms
 
         private readonly IRepository _repository;
         private readonly ISourceInstanceCache _cache;
         private readonly IMessageProcessor _processor;
         private readonly IMonik _monik;
 
-        private List<ActiveQueue> _queues;
+        private List<ActiveQueue> _queues = new List<ActiveQueue>();
 
-        public MessagePump(IRepository aRepository, ISourceInstanceCache aCache, IMessageProcessor aProcessor,
-            IMonik monik)
+        private ConcurrentQueue<Event> _msgBuffer = new ConcurrentQueue<Event>();
+
+        private readonly Task _pumpTask;
+        private readonly ManualResetEvent _newMessageEvent = new ManualResetEvent(false);
+        private readonly CancellationTokenSource _pumpCancellationTokenSource = new CancellationTokenSource();
+
+        public MessagePump(IRepository aRepository, ISourceInstanceCache aCache, IMessageProcessor aProcessor, IMonik monik)
         {
             _repository = aRepository;
             _cache = aCache;
             _processor = aProcessor;
             _monik = monik;
-            _queues = null;
+
+            _pumpTask = Task.Run(() => { OnProcessTask(); });
 
             _monik.ApplicationVerbose("MessagePump created");
+        }
+
+        public void OnEmbeddedEvents(ConcurrentQueue<Event> events)
+        {
+            while (events.TryDequeue(out Event msg))
+                _msgBuffer.Enqueue(msg);
+
+            _newMessageEvent.Set();
+        }
+
+        private void OnProcessTask()
+        {
+            while (!_pumpCancellationTokenSource.IsCancellationRequested)
+            {
+                _newMessageEvent.WaitOne();
+
+                Task.Delay(DelayOnProcess).Wait();
+
+                try
+                {
+                    if (_msgBuffer.IsEmpty)
+                        continue;
+
+                    // TODO: use bulk insert and pk id generate in service !!!
+
+                    while (_msgBuffer.TryDequeue(out Event msg))
+                    {
+                        var srcName = msg.Source;
+                        var instName = msg.Instance;
+
+                        if (srcName.Trim().Length != 0 && instName.Trim().Length != 0)
+                        {
+                            var instance = _cache.CheckSourceAndInstance(Helper.Utf8ToUtf16(srcName), Helper.Utf8ToUtf16(instName));
+                            _processor.Process(msg, instance);
+                        }
+                        // TODO: increase count of ignored messages
+                    }
+                }
+                catch
+                {
+                    // TODO: trace
+                }
+                finally
+                {
+                    _newMessageEvent.Reset();
+                }
+            }
         }
 
         public void OnStart()
         {
             // Load events sources
-            _queues = new List<ActiveQueue>();
             var configs = _repository.GetEventSources();
 
             foreach (var it in configs)
@@ -65,7 +120,7 @@ namespace Monik.Service
                 {
                     _monik.ApplicationError($"MessagePump.OnStart failed initialization {it.Name}: {ex.Message}");
                 }
-            }
+            }//configure all event sources
 
             _monik.ApplicationVerbose("MessagePump started");
         }
@@ -81,16 +136,12 @@ namespace Monik.Service
                     byte[] buf = message.GetBody<byte[]>();
                     Event msg = Event.Parser.ParseFrom(buf);
 
-                    if (msg.Source.Trim().Length != 0 && msg.Instance.Trim().Length != 0)
-                    {
-                        var instance = _cache.CheckSourceAndInstance(Helper.Utf8ToUtf16(msg.Source), Helper.Utf8ToUtf16(msg.Instance));
-                        _processor.Process(msg, instance);
-                    }
-                    // TODO: else increase ignored counter
+                    _msgBuffer.Enqueue(msg);
+                    _newMessageEvent.Set();
                 }
                 catch (Exception ex)
                 {
-                    _monik.ApplicationError($"MessagePump.OnMessage ServiceBus: {ex.Message}");
+                    _monik.ApplicationError($"MessagePump.OnMessage ServiceBus Parse Error: {ex.Message}");
                     System.Threading.Thread.Sleep(DelayOnException);
                 }
             });
@@ -99,9 +150,6 @@ namespace Monik.Service
         private void InitializeRabbitMq(ActiveQueue aActive)
         {
             aActive.RabbitQueue = RabbitHutch.CreateBus(aActive.Config.ConnectionString).Advanced;
-
-            // https://github.com/EasyNetQ/EasyNetQ/wiki/the-advanced-api
-
             var queue = aActive.RabbitQueue.QueueDeclare(aActive.Config.QueueName);
 
             aActive.RabbitQueue.Consume(queue, (body, properties, info) => Task.Factory.StartNew(() =>
@@ -110,16 +158,12 @@ namespace Monik.Service
                 {
                     Event msg = Event.Parser.ParseFrom(body);
 
-                    if (msg.Source.Trim().Length != 0 && msg.Instance.Trim().Length != 0)
-                    {
-                        var instance = _cache.CheckSourceAndInstance(Helper.Utf8ToUtf16(msg.Source), Helper.Utf8ToUtf16(msg.Instance));
-                        _processor.Process(msg, instance);
-                    }
-                    // TODO: else increase ignored counter
+                    _msgBuffer.Enqueue(msg);
+                    _newMessageEvent.Set();
                 }
                 catch (Exception ex)
                 {
-                    _monik.ApplicationError($"MessagePump.OnMessage RabbitMQ: {ex.Message}");
+                    _monik.ApplicationError($"MessagePump.OnMessage RabbitMQ Parse Error: {ex.Message}");
                     System.Threading.Thread.Sleep(DelayOnException);
                 }
             }));
@@ -127,12 +171,18 @@ namespace Monik.Service
 
         public void OnStop()
         {
-            if (_queues != null)
-                foreach (var it in _queues)
-                    if (it.Config.Type == 1)
-                        it.AzureQueue.Close();
-                    else if (it.Config.Type == 2)
-                        it.RabbitQueue.Dispose();
+            // 1. Stop all event sources
+            foreach (var it in _queues)
+                if (it.Config.Type == 1)
+                    it.AzureQueue.Close();
+                else if (it.Config.Type == 2)
+                    it.RabbitQueue.Dispose();
+
+            // 2. Flsuh buffers
+            _newMessageEvent.Set();
+            _pumpCancellationTokenSource.Cancel();
+
+            Task.Delay(2000).Wait(); // TODO: is it correct?
         }
 
     } //end class

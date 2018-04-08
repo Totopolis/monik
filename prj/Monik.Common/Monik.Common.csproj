@@ -52,11 +52,14 @@
     <Compile Include="..\..\src\common\Monik.cs">
       <Link>Monik.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\common\MonikBase.cs">
+      <Link>MonikBase.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\common\MonikConsole.cs">
       <Link>MonikConsole.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\common\MonikInstanceBase.cs">
-      <Link>MonikInstanceBase.cs</Link>
+    <Compile Include="..\..\src\common\MonikDelayedSender.cs">
+      <Link>MonikDelayedSender.cs</Link>
     </Compile>
     <Compile Include="..\..\src\common\Scheduler.cs">
       <Link>Scheduler.cs</Link>
