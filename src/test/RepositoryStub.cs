@@ -1,5 +1,4 @@
-﻿using Gerakul.FastSql;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -47,25 +46,25 @@ namespace Monik.Service.Test
             ins.ID = maxInstanceId;
         }
 
-        public void AddInstanceToGroup(Instance aIns, Group aGroup) => throw new NotImplementedException();
+        public void AddInstanceToGroup(Instance ins, Group group) => throw new NotImplementedException();
 
         public long GetMaxLogId() => _logLastId;
 
         public long GetMaxKeepAliveId() => _kaLastId;
 
-        public List<Log_> GetLastLogs(int aTop) => new List<Log_>();
+        public List<Log_> GetLastLogs(int top) => new List<Log_>();
 
-        public List<KeepAlive_> GetLastKeepAlive(int aTop) => new List<KeepAlive_>();
+        public List<KeepAlive_> GetLastKeepAlive(int top) => new List<KeepAlive_>();
 
-        public long? GetLogThreshold(int aDayDeep) => 0;
+        public long? GetLogThreshold(int dayDeep) => 0;
 
-        public long? GetKeepAliveThreshold(int aDayDeep) => 0;
+        public long? GetKeepAliveThreshold(int dayDeep) => 0;
 
-        public int CleanUpLog(long aLastLog) => 0;
+        public int CleanUpLog(long lastLog) => 0;
 
-        public int CleanUpKeepAlive(long aLastKeepAlive) => 0;
+        public int CleanUpKeepAlive(long lastKeepAlive) => 0;
 
-        public void CreateHourStat(DateTime aHour, long aLastLogId, long aLastKeepAliveId) { }
+        public void CreateHourStat(DateTime hour, long lastLogId, long lastKeepAliveId) { }
 
         public void CreateKeepAlive(KeepAlive_ keepAlive)
         {

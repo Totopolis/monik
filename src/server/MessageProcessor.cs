@@ -86,18 +86,18 @@ namespace Monik.Service
             _cleaner.OnStop();
         }
 
-        public void Process(Event aEvent, Instance aInstance)
+        public void Process(Event ev, Instance instance)
         {
-            switch (aEvent.MsgCase)
+            switch (ev.MsgCase)
             {
                 case Event.MsgOneofCase.None:
                     throw new NotSupportedException("Bad event type");
                 case Event.MsgOneofCase.Ka:
-                    var ka = WriteKeepAlive(aEvent, aInstance);
+                    var ka = WriteKeepAlive(ev, instance);
                     _cacheKeepAlive.OnNewKeepAlive(ka);
                     break;
                 case Event.MsgOneofCase.Lg:
-                    var lg = WriteLog(aEvent, aInstance);
+                    var lg = WriteLog(ev, instance);
                     _cacheLog.OnNewLog(lg);
                     break;
                 default:
@@ -105,13 +105,13 @@ namespace Monik.Service
             }
         }
 
-        private KeepAlive_ WriteKeepAlive(Event aEventLog, Instance aInstance)
+        private KeepAlive_ WriteKeepAlive(Event eventLog, Instance instance)
         {
             KeepAlive_ row = new KeepAlive_()
             {
-                Created = Helper.FromMillisecondsSinceUnixEpoch(aEventLog.Created),
+                Created = Helper.FromMillisecondsSinceUnixEpoch(eventLog.Created),
                 Received = DateTime.UtcNow,
-                InstanceID = aInstance.ID
+                InstanceID = instance.ID
             };
 
             _repository.CreateKeepAlive(row);
@@ -119,18 +119,18 @@ namespace Monik.Service
             return row;
         }
 
-        private Log_ WriteLog(Event aEventLog, Instance aInstance)
+        private Log_ WriteLog(Event eventLog, Instance instance)
         {
             Log_ row = new Log_()
             {
-                Created = Helper.FromMillisecondsSinceUnixEpoch(aEventLog.Created),
+                Created = Helper.FromMillisecondsSinceUnixEpoch(eventLog.Created),
                 Received = DateTime.UtcNow,
-                Level = (byte)aEventLog.Lg.Level,
-                Severity = (byte)aEventLog.Lg.Severity,
-                InstanceID = aInstance.ID,
-                Format = (byte)aEventLog.Lg.Format,
-                Body = aEventLog.Lg.Body,
-                Tags = aEventLog.Lg.Tags
+                Level = (byte)eventLog.Lg.Level,
+                Severity = (byte)eventLog.Lg.Severity,
+                InstanceID = instance.ID,
+                Format = (byte)eventLog.Lg.Format,
+                Body = eventLog.Lg.Body,
+                Tags = eventLog.Lg.Tags
             };
 
             _repository.CreateLog(row);

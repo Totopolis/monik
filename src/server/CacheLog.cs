@@ -9,7 +9,7 @@ namespace Monik.Service
     public class CacheLog : ICacheLog
     {
         private readonly IRepository _repository;
-        private readonly IMonik _control;
+        private readonly IMonik _monik;
 
         private ConcurrentQueue<Log_> _logs;
         private ISourceInstanceCache _cache;
@@ -21,16 +21,16 @@ namespace Monik.Service
             private set { lock (this) _oldestLogId = value; }
         }
 
-        public CacheLog(IRepository aRepository, ISourceInstanceCache aCache, IMonik aControl)
+        public CacheLog(IRepository repository, ISourceInstanceCache cache, IMonik monik)
         {
-            _repository = aRepository;
-            _control = aControl;
+            _repository = repository;
+            _monik = monik;
 
             _logs = null;
-            _cache = aCache;
+            _cache = cache;
             OldestLogId = 0;
 
-            _control.ApplicationVerbose("CacheLog created");
+            _monik.ApplicationVerbose("CacheLog created");
         }
 
         // TODO: use database parameter
@@ -49,7 +49,7 @@ namespace Monik.Service
 
             OldestLogId = _logs.Count == 0 ? 0 : _logs.Min(lg => lg.ID);
 
-            _control.ApplicationVerbose("CacheLog started");
+            _monik.ApplicationVerbose("CacheLog started");
         }
 
         public void OnStop()
@@ -64,62 +64,61 @@ namespace Monik.Service
             private set { lock (this) _lastLogId = value; }
         }
 
-        public void OnNewLog(Log_ aLog)
+        public void OnNewLog(Log_ log)
         {
-            _logs.Enqueue(aLog);
-            LastLogId = aLog.ID;
+            _logs.Enqueue(log);
+            LastLogId = log.ID;
 
-            Log_ xx;
             while (_logs.Count > _logsDeep)
-                if (_logs.TryDequeue(out xx) && xx.ID > OldestLogId) // TODO: remove second condition?
+                if (_logs.TryDequeue(out Log_ xx) && xx.ID > OldestLogId) // TODO: remove second condition?
                     OldestLogId = xx.ID;
         }
 
-        private bool IsFiltered5(Log_ aLog, LogRequest aFilter)
+        private bool IsFiltered5(Log_ log, LogRequest filter)
         {
-            if (aFilter.SeverityCutoff.HasValue && aLog.Severity > aFilter.SeverityCutoff.Value)
+            if (filter.SeverityCutoff.HasValue && log.Severity > filter.SeverityCutoff.Value)
                 return false;
 
-            if (aFilter.Level.HasValue && aLog.Level != aFilter.Level.Value)
+            if (filter.Level.HasValue && log.Level != filter.Level.Value)
                 return false;
 
-            bool groupsEmpty = aFilter.Groups == null || aFilter.Groups.Length == 0;
-            bool instancesEmpty = aFilter.Instances == null || aFilter.Instances.Length == 0;
+            bool groupsEmpty = filter.Groups == null || filter.Groups.Length == 0;
+            bool instancesEmpty = filter.Instances == null || filter.Instances.Length == 0;
 
-            if (groupsEmpty && instancesEmpty && _cache.IsDefaultInstance(aLog.InstanceID))
+            if (groupsEmpty && instancesEmpty && _cache.IsDefaultInstance(log.InstanceID))
                 return true;
 
             bool instanceIn = instancesEmpty
                 ? false
-                : aFilter.Instances.Contains(aLog.InstanceID);
+                : filter.Instances.Contains(log.InstanceID);
 
             bool groupIn = groupsEmpty
                 ? false
-                : aFilter.Groups.Where(x => _cache.IsInstanceInGroup(aLog.InstanceID, x)).Count() > 0;
+                : filter.Groups.Where(x => _cache.IsInstanceInGroup(log.InstanceID, x)).Count() > 0;
 
             return instanceIn | groupIn;
         }
 
-        public List<Log_> GetLogs5(LogRequest aFilter)
+        public List<Log_> GetLogs5(LogRequest filter)
         {
             List<Log_> result = new List<Log_>();
 
-            if (aFilter == null)
+            if (filter == null)
                 return result;
 
-            if (aFilter.LastId.HasValue && aFilter.LastId.Value < OldestLogId)
+            if (filter.LastId.HasValue && filter.LastId.Value < OldestLogId)
                 return result;
 
-            result = aFilter.LastId.HasValue
-                ? _logs.Where(lg => lg.ID > aFilter.LastId.Value).ToList()
+            result = filter.LastId.HasValue
+                ? _logs.Where(lg => lg.ID > filter.LastId.Value).ToList()
                 : _logs.ToList();
 
             // TODO: remove magic number
-            int top = aFilter.Top ?? 10;
+            int top = filter.Top ?? 10;
 
-            if (!aFilter.LastId.HasValue)
+            if (!filter.LastId.HasValue)
             {
-                result = result.FindAll(x => IsFiltered5(x, aFilter))
+                result = result.FindAll(x => IsFiltered5(x, filter))
                     .OrderByDescending(x => x.ID)
                     .Take(top)
                     .OrderBy(x => x.ID)
@@ -127,7 +126,7 @@ namespace Monik.Service
             }
             else
                 result = result
-                    .FindAll(x => IsFiltered5(x, aFilter))
+                    .FindAll(x => IsFiltered5(x, filter))
                     .Take(top)
                     .ToList();
 

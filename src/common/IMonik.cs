@@ -5,29 +5,29 @@ namespace Monik.Common
 {
     public interface IMonik
     {
-        void SystemVerbose(string aBody, params object[] aParams);
-        void SystemInfo(string aBody, params object[] aParams);
-        void SystemWarning(string aBody, params object[] aParams);
-        void SystemError(string aBody, params object[] aParams);
-        void SystemFatal(string aBody, params object[] aParams);
+        void SystemVerbose(string body, params object[] parameters);
+        void SystemInfo(string body, params object[] parameters);
+        void SystemWarning(string body, params object[] parameters);
+        void SystemError(string body, params object[] parameters);
+        void SystemFatal(string body, params object[] parameters);
 
-        void ApplicationVerbose(string aBody, params object[] aParams);
-        void ApplicationInfo(string aBody, params object[] aParams);
-        void ApplicationWarning(string aBody, params object[] aParams);
-        void ApplicationError(string aBody, params object[] aParams);
-        void ApplicationFatal(string aBody, params object[] aParams);
+        void ApplicationVerbose(string body, params object[] parameters);
+        void ApplicationInfo(string body, params object[] parameters);
+        void ApplicationWarning(string body, params object[] parameters);
+        void ApplicationError(string body, params object[] parameters);
+        void ApplicationFatal(string body, params object[] parameters);
 
-        void LogicVerbose(string aBody, params object[] aParams);
-        void LogicInfo(string aBody, params object[] aParams);
-        void LogicWarning(string aBody, params object[] aParams);
-        void LogicError(string aBody, params object[] aParams);
-        void LogicFatal(string aBody, params object[] aParams);
+        void LogicVerbose(string body, params object[] parameters);
+        void LogicInfo(string body, params object[] parameters);
+        void LogicWarning(string body, params object[] parameters);
+        void LogicError(string body, params object[] parameters);
+        void LogicFatal(string body, params object[] parameters);
 
-        void SecurityVerbose(string aBody, params object[] aParams);
-        void SecurityInfo(string aBody, params object[] aParams);
-        void SecurityWarning(string aBody, params object[] aParams);
-        void SecurityError(string aBody, params object[] aParams);
-        void SecurityFatal(string aBody, params object[] aParams);
+        void SecurityVerbose(string body, params object[] parameters);
+        void SecurityInfo(string body, params object[] parameters);
+        void SecurityWarning(string body, params object[] parameters);
+        void SecurityError(string body, params object[] parameters);
+        void SecurityFatal(string body, params object[] parameters);
 
         void KeepAlive();
 

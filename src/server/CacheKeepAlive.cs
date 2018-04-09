@@ -8,19 +8,19 @@ namespace Monik.Service
     {
         private readonly IRepository _repository;
         private readonly ISourceInstanceCache _cache;
-        private readonly IMonik _control;
+        private readonly IMonik _monik;
 
         private readonly Dictionary<int, KeepAlive_> _status;
 
-        public CacheKeepAlive(IRepository aRepository, ISourceInstanceCache aCache, IMonik aControl)
+        public CacheKeepAlive(IRepository repository, ISourceInstanceCache cache, IMonik monik)
         {
-            _repository = aRepository;
-            _cache = aCache;
-            _control = aControl;
+            _repository = repository;
+            _cache = cache;
+            _monik = monik;
 
             _status = new Dictionary<int, KeepAlive_>();
 
-            _control.ApplicationVerbose("CacheKeepAlive created");
+            _monik.ApplicationVerbose("CacheKeepAlive created");
         }
 
         public void OnStart()
@@ -38,7 +38,7 @@ namespace Monik.Service
                 else if (_status[ka.InstanceID].Created < ka.Created)
                     _status[ka.InstanceID] = ka;
 
-            _control.ApplicationVerbose("CacheKeepAlive started");
+            _monik.ApplicationVerbose("CacheKeepAlive started");
         }
 
         public void OnStop()
@@ -48,29 +48,29 @@ namespace Monik.Service
 
         public long LastKeepAliveId { get; private set; }
 
-        public void OnNewKeepAlive(KeepAlive_ aKeepAlive)
+        public void OnNewKeepAlive(KeepAlive_ keepAlive)
         {
             lock (this)
             {
-                LastKeepAliveId = aKeepAlive.ID;
+                LastKeepAliveId = keepAlive.ID;
 
-                if (_status.ContainsKey(aKeepAlive.InstanceID))
+                if (_status.ContainsKey(keepAlive.InstanceID))
                 {
-                    if (_status[aKeepAlive.InstanceID].Created < aKeepAlive.Created)
-                        _status[aKeepAlive.InstanceID] = aKeepAlive;
+                    if (_status[keepAlive.InstanceID].Created < keepAlive.Created)
+                        _status[keepAlive.InstanceID] = keepAlive;
                 }
                 else
-                    _status.Add(aKeepAlive.InstanceID, aKeepAlive);
+                    _status.Add(keepAlive.InstanceID, keepAlive);
             } // TODO: optimize lock
         }
 
-        public List<KeepAlive_> GetKeepAlive2(KeepAliveRequest aFilter)
+        public List<KeepAlive_> GetKeepAlive2(KeepAliveRequest filter)
         {
             lock (this)
             {
                 List<KeepAlive_> result = _status.Values.ToList();
 
-                if (aFilter.Groups.Length == 0 && aFilter.Instances.Length == 0)
+                if (filter.Groups.Length == 0 && filter.Instances.Length == 0)
                 {
                     result.RemoveAll(ka => !_cache.IsDefaultInstance(ka.InstanceID));
                     return result;
@@ -81,11 +81,11 @@ namespace Monik.Service
 
                     foreach (var ka in result)
                     {
-                        foreach (var gr in aFilter.Groups)
+                        foreach (var gr in filter.Groups)
                             if (_cache.IsInstanceInGroup(ka.InstanceID, gr))
                                 filteredRes.Add(ka);
 
-                        foreach (var inst in aFilter.Instances)
+                        foreach (var inst in filter.Instances)
                             if (inst == ka.InstanceID)
                                 filteredRes.Add(ka);
                     }

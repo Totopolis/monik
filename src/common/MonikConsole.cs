@@ -25,104 +25,104 @@ namespace Monik.Common
 
         public void OnStop() { }
 
-        public void SystemVerbose(string aBody, params object[] aParams)
+        public void SystemVerbose(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.System, SeverityType.Verbose, aParams);
+            LogToConsole(body, LevelType.System, SeverityType.Verbose, parameters);
         }
 
-        public void SystemInfo(string aBody, params object[] aParams)
+        public void SystemInfo(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.System, SeverityType.Info, aParams);
+            LogToConsole(body, LevelType.System, SeverityType.Info, parameters);
         }
 
-        public void SystemWarning(string aBody, params object[] aParams)
+        public void SystemWarning(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.System, SeverityType.Warning, aParams);
+            LogToConsole(body, LevelType.System, SeverityType.Warning, parameters);
         }
 
-        public void SystemError(string aBody, params object[] aParams)
+        public void SystemError(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.System, SeverityType.Error, aParams);
+            LogToConsole(body, LevelType.System, SeverityType.Error, parameters);
         }
 
-        public void SystemFatal(string aBody, params object[] aParams)
+        public void SystemFatal(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.System, SeverityType.Fatal, aParams);
+            LogToConsole(body, LevelType.System, SeverityType.Fatal, parameters);
         }
 
-        public void ApplicationVerbose(string aBody, params object[] aParams)
+        public void ApplicationVerbose(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.Application, SeverityType.Verbose, aParams);
+            LogToConsole(body, LevelType.Application, SeverityType.Verbose, parameters);
         }
 
-        public void ApplicationInfo(string aBody, params object[] aParams)
+        public void ApplicationInfo(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.Application, SeverityType.Info, aParams);
+            LogToConsole(body, LevelType.Application, SeverityType.Info, parameters);
         }
 
-        public void ApplicationWarning(string aBody, params object[] aParams)
+        public void ApplicationWarning(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.Application, SeverityType.Warning, aParams);
+            LogToConsole(body, LevelType.Application, SeverityType.Warning, parameters);
         }
 
-        public void ApplicationError(string aBody, params object[] aParams)
+        public void ApplicationError(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.Application, SeverityType.Error, aParams);
+            LogToConsole(body, LevelType.Application, SeverityType.Error, parameters);
         }
 
-        public void ApplicationFatal(string aBody, params object[] aParams)
+        public void ApplicationFatal(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.Application, SeverityType.Fatal, aParams);
+            LogToConsole(body, LevelType.Application, SeverityType.Fatal, parameters);
         }
 
-        public void LogicVerbose(string aBody, params object[] aParams)
+        public void LogicVerbose(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.Logic, SeverityType.Verbose, aParams);
+            LogToConsole(body, LevelType.Logic, SeverityType.Verbose, parameters);
         }
 
-        public void LogicInfo(string aBody, params object[] aParams)
+        public void LogicInfo(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.Logic, SeverityType.Info, aParams);
+            LogToConsole(body, LevelType.Logic, SeverityType.Info, parameters);
         }
 
-        public void LogicWarning(string aBody, params object[] aParams)
+        public void LogicWarning(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.Logic, SeverityType.Warning, aParams);
+            LogToConsole(body, LevelType.Logic, SeverityType.Warning, parameters);
         }
 
-        public void LogicError(string aBody, params object[] aParams)
+        public void LogicError(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.Logic, SeverityType.Error, aParams);
+            LogToConsole(body, LevelType.Logic, SeverityType.Error, parameters);
         }
 
-        public void LogicFatal(string aBody, params object[] aParams)
+        public void LogicFatal(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.Logic, SeverityType.Fatal, aParams);
+            LogToConsole(body, LevelType.Logic, SeverityType.Fatal, parameters);
         }
 
-        public void SecurityVerbose(string aBody, params object[] aParams)
+        public void SecurityVerbose(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.Security, SeverityType.Verbose, aParams);
+            LogToConsole(body, LevelType.Security, SeverityType.Verbose, parameters);
         }
 
-        public void SecurityInfo(string aBody, params object[] aParams)
+        public void SecurityInfo(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.Security, SeverityType.Info, aParams);
+            LogToConsole(body, LevelType.Security, SeverityType.Info, parameters);
         }
 
-        public void SecurityWarning(string aBody, params object[] aParams)
+        public void SecurityWarning(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.Security, SeverityType.Warning, aParams);
+            LogToConsole(body, LevelType.Security, SeverityType.Warning, parameters);
         }
 
-        public void SecurityError(string aBody, params object[] aParams)
+        public void SecurityError(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.Security, SeverityType.Error, aParams);
+            LogToConsole(body, LevelType.Security, SeverityType.Error, parameters);
         }
 
-        public void SecurityFatal(string aBody, params object[] aParams)
+        public void SecurityFatal(string body, params object[] parameters)
         {
-            LogToConsole(aBody, LevelType.Security, SeverityType.Fatal, aParams);
+            LogToConsole(body, LevelType.Security, SeverityType.Fatal, parameters);
         }
     }//end of class
 }

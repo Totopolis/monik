@@ -34,11 +34,11 @@ namespace Monik.Service
         private readonly ManualResetEvent _newMessageEvent = new ManualResetEvent(false);
         private readonly CancellationTokenSource _pumpCancellationTokenSource = new CancellationTokenSource();
 
-        public MessagePump(IRepository aRepository, ISourceInstanceCache aCache, IMessageProcessor aProcessor, IMonik monik)
+        public MessagePump(IRepository repository, ISourceInstanceCache cache, IMessageProcessor processor, IMonik monik)
         {
-            _repository = aRepository;
-            _cache = aCache;
-            _processor = aProcessor;
+            _repository = repository;
+            _cache = cache;
+            _processor = processor;
             _monik = monik;
 
             _pumpTask = Task.Run(() => { OnProcessTask(); });
@@ -125,11 +125,11 @@ namespace Monik.Service
             _monik.ApplicationVerbose("MessagePump started");
         }
 
-        private void InitializeServiceBus(ActiveQueue aActive)
+        private void InitializeServiceBus(ActiveQueue active)
         {
-            aActive.AzureQueue = QueueClient.CreateFromConnectionString(aActive.Config.ConnectionString, aActive.Config.QueueName);
+            active.AzureQueue = QueueClient.CreateFromConnectionString(active.Config.ConnectionString, active.Config.QueueName);
 
-            aActive.AzureQueue.OnMessage(message =>
+            active.AzureQueue.OnMessage(message =>
             {
                 try
                 {
@@ -147,12 +147,12 @@ namespace Monik.Service
             });
         }
 
-        private void InitializeRabbitMq(ActiveQueue aActive)
+        private void InitializeRabbitMq(ActiveQueue active)
         {
-            aActive.RabbitQueue = RabbitHutch.CreateBus(aActive.Config.ConnectionString).Advanced;
-            var queue = aActive.RabbitQueue.QueueDeclare(aActive.Config.QueueName);
+            active.RabbitQueue = RabbitHutch.CreateBus(active.Config.ConnectionString).Advanced;
+            var queue = active.RabbitQueue.QueueDeclare(active.Config.QueueName);
 
-            aActive.RabbitQueue.Consume(queue, (body, properties, info) => Task.Factory.StartNew(() =>
+            active.RabbitQueue.Consume(queue, (body, properties, info) => Task.Factory.StartNew(() =>
             {
                 try
                 {

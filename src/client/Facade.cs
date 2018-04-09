@@ -6,17 +6,17 @@ namespace Monik.Client
     {
         private static IMonik _instance = null;
 
-        public static void Initialize(IMonikSender aSender, string aSourceName, string aInstanceName,
-            bool aAutoKeepAliveEnable = false)
+        public static void Initialize(IMonikSender sender, string sourceName, string instanceName,
+            bool autoKeepAliveEnable = false)
         {
             IMonikSettings settings = new ClientSettings()
             {
-                SourceName = aSourceName ?? "",
-                InstanceName = aInstanceName ?? "",
-                AutoKeepAliveEnable = aAutoKeepAliveEnable
+                SourceName = sourceName ?? "",
+                InstanceName = instanceName ?? "",
+                AutoKeepAliveEnable = autoKeepAliveEnable
             };
 
-            _instance = new MonikClient(aSender, settings);
+            _instance = new MonikClient(sender, settings);
         }
 
         public static void OnStop()
@@ -29,104 +29,104 @@ namespace Monik.Client
             _instance?.KeepAlive();
         }
 
-        public static void SystemVerbose(string aBody, params object[] aParams)
+        public static void SystemVerbose(string body, params object[] parameters)
         {
-            _instance?.SystemVerbose(aBody, aParams);
+            _instance?.SystemVerbose(body, parameters);
         }
 
-        public static void SystemInfo(string aBody, params object[] aParams)
+        public static void SystemInfo(string body, params object[] parameters)
         {
-            _instance?.SystemInfo(aBody, aParams);
+            _instance?.SystemInfo(body, parameters);
         }
 
-        public static void SystemWarning(string aBody, params object[] aParams)
+        public static void SystemWarning(string body, params object[] parameters)
         {
-            _instance?.SystemWarning(aBody, aParams);
+            _instance?.SystemWarning(body, parameters);
         }
 
-        public static void SystemError(string aBody, params object[] aParams)
+        public static void SystemError(string body, params object[] parameters)
         {
-            _instance?.SystemError(aBody, aParams);
+            _instance?.SystemError(body, parameters);
         }
 
-        public static void SystemFatal(string aBody, params object[] aParams)
+        public static void SystemFatal(string body, params object[] parameters)
         {
-            _instance?.SystemFatal(aBody, aParams);
+            _instance?.SystemFatal(body, parameters);
         }
 
-        public static void ApplicationVerbose(string aBody, params object[] aParams)
+        public static void ApplicationVerbose(string body, params object[] parameters)
         {
-            _instance?.ApplicationVerbose(aBody, aParams);
+            _instance?.ApplicationVerbose(body, parameters);
         }
 
-        public static void ApplicationInfo(string aBody, params object[] aParams)
+        public static void ApplicationInfo(string body, params object[] parameters)
         {
-            _instance?.ApplicationInfo(aBody, aParams);
+            _instance?.ApplicationInfo(body, parameters);
         }
 
-        public static void ApplicationWarning(string aBody, params object[] aParams)
+        public static void ApplicationWarning(string body, params object[] parameters)
         {
-            _instance?.ApplicationWarning(aBody, aParams);
+            _instance?.ApplicationWarning(body, parameters);
         }
 
-        public static void ApplicationError(string aBody, params object[] aParams)
+        public static void ApplicationError(string body, params object[] parameters)
         {
-            _instance?.ApplicationError(aBody, aParams);
+            _instance?.ApplicationError(body, parameters);
         }
 
-        public static void ApplicationFatal(string aBody, params object[] aParams)
+        public static void ApplicationFatal(string body, params object[] parameters)
         {
-            _instance?.ApplicationFatal(aBody, aParams);
+            _instance?.ApplicationFatal(body, parameters);
         }
 
-        public static void LogicVerbose(string aBody, params object[] aParams)
+        public static void LogicVerbose(string body, params object[] parameters)
         {
-            _instance?.LogicVerbose(aBody, aParams);
+            _instance?.LogicVerbose(body, parameters);
         }
 
-        public static void LogicInfo(string aBody, params object[] aParams)
+        public static void LogicInfo(string body, params object[] parameters)
         {
-            _instance?.LogicInfo(aBody, aParams);
+            _instance?.LogicInfo(body, parameters);
         }
 
-        public static void LogicWarning(string aBody, params object[] aParams)
+        public static void LogicWarning(string body, params object[] parameters)
         {
-            _instance?.LogicWarning(aBody, aParams);
+            _instance?.LogicWarning(body, parameters);
         }
 
-        public static void LogicError(string aBody, params object[] aParams)
+        public static void LogicError(string body, params object[] parameters)
         {
-            _instance?.LogicError(aBody, aParams);
+            _instance?.LogicError(body, parameters);
         }
 
-        public static void LogicFatal(string aBody, params object[] aParams)
+        public static void LogicFatal(string body, params object[] parameters)
         {
-            _instance?.LogicFatal(aBody, aParams);
+            _instance?.LogicFatal(body, parameters);
         }
 
-        public static void SecurityVerbose(string aBody, params object[] aParams)
+        public static void SecurityVerbose(string body, params object[] parameters)
         {
-            _instance?.SecurityVerbose(aBody, aParams);
+            _instance?.SecurityVerbose(body, parameters);
         }
 
-        public static void SecurityInfo(string aBody, params object[] aParams)
+        public static void SecurityInfo(string body, params object[] parameters)
         {
-            _instance?.SecurityInfo(aBody, aParams);
+            _instance?.SecurityInfo(body, parameters);
         }
 
-        public static void SecurityWarning(string aBody, params object[] aParams)
+        public static void SecurityWarning(string body, params object[] parameters)
         {
-            _instance?.SecurityWarning(aBody, aParams);
+            _instance?.SecurityWarning(body, parameters);
         }
 
-        public static void SecurityError(string aBody, params object[] aParams)
+        public static void SecurityError(string body, params object[] parameters)
         {
-            _instance?.SecurityError(aBody, aParams);
+            _instance?.SecurityError(body, parameters);
         }
 
-        public static void SecurityFatal(string aBody, params object[] aParams)
+        public static void SecurityFatal(string body, params object[] parameters)
         {
-            _instance?.SecurityFatal(aBody, aParams);
+            _instance?.SecurityFatal(body, parameters);
         }
     }
 }
