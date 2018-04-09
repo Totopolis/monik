@@ -39,6 +39,7 @@ namespace Monik.Service.Test
                 Task.Delay(DelayOnProcess).Wait();
 
                 _monik.ApplicationInfo("New message from emulator");
+                _monik.Measure("TestAccum", AggregationType.Accumulator, 12);
             }
         }
     } //end of class

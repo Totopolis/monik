@@ -34,6 +34,7 @@ namespace Monik.Service
             container.Resolve<ISourceInstanceCache>().OnStart();
             container.Resolve<ICacheLog>().OnStart();
             container.Resolve<ICacheKeepAlive>().OnStart();
+            container.Resolve<ICacheMetric>().OnStart();
 
             container.Resolve<IMessageProcessor>().OnStart();
             container.Resolve<IMessagePump>().OnStart();
@@ -70,6 +71,7 @@ namespace Monik.Service
             existingContainer.RegisterSingleton<ISourceInstanceCache, SourceInstanceCache>();
             existingContainer.RegisterSingleton<ICacheLog, CacheLog>();
             existingContainer.RegisterSingleton<ICacheKeepAlive, CacheKeepAlive>();
+            existingContainer.RegisterSingleton<ICacheMetric, CacheMetric>();
 
             existingContainer.RegisterSingleton<IMessageProcessor, MessageProcessor>();
             existingContainer.RegisterSingleton<IMessagePump, MessagePump>();

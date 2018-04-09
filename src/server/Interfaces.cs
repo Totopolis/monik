@@ -92,6 +92,8 @@ namespace Monik.Service
         List<KeepAlive_> GetKeepAlive2(KeepAliveRequest filter);
     }
 
+    public interface ICacheMetric : IObject { }
+
     public interface IMessagePump : IObject
     {
         void OnEmbeddedEvents(ConcurrentQueue<Event> events);

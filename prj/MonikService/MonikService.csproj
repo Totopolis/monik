@@ -121,6 +121,9 @@
     <Compile Include="..\..\src\server\CacheLog.cs">
       <Link>server\CacheLog.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\server\CacheMetric.cs">
+      <Link>server\CacheMetric.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\server\CacheSourceInstance.cs">
       <Link>server\CacheSourceInstance.cs</Link>
     </Compile>

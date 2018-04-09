@@ -31,6 +31,8 @@ namespace Monik.Common
 
         void KeepAlive();
 
+        void Measure(string metricName, AggregationType aggregate, double value);
+
         void OnStop();
     }
 }
