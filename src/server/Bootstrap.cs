@@ -59,7 +59,8 @@ namespace Monik.Service
             existingContainer.RegisterSingleton<IMonikServiceSettings, MonikServiceSettings>();
 
 #if (EMULATOR)
-            existingContainer.RegisterImplementation<IRepository, RepositoryStub>();
+            // Stub have internal state !
+            existingContainer.RegisterSingleton<IRepository, RepositoryStub>();
 #else
             existingContainer.RegisterImplementation<IRepository, Repository>();
 #endif
