@@ -1,6 +1,4 @@
-﻿#define NOT_EMULATOR
-
-#if (EMULATOR)
+﻿#if (EMULATOR)
 using Monik.Service.Test;
 #endif
 
