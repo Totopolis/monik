@@ -90,6 +90,8 @@ namespace Monik.Common
             Event msg = NewEvent();
             msg.Mc = new Common.Metric() { Name = metricName, Aggregation = aggregate, Value = value };
 
+            // TODO: pre aggregate values there in SendDelay window
+
             OnNewMessage(msg);
         }
     }//end of class

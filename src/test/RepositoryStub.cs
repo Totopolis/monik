@@ -80,5 +80,43 @@ namespace Monik.Service.Test
 
         public List<EventQueue> GetEventSources() => new List<EventQueue>();
 
+        private int _lastMetricId = 1;
+        public const int NumMeasures = 100;
+        private long _lastMeasureId = 1;
+
+        private Dictionary<int, Metric_> _metrics = new Dictionary<int, Metric_>();
+
+        public Metric_ CreateMetric(string name, int aggregation, int instanceId)
+        {
+            Metric_ obj = new Metric_
+            {
+                Id = _lastMetricId,
+                Name = name,
+                Aggregation = aggregation,
+                InstanceId = instanceId,
+                RangeHeadId = _lastMeasureId,
+                RangeTailId = _lastMeasureId + NumMeasures - 1,
+                ActualHead = DateTime.Now,
+                ActualHeadId = _lastMeasureId,
+                ActualTailId = _lastMeasureId + NumMeasures -1
+            };
+
+            _lastMeasureId += NumMeasures;
+            _lastMetricId++;
+
+            _metrics.Add(obj.Id, obj);
+
+            return obj;
+        }
+
+        public Measure_[] GetMeasures(int metricId)
+        {
+            var met = _metrics[metricId];
+
+            var res = Enumerable.Range((int)met.RangeHeadId, NumMeasures)
+                .Select(x => new Measure_() { Id = x, Val = 0 });
+
+            return res.ToArray();
+        }
     } //end of class
 }

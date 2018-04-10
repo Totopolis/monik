@@ -76,6 +76,8 @@ namespace Monik.Service
             existingContainer.RegisterSingleton<IMessageProcessor, MessageProcessor>();
             existingContainer.RegisterSingleton<IMessagePump, MessagePump>();
 
+            existingContainer.RegisterImplementation<IMetricObject, MetricObject>();
+
             existingContainer.Update(builder => builder.Register(c => existingContainer));
 
 #if (EMULATOR)

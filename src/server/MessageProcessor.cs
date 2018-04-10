@@ -9,15 +9,18 @@ namespace Monik.Service
         private readonly IRepository _repository;
         private readonly ICacheLog _cacheLog;
         private readonly ICacheKeepAlive _cacheKeepAlive;
+        private readonly ICacheMetric _cacheMetric;
         private readonly IMonik _monik;
 
         public MessageProcessor(IMonikServiceSettings settings, IRepository repository, 
-            ICacheLog cacheLog, ICacheKeepAlive cacheKeepAlive, IMonik monik)
+            ICacheLog cacheLog, ICacheKeepAlive cacheKeepAlive, ICacheMetric cacheMetric, 
+            IMonik monik)
         {
             _settings = settings;
             _repository = repository;
             _cacheLog = cacheLog;
             _cacheKeepAlive = cacheKeepAlive;
+            _cacheMetric = cacheMetric;
             _monik = monik;
 
             _cleaner = Scheduler.CreatePerHour(_monik, CleanerTask, "cleaner");
@@ -100,10 +103,16 @@ namespace Monik.Service
                     var lg = WriteLog(ev, instance);
                     _cacheLog.OnNewLog(lg);
                     break;
+                case Event.MsgOneofCase.Mc:
+                    // check metric 
+                    _cacheMetric.OnNewMeasure(instance, ev);
+                    break;
                 default:
                     throw new NotSupportedException("Bad event type");
             }
         }
+
+        // TODO: move wrrite repository tO concrete cache and use id generator and bulk insert
 
         private KeepAlive_ WriteKeepAlive(Event eventLog, Instance instance)
         {

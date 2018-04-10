@@ -60,6 +60,15 @@ namespace Monik.Service
         void CreateLog(Log_ log);
 
         List<EventQueue> GetEventSources();
+
+        Metric_ CreateMetric(string name, int aggregation, int instanceId);
+        Measure_[] GetMeasures(int metricId);
+
+        // DeleteMetric(int id) ... also delete measures
+        // int[] GetAllMetrics()
+        // Metric_ GetMetric(int id)
+        // int CreateMetric(string name, int aggregation, int instanceId) ... also created range in Measure table
+        // (long, double) GetMeasures(int metricId)
     }
 
     public interface ISourceInstanceCache : IObject
@@ -92,7 +101,10 @@ namespace Monik.Service
         List<KeepAlive_> GetKeepAlive2(KeepAliveRequest filter);
     }
 
-    public interface ICacheMetric : IObject { }
+    public interface ICacheMetric : IObject
+    {
+        void OnNewMeasure(Instance instance, Event metric);
+    }
 
     public interface IMessagePump : IObject
     {

@@ -132,5 +132,15 @@ namespace Monik.Service
         {
             return SimpleCommand.ExecuteQuery<EventQueue>(_settings.DbConnectionString, "select * from [mon].[EventQueue]").ToList();
         }
+
+        public Metric_ CreateMetric(string name, int aggregation, int instanceId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Measure_[] GetMeasures(int metricId)
+        {
+            throw new NotImplementedException();
+        }
     } //end of class
 }

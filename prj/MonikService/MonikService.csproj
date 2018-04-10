@@ -136,6 +136,9 @@
     <Compile Include="..\..\src\server\MessagePump.cs">
       <Link>server\MessagePump.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\server\MetricObject.cs">
+      <Link>server\MetricObject.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\server\Model.cs">
       <Link>server\Model.cs</Link>
     </Compile>
