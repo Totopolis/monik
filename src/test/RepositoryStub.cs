@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Monik.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -96,9 +97,8 @@ namespace Monik.Service.Test
                 InstanceId = instanceId,
                 RangeHeadId = _lastMeasureId,
                 RangeTailId = _lastMeasureId + NumMeasures - 1,
-                ActualHead = DateTime.Now,
-                ActualHeadId = _lastMeasureId,
-                ActualTailId = _lastMeasureId + NumMeasures -1
+                ActualIntervalTime = DateTime.UtcNow.RoundUp(TimeSpan.FromMinutes(5)),
+                ActualId = _lastMeasureId
             };
 
             _lastMeasureId += NumMeasures;

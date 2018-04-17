@@ -31,6 +31,8 @@ namespace Monik.Service
         {
             FSourceRef = aSrc;
         }
+
+        public readonly Dictionary<string, IMetricObject> Metrics = new Dictionary<string, IMetricObject>();
     }
 
     public class Group
@@ -74,9 +76,8 @@ namespace Monik.Service
         public long RangeHeadId { get; set; }
         public long RangeTailId { get; set; }
 
-        public DateTime ActualHead { get; set; }
-        public long ActualHeadId { get; set; }
-        public long ActualTailId { get; set; }
+        public DateTime ActualIntervalTime { get; set; }
+        public long ActualId { get; set; }
     }
 
     public class Measure_

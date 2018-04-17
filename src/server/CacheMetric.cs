@@ -13,7 +13,8 @@ namespace Monik.Service
         private readonly ILifetimeScope _autofac;
         private readonly IMonik _monik;
 
-        private readonly Dictionary<int, Dictionary<string, IMetricObject>> _instanceMetricMap;
+        private readonly Scheduler _sheduler;
+        private readonly ConcurrentBag<IMetricObject> _metrics;
 
         public CacheMetric(IRepository repository, ILifetimeScope autofac, IMonik monik)
         {
@@ -21,7 +22,8 @@ namespace Monik.Service
             _autofac = autofac;
             _monik = monik;
 
-            _instanceMetricMap = new Dictionary<int, Dictionary<string, IMetricObject>>();
+            _sheduler = Scheduler.CreatePerMinute(monik, this.BackgroundIntervalPush, "CacheMetric.BackgroundIntervalPush");
+            _metrics = new ConcurrentBag<IMetricObject>();
 
             _monik.ApplicationVerbose("CacheMetric.ctor");
         }
@@ -30,45 +32,52 @@ namespace Monik.Service
         {
             _monik.ApplicationVerbose("CacheMetric.OnStart");
 
-            // Load metrics and measures from db
+            // Load metrics to instances and measures to metricobjects, from db
+
+            foreach (var mo in _metrics.ToArray())
+                mo.OnStart();
+
+            _sheduler.OnStart();
         }
 
         public void OnStop()
         {
-            // nothing
+            _sheduler.OnStop();
+
+            foreach (var mo in _metrics.ToArray())
+                mo.OnStop();
         }
 
-        private IMetricObject CheckMetric(Instance instance, string metricName)
+        private void BackgroundIntervalPush()
         {
-            if (!_instanceMetricMap.ContainsKey(instance.ID))
-                return null;
-
-            var metrics = _instanceMetricMap[instance.ID];
-
-            if (!metrics.ContainsKey(metricName))
-                return null;
-
-            return metrics[metricName];
+            foreach (var mo in _metrics.ToArray())
+                mo.BackgroundIntervalPush();
         }
 
         public void OnNewMeasure(Instance instance, Event metric)
         {
-            var metricObj = CheckMetric(instance, metric.Mc.Name);
+            var metName = metric.Mc.Name;
+
+            var metObj = instance.Metrics.ContainsKey(metName) ?
+                instance.Metrics[metName] : null;
 
             // TODO: if (metricObj != null && metricObj.Aggregation != metric.Mc.Aggregation)
             // then recreate
 
-            if (metricObj == null)
+            if (metObj == null)
             {
-                metricObj = _autofac.Resolve<IMetricObject>();
+                metObj = _autofac.Resolve<IMetricObject>();
 
-                metricObj.CreateNew(
-                    metric.Mc.Name,
+                metObj.CreateNew(
+                    metName,
                     (int)metric.Mc.Aggregation,
                     instance);
+
+                instance.Metrics.Add(metName, metObj);
+                _metrics.Add(metObj);
             }
 
-            metricObj.OnNewMeasure(metric);
+            metObj.OnNewMeasure(metric);
         }
     } //end of class
 }

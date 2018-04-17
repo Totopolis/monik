@@ -115,4 +115,14 @@ namespace Monik.Service
     {
         void Process(Event ev, Instance instance);
     }
+
+    public interface IMetricObject : IObject
+    {
+        void CreateNew(string name, int aggregation, Instance instance);
+        void Load(int metricId);
+
+        void OnNewMeasure(Event metric);
+
+        void BackgroundIntervalPush();
+    }
 }

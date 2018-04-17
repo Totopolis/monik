@@ -93,5 +93,11 @@ namespace Monik.Common
             return result;
         }
 
+        public static Scheduler CreatePerMinute(IMonik monik, Action work, string name)
+        {
+            Scheduler result = new Scheduler(monik, work, IntervalType.Minute, name);
+            return result;
+        }
+
     } //end of class
 }
