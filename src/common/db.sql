@@ -7,6 +7,8 @@
 --DROP TABLE [mon].[KeepAlive]
 --DROP TABLE [mon].[EventQueue]
 --DROP TABLE [mon].[HourStat]
+--DROP TABLE [mon].[Metric]
+--DROP TABLE [mon].[Measure]
 
 CREATE SCHEMA mon
 
@@ -162,7 +164,7 @@ CREATE TABLE [mon].[HourStat](
 ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 )
 
-
+/*
 CREATE VIEW [mon].[PrettyLogs] AS
  SELECT lg.ID, src.Name as Source, ins.Name as Instance, lg.Created, [Level] =
   CASE lg.Level
@@ -183,3 +185,26 @@ CREATE VIEW [mon].[PrettyLogs] AS
   FROM mon.Log lg
   JOIN mon.Instance ins on lg.InstanceID = ins.ID
   JOIN mon.Source src on src.ID = ins.SourceID
+*/
+
+CREATE TABLE [mon].[Metric](
+[ID] [int] IDENTITY(1,1) NOT NULL,
+[Name] [nvarchar](256) NOT NULL,
+[InstanceID] [int] NOT NULL,
+[Aggregation] [int] NOT NULL,
+[RangeHeadID] [bigint] NOT NULL,
+[RangeTailID] [bigint] NOT NULL,
+[ActualInterval] [datetime] NOT NULL,
+[ActualID] [bigint] NOT NULL,
+CONSTRAINT [PK_Metric] PRIMARY KEY CLUSTERED  ([ID] ASC)
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, 
+ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+)
+
+CREATE TABLE [mon].[Measure](
+[ID] [bigint] IDENTITY(1,1) NOT NULL,
+[Value] [float] NOT NULL,
+CONSTRAINT [PK_Measure] PRIMARY KEY CLUSTERED  ([ID] ASC)
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, 
+ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+)

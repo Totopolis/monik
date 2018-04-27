@@ -91,20 +91,20 @@ namespace Monik.Service.Test
         {
             Metric_ obj = new Metric_
             {
-                Id = _lastMetricId,
+                ID = _lastMetricId,
                 Name = name,
                 Aggregation = aggregation,
-                InstanceId = instanceId,
-                RangeHeadId = _lastMeasureId,
-                RangeTailId = _lastMeasureId + NumMeasures - 1,
-                ActualIntervalTime = DateTime.UtcNow.RoundUp(TimeSpan.FromMinutes(5)),
-                ActualId = _lastMeasureId
+                InstanceID = instanceId,
+                RangeHeadID = _lastMeasureId,
+                RangeTailID = _lastMeasureId + NumMeasures - 1,
+                ActualInterval = DateTime.UtcNow.RoundUp(TimeSpan.FromMinutes(5)),
+                ActualID = _lastMeasureId
             };
 
             _lastMeasureId += NumMeasures;
             _lastMetricId++;
 
-            _metrics.Add(obj.Id, obj);
+            _metrics.Add(obj.ID, obj);
 
             return obj;
         }
@@ -113,10 +113,24 @@ namespace Monik.Service.Test
         {
             var met = _metrics[metricId];
 
-            var res = Enumerable.Range((int)met.RangeHeadId, NumMeasures)
-                .Select(x => new Measure_() { Id = x, Val = 0 });
+            var res = Enumerable.Range((int)met.RangeHeadID, NumMeasures)
+                .Select(x => new Measure_() { ID = x, Value = 0 });
 
             return res.ToArray();
+        }
+
+        public void SaveMetric(Metric_ metric, Measure_[] measures)
+        {
+        }
+
+        public Metric_ GetMetric(int metricId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int[] GetAllMetricIds()
+        {
+            return new int[0];
         }
     } //end of class
 }

@@ -9,7 +9,7 @@ namespace Monik.Service
     public class MainNancyModule : NancyModule
     {
         public MainNancyModule(IRepository repo, ICacheLog cacheLog, ICacheKeepAlive cacheKeepAlive,
-            ISourceInstanceCache sourceInstanceCache, IMonik monik)
+            ICacheMetric cacheMetric, ISourceInstanceCache sourceInstanceCache, IMonik monik)
         {
             Get["/sources"] = args =>
             {
@@ -121,6 +121,57 @@ namespace Monik.Service
                     return HttpStatusCode.InternalServerError;
                 }
             };
+
+            Get["/metrics"] = args =>
+            {
+                try
+                {
+                    var result = cacheMetric.GetMetricsDescriptions();
+                    return Response.AsJson(result);
+                }
+                catch (Exception ex)
+                {
+                    monik.ApplicationError($"Method /metrics : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
+            };
+
+            Get["/metrics/currents"] = args =>
+            {
+                try
+                {
+                    var result = cacheMetric.GetAllCurrentMeasures();
+                    return Response.AsJson(result);
+                }
+                catch (Exception ex)
+                {
+                    monik.ApplicationError($"Method /metrics/currents : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
+            };
+
+            Get["/metrics/{id:int}/current"] = args =>
+            {
+                try
+                {
+                    int metricId = args.id;
+
+                    var result = cacheMetric.GetCurrentMeasure(metricId);
+                    return Response.AsJson(result);
+                }
+                catch (Exception ex)
+                {
+                    monik.ApplicationError($"Method /metrics/id/current : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
+            };
+
+            // + /metrics/1/current
+            // /metrics/1/history?deep...
+            // /metrics/1/window
+
+            // + metrics/currents
+            // metrics/windows
         }
     }//end of class
 }

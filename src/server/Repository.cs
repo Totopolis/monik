@@ -1,4 +1,5 @@
 ﻿using Gerakul.FastSql;
+using Monik.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -135,12 +136,70 @@ namespace Monik.Service
 
         public Metric_ CreateMetric(string name, int aggregation, int instanceId)
         {
-            throw new NotImplementedException();
+            var measures = Enumerable.Range(1, 3999)
+                .Select(x => new Measure_ { ID = 0, Value = 0 })
+                .ToArray();
+
+            var firstId = (long)MappedCommand.InsertAndGetId(_settings.DbConnectionString,
+                "mon.Measure", measures[0], "ID");
+
+            measures.WriteToServer(_settings.DbConnectionString, "mon.Measure");
+
+            var met = new Metric_
+            {
+                Name = name,
+                Aggregation = aggregation,
+                InstanceID = instanceId,
+
+                RangeHeadID = firstId,
+                RangeTailID = firstId + 3999,
+
+                ActualInterval = DateTime.UtcNow.RoundUp(TimeSpan.FromMinutes(5)),
+                ActualID = firstId
+            };
+
+            met.ID = (int)MappedCommand.InsertAndGetId(_settings.DbConnectionString, "mon.Metric", met, "ID");
+            return met;
+        }
+
+        public Metric_ GetMetric(int metricId)
+        {
+            var q1 = SimpleCommand.ExecuteQuery<Metric_>(_settings.DbConnectionString,
+                $"select * from mon.Metric where ID={metricId}");
+
+            return q1.First();
         }
 
         public Measure_[] GetMeasures(int metricId)
         {
-            throw new NotImplementedException();
+            var q1 = SimpleCommand.ExecuteQuery<Measure_>(_settings.DbConnectionString,
+$@"
+select meas.*
+from mon.Measure meas
+join mon.Metric met on met.RangeHeadID <= meas.ID and met.RangeTailID >= meas.ID
+where met.ID = {metricId}
+order by meas.ID");
+
+            return q1.ToArray();
+        }
+
+        public void SaveMetric(Metric_ metric, Measure_[] measures)
+        {
+            MappedCommand.Update(_settings.DbConnectionString, "mon.Metric", metric, "ID");
+
+            foreach (var meas in measures)
+                MappedCommand.Update(_settings.DbConnectionString, "mon.Measure", meas, "ID");
+        }
+
+        public int[] GetAllMetricIds()
+        {
+            var proto = new { ID = 0 };
+
+            var result = SimpleCommand
+                .ExecuteQueryAnonymous(proto, _settings.DbConnectionString, "select ID from mon.Metric")
+                .Select(x => x.ID);
+
+            return result.ToArray();
         }
     } //end of class
 }

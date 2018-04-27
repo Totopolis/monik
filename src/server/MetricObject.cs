@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using Autofac;
 using Monik.Common;
 
@@ -17,7 +18,7 @@ namespace Monik.Service
         private Metric_ _dto;
         private Measure_[] _measures;
 
-        // Need internal timer for push measure ticks
+        public Metric_ Dto => _dto;
 
         public MetricObject(IMonik monik, IRepository repository)
         {
@@ -28,26 +29,43 @@ namespace Monik.Service
             _measures = null;
         }
 
+        public MeasureResponse GetCurrentMeasure()
+        {
+            var actualIndx = _dto.ActualID - _dto.RangeHeadID;
+            var actualMeasure = _measures[actualIndx];
+
+            return new MeasureResponse
+            {
+                MetricId = _dto.ID,
+                Interval = _dto.ActualInterval,
+                Value = actualMeasure.Value
+            };
+        }
+
+        private Measure_ GetMeasure(long intervalId)
+        {
+            var actualIndx = intervalId - _dto.RangeHeadID;
+            return _measures[actualIndx];
+        }
+        
         public void CreateNew(string name, int aggregation, Instance instance)
         {
             _dto = _repository.CreateMetric(name, aggregation, instance.ID);
-            _measures = _repository.GetMeasures(_dto.Id);
+            _measures = _repository.GetMeasures(_dto.ID);
         }
 
         public void Load(int metricId)
         {
-            throw new NotImplementedException();
-
-            // _dto = _repository.GetMetric(metricId);
-            // _measures = _repository.GetMeasures(metricId);
+            _dto = _repository.GetMetric(metricId);
+            _measures = _repository.GetMeasures(metricId);
         }
 
         public void OnNewMeasure(Event metric)
         {
             var metTime = Helper.FromMillisecondsSinceUnixEpoch(metric.Created);
 
-            var actualIntervalEnd = _dto.ActualIntervalTime;
-            var actualIntervalStart = _dto.ActualIntervalTime.AddMinutes(-5);
+            var actualIntervalEnd = _dto.ActualInterval;
+            var actualIntervalStart = _dto.ActualInterval.AddMinutes(-5);
             
             if (metTime < actualIntervalStart || metTime >= actualIntervalEnd)
             {
@@ -57,16 +75,15 @@ namespace Monik.Service
                 return;
             }
 
-            var actualIndx = _dto.ActualId - _dto.RangeHeadId;
-            var actualMeasure = _measures[actualIndx];
+            var actualMeasure = GetMeasure(_dto.ActualID);
 
             switch (metric.Mc.Aggregation)
             {
                 case AggregationType.Accumulator:
-                    actualMeasure.Val += metric.Mc.Value;
+                    actualMeasure.Value += metric.Mc.Value;
                     break;
                 case AggregationType.Gauge:
-                    actualMeasure.Val = (actualMeasure.Val + metric.Mc.Value) / 2;
+                    actualMeasure.Value = (actualMeasure.Value + metric.Mc.Value) / 2;
                     break;
                 default:
                     // skip event
@@ -81,21 +98,24 @@ namespace Monik.Service
 
             List<long> _intervalsToSave = new List<long>();
 
-            while (curInterval > _dto.ActualIntervalTime)
+            while (curInterval > _dto.ActualInterval)
             {
-                _dto.ActualIntervalTime += TimeSpan.FromMinutes(5);
+                _dto.ActualInterval += TimeSpan.FromMinutes(5);
 
-                _intervalsToSave.Add(_dto.ActualId);
+                _intervalsToSave.Add(_dto.ActualID);
 
-                _dto.ActualId = _dto.ActualId == _dto.RangeTailId ?
-                    _dto.RangeHeadId :
-                    _dto.ActualId++;
+                _dto.ActualID = _dto.ActualID == _dto.RangeTailID ?
+                    _dto.RangeHeadID :
+                    (_dto.ActualID + 1);
             }
 
             if (_intervalsToSave.Count > 0)
             {
-                // TODO: save intervals
-                // save dto
+                var measures = _intervalsToSave
+                    .Select(x => GetMeasure(x))
+                    .ToArray();
+
+                _repository.SaveMetric(_dto, measures);
             }
         }
 
@@ -106,7 +126,7 @@ namespace Monik.Service
 
         public void OnStop()
         {
-            // save last measure and metric state
+            // TODO: save last measure and metric state
         }
 
         private DateTime GetCurrentIntervalEnd() => DateTime.UtcNow.RoundUp(TimeSpan.FromMinutes(5));

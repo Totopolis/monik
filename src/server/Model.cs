@@ -68,22 +68,29 @@ namespace Monik.Service
 
     public class Metric_
     {
-        public int Id { get; set; }
+        public int ID { get; set; }
         public string Name { get; set; }
-        public long InstanceId { get; set; }
+        public int InstanceID { get; set; }
         public int Aggregation { get; set; }
 
-        public long RangeHeadId { get; set; }
-        public long RangeTailId { get; set; }
+        public long RangeHeadID { get; set; }
+        public long RangeTailID { get; set; }
 
-        public DateTime ActualIntervalTime { get; set; }
-        public long ActualId { get; set; }
+        public DateTime ActualInterval { get; set; }
+        public long ActualID { get; set; }
     }
 
     public class Measure_
     {
-        public long Id { get; set; }
-        public double Val { get; set; }
+        public long ID { get; set; }
+        public double Value { get; set; }
+    }
+
+    public class MeasureResponse
+    {
+        public int MetricId { get; set; }
+        public DateTime Interval { get; set; }
+        public double Value { get; set; }
     }
 
     public class KeepAliveStatus

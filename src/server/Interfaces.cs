@@ -61,8 +61,12 @@ namespace Monik.Service
 
         List<EventQueue> GetEventSources();
 
+        int[] GetAllMetricIds();
         Metric_ CreateMetric(string name, int aggregation, int instanceId);
+        Metric_ GetMetric(int metricId);
         Measure_[] GetMeasures(int metricId);
+
+        void SaveMetric(Metric_ metric, Measure_[] measures);
 
         // DeleteMetric(int id) ... also delete measures
         // int[] GetAllMetrics()
@@ -104,6 +108,10 @@ namespace Monik.Service
     public interface ICacheMetric : IObject
     {
         void OnNewMeasure(Instance instance, Event metric);
+
+        Metric_[] GetMetricsDescriptions();
+        MeasureResponse GetCurrentMeasure(int metricId);
+        MeasureResponse[] GetAllCurrentMeasures();
     }
 
     public interface IMessagePump : IObject
@@ -118,6 +126,10 @@ namespace Monik.Service
 
     public interface IMetricObject : IObject
     {
+        Metric_ Dto { get; }
+
+        MeasureResponse GetCurrentMeasure();
+
         void CreateNew(string name, int aggregation, Instance instance);
         void Load(int metricId);
 

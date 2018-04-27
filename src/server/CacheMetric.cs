@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using Monik.Common;
-using System.Collections.Concurrent;
 using Autofac;
 
 namespace Monik.Service
@@ -11,15 +11,18 @@ namespace Monik.Service
     {
         private readonly IRepository _repository;
         private readonly ILifetimeScope _autofac;
+        private readonly ISourceInstanceCache _sourceCache;
         private readonly IMonik _monik;
 
         private readonly Scheduler _sheduler;
         private readonly ConcurrentBag<IMetricObject> _metrics;
 
-        public CacheMetric(IRepository repository, ILifetimeScope autofac, IMonik monik)
+        public CacheMetric(IRepository repository, ILifetimeScope autofac,
+            ISourceInstanceCache sourceCache, IMonik monik)
         {
             _repository = repository;
             _autofac = autofac;
+            _sourceCache = sourceCache;
             _monik = monik;
 
             _sheduler = Scheduler.CreatePerMinute(monik, this.BackgroundIntervalPush, "CacheMetric.BackgroundIntervalPush");
@@ -28,11 +31,42 @@ namespace Monik.Service
             _monik.ApplicationVerbose("CacheMetric.ctor");
         }
 
+        public Metric_[] GetMetricsDescriptions() => _metrics.Select(x => x.Dto).ToArray();
+
+        public MeasureResponse GetCurrentMeasure(int metricId)
+        {
+            var metricSearch = _metrics.Where(x => x.Dto.ID == metricId);
+
+            if (metricSearch.Count() == 0)
+                throw new Exception($"Metric {metricId} not found.");
+
+            var metric = metricSearch.First();
+            return metric.GetCurrentMeasure();
+        }
+
+        public MeasureResponse[] GetAllCurrentMeasures()
+        {
+            var measures = _metrics.Select(x => x.GetCurrentMeasure());
+            return measures.ToArray();
+        }
+
         public void OnStart()
         {
             _monik.ApplicationVerbose("CacheMetric.OnStart");
 
             // Load metrics to instances and measures to metricobjects, from db
+
+            foreach (var metId in _repository.GetAllMetricIds())
+            {
+                var metObj = _autofac.Resolve<IMetricObject>();
+
+                metObj.Load(metId);
+
+                var instance = _sourceCache.GetInstanceById(metObj.Dto.InstanceID);
+                instance.Metrics.Add(metObj.Dto.Name, metObj);
+
+                _metrics.Add(metObj);
+            }
 
             foreach (var mo in _metrics.ToArray())
                 mo.OnStart();
