@@ -142,6 +142,9 @@
     <Compile Include="..\..\src\server\CacheLog.cs">
       <Link>Core\CacheLog.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\server\CacheMetric.cs">
+      <Link>Core\CacheMetric.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\server\CacheSourceInstance.cs">
       <Link>Core\CacheSourceInstance.cs</Link>
     </Compile>
@@ -153,6 +156,9 @@
     </Compile>
     <Compile Include="..\..\src\server\MessagePump.cs">
       <Link>Core\MessagePump.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\server\MetricObject.cs">
+      <Link>Core\MetricObject.cs</Link>
     </Compile>
     <Compile Include="..\..\src\server\Model.cs">
       <Link>Core\Model.cs</Link>

@@ -12,6 +12,15 @@ namespace Monik.Service
         private readonly ICacheMetric _cacheMetric;
         private readonly IMonik _monik;
 
+        private readonly TimingHelper _timing;
+
+        public const string TotalMessages = "TotalMessages";
+        public const string LogCount = "LogCount";
+        public const string KeepAliveCount = "KeepAliveCount";
+        public const string MeasureCount = "MeasureCount";
+        public const string WriteLogTime = "WriteLogTime";
+        public const string WriteKeepAliveTime = "WriteKeepAliveTime";
+
         public MessageProcessor(IMonikServiceSettings settings, IRepository repository, 
             ICacheLog cacheLog, ICacheKeepAlive cacheKeepAlive, ICacheMetric cacheMetric, 
             IMonik monik)
@@ -22,6 +31,8 @@ namespace Monik.Service
             _cacheKeepAlive = cacheKeepAlive;
             _cacheMetric = cacheMetric;
             _monik = monik;
+
+            _timing = TimingHelper.Create(_monik);
 
             _cleaner = Scheduler.CreatePerHour(_monik, CleanerTask, "cleaner");
             _statist = Scheduler.CreatePerHour(_monik, StatistTask, "statist");
@@ -91,20 +102,24 @@ namespace Monik.Service
 
         public void Process(Event ev, Instance instance)
         {
+            _monik.Measure(TotalMessages, AggregationType.Accumulator, 1);
+
             switch (ev.MsgCase)
             {
                 case Event.MsgOneofCase.None:
                     throw new NotSupportedException("Bad event type");
                 case Event.MsgOneofCase.Ka:
+                    _monik.Measure(KeepAliveCount, AggregationType.Accumulator, 1);
                     var ka = WriteKeepAlive(ev, instance);
                     _cacheKeepAlive.OnNewKeepAlive(ka);
                     break;
                 case Event.MsgOneofCase.Lg:
+                    _monik.Measure(LogCount, AggregationType.Accumulator, 1);
                     var lg = WriteLog(ev, instance);
                     _cacheLog.OnNewLog(lg);
                     break;
                 case Event.MsgOneofCase.Mc:
-                    // check metric 
+                    _monik.Measure(MeasureCount, AggregationType.Accumulator, 1);
                     _cacheMetric.OnNewMeasure(instance, ev);
                     break;
                 default:
@@ -123,7 +138,11 @@ namespace Monik.Service
                 InstanceID = instance.ID
             };
 
+            _timing.Begin();
+
             _repository.CreateKeepAlive(row);
+
+            _timing.EndAndMeasure(WriteKeepAliveTime);
 
             return row;
         }
@@ -142,7 +161,11 @@ namespace Monik.Service
                 Tags = eventLog.Lg.Tags
             };
 
+            _timing.Begin();
+
             _repository.CreateLog(row);
+
+            _timing.EndAndMeasure(WriteLogTime);
 
             return row;
         }

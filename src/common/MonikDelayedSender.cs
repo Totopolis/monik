@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,6 +33,24 @@ namespace Monik.Common
             Task.Delay(2000).Wait();
         }
 
+        private void FillMeasures(KeyValuePair<string, double>[] measures,
+            AggregationType aggregation)
+        {
+            foreach (var measure in measures)
+            {
+                Event msg = NewEvent();
+
+                msg.Mc = new Common.Metric()
+                {
+                    Name = measure.Key,
+                    Aggregation = aggregation,
+                    Value = measure.Value
+                };
+
+                _msgQueue.Enqueue(msg);
+            }//for
+        }
+
         private void OnSenderTask()
         {
             while (!_senderCancellationTokenSource.IsCancellationRequested)
@@ -43,8 +62,18 @@ namespace Monik.Common
 
                 try
                 {
-                    if (_msgQueue.IsEmpty)
+                    if (_msgQueue.IsEmpty && _intermediateMeasures_Accum.IsEmpty)
                         continue;
+
+                    var measures = _intermediateMeasures_Accum.ToArray();
+                    _intermediateMeasures_Accum.Clear();
+
+                    FillMeasures(measures, AggregationType.Accumulator);
+
+                    measures = _intermediateMeasures_Gauge.ToArray();
+                    _intermediateMeasures_Gauge.Clear();
+
+                    FillMeasures(measures, AggregationType.Gauge);
 
                     OnSend(_msgQueue);
                 }
@@ -63,7 +92,9 @@ namespace Monik.Common
 
         protected override void OnNewMessage(Event msg)
         {
-            _msgQueue.Enqueue(msg);
+            if (msg != null)
+                _msgQueue.Enqueue(msg);
+
             _newMessageEvent.Set();
         }
     }//end of class

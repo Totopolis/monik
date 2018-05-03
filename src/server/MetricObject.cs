@@ -92,6 +92,8 @@ namespace Monik.Service
             }
         }
 
+        // TODO: lock sections
+
         public void BackgroundIntervalPush()
         {
             var curInterval = GetCurrentIntervalEnd();

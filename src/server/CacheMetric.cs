@@ -63,7 +63,7 @@ namespace Monik.Service
                 metObj.Load(metId);
 
                 var instance = _sourceCache.GetInstanceById(metObj.Dto.InstanceID);
-                instance.Metrics.Add(metObj.Dto.Name, metObj);
+                instance.Metrics.TryAdd(metObj.Dto.Name, metObj);
 
                 _metrics.Add(metObj);
             }
@@ -91,25 +91,27 @@ namespace Monik.Service
         public void OnNewMeasure(Instance instance, Event metric)
         {
             var metName = metric.Mc.Name;
+            var metDic = instance.Metrics;
 
-            var metObj = instance.Metrics.ContainsKey(metName) ?
-                instance.Metrics[metName] : null;
-
-            // TODO: if (metricObj != null && metricObj.Aggregation != metric.Mc.Aggregation)
-            // then recreate
-
-            if (metObj == null)
+            if (!metDic.TryGetValue(metName, out var metObj))
             {
                 metObj = _autofac.Resolve<IMetricObject>();
+
+                // TODO: lock section (safe repository by create metric and measures)
 
                 metObj.CreateNew(
                     metName,
                     (int)metric.Mc.Aggregation,
                     instance);
 
-                instance.Metrics.Add(metName, metObj);
+                metDic.TryAdd(metName, metObj);
+                // TODO: what if false? may be already added?
+
                 _metrics.Add(metObj);
             }
+
+            // TODO: if (metricObj != null && metricObj.Aggregation != metric.Mc.Aggregation)
+            // then recreate
 
             metObj.OnNewMeasure(metric);
         }

@@ -143,7 +143,19 @@ namespace Monik.Service
             var firstId = (long)MappedCommand.InsertAndGetId(_settings.DbConnectionString,
                 "mon.Measure", measures[0], "ID");
 
-            measures.WriteToServer(_settings.DbConnectionString, "mon.Measure");
+            string fillScript = @"DECLARE @i int = 0;
+
+WHILE @i <= 3999 -- insert n rows.  change this value to whatever you want.
+BEGIN
+
+insert [mon].[Measure] values (0)
+SET @i = @i + 1;
+
+END";
+
+            SimpleCommand.ExecuteNonQuery(_settings.DbConnectionString, fillScript);
+
+            // measures.WriteToServer(_settings.DbConnectionString, "mon.Measure");
 
             var met = new Metric_
             {
@@ -152,7 +164,7 @@ namespace Monik.Service
                 InstanceID = instanceId,
 
                 RangeHeadID = firstId,
-                RangeTailID = firstId + 3999,
+                RangeTailID = firstId + 4000,
 
                 ActualInterval = DateTime.UtcNow.RoundUp(TimeSpan.FromMinutes(5)),
                 ActualID = firstId

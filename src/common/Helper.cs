@@ -64,17 +64,17 @@ namespace Monik.Common
     public class TimingHelper
     {
         private DateTime _from;
-        private readonly IMonik _control;
+        private readonly IMonik _monik;
 
         private TimingHelper(IMonik aControl)
         {
             _from = DateTime.Now;
-            _control = aControl;
+            _monik = aControl;
         }
 
-        public static TimingHelper Create(IMonik aControl)
+        public static TimingHelper Create(IMonik monik)
         {
-            return new TimingHelper(aControl);
+            return new TimingHelper(monik);
         }
 
         public void Begin()
@@ -82,10 +82,16 @@ namespace Monik.Common
             _from = DateTime.Now;
         }
 
-        public void EndAndLog([CallerMemberName] string aSource = "")
+        public void EndAndLog([CallerMemberName] string sourceName = "")
         {
             var delta = DateTime.Now - _from;
-            _control.ApplicationInfo("{0} execution time: {1}ms", aSource, delta.TotalMilliseconds);
+            _monik.ApplicationInfo("{0} execution time: {1}ms", sourceName, delta.TotalMilliseconds);
+        }
+
+        public void EndAndMeasure(string metricName)
+        {
+            var delta = DateTime.Now - _from;
+            _monik.Measure(metricName, AggregationType.Gauge, delta.TotalMilliseconds);
         }
     }//end of class
 }

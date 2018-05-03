@@ -15,6 +15,9 @@ namespace Monik.Common
             _sourceName = sourceName;
             _instanceName = instanceName;
             _keepAliveInterval = keepAliveInterval;
+
+            _intermediateMeasures_Accum = new ConcurrentDictionary<string, double>();
+            _intermediateMeasures_Gauge = new ConcurrentDictionary<string, double>();
         }
 
         public abstract void OnStop();
@@ -85,14 +88,20 @@ namespace Monik.Common
         public void SecurityError(string body, params object[] parameters) => PrepareLogMessageAndRaise(body, LevelType.Security, SeverityType.Error, parameters);
         public void SecurityFatal(string body, params object[] parameters) => PrepareLogMessageAndRaise(body, LevelType.Security, SeverityType.Fatal, parameters);
 
+        protected ConcurrentDictionary<string, double> _intermediateMeasures_Accum;
+        protected ConcurrentDictionary<string, double> _intermediateMeasures_Gauge;
+
         public void Measure(string metricName, AggregationType aggregate, double value)
         {
-            Event msg = NewEvent();
-            msg.Mc = new Common.Metric() { Name = metricName, Aggregation = aggregate, Value = value };
+            if (aggregate == AggregationType.Accumulator)
+                _intermediateMeasures_Accum.AddOrUpdate(metricName, value,
+                    (key, existingVal) => existingVal + value);
 
-            // TODO: pre aggregate values there in SendDelay window
+            if (aggregate == AggregationType.Gauge)
+                _intermediateMeasures_Gauge.AddOrUpdate(metricName, value,
+                    (key, existingVal) => (existingVal + value) / 2);
 
-            OnNewMessage(msg);
+            OnNewMessage(null);
         }
     }//end of class
 }

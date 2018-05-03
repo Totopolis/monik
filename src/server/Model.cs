@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace Monik.Service
 {
@@ -32,7 +33,7 @@ namespace Monik.Service
             FSourceRef = aSrc;
         }
 
-        public readonly Dictionary<string, IMetricObject> Metrics = new Dictionary<string, IMetricObject>();
+        public readonly ConcurrentDictionary<string, IMetricObject> Metrics = new ConcurrentDictionary<string, IMetricObject>();
     }
 
     public class Group
