@@ -39,7 +39,7 @@ namespace Monik.Service
             container.Resolve<IMessageProcessor>().OnStart();
             container.Resolve<IMessagePump>().OnStart();
 
-#if (EMULATOR)
+#if (EMULATOR1)
             container.Resolve<MessageEmulator>().OnStart();
 #endif
         }
@@ -47,19 +47,25 @@ namespace Monik.Service
         // Raise at NancyHostHolder.Stop() when service shutdown
         public void OnApplicationStop()
         {
-#if (EMULATOR)
+#if (EMULATOR1)
             Singleton.Resolve<MessageEmulator>().OnStop();
 #endif
             Singleton.Resolve<IMonik>().OnStop();
             Singleton.Resolve<IMessagePump>().OnStop();
             Singleton.Resolve<IMessageProcessor>().OnStop();
+
+            Singleton.Resolve<ICacheMetric>().OnStop();
+            Singleton.Resolve<ICacheKeepAlive>().OnStop();
+            Singleton.Resolve<ICacheLog>().OnStop();
+            Singleton.Resolve<ISourceInstanceCache>().OnStop();
+            Singleton.Resolve<IMonikServiceSettings>().OnStop();
         }
 
         protected override void ConfigureApplicationContainer(ILifetimeScope existingContainer)
         {
             existingContainer.RegisterSingleton<IMonikServiceSettings, MonikServiceSettings>();
 
-#if (EMULATOR)
+#if (EMULATOR1)
             // Stub have internal state !
             existingContainer.RegisterSingleton<IRepository, RepositoryStub>();
 #else
@@ -80,7 +86,7 @@ namespace Monik.Service
 
             existingContainer.Update(builder => builder.Register(c => existingContainer));
 
-#if (EMULATOR)
+#if (EMULATOR1)
             existingContainer.Update(builder => builder.RegisterType<MessageEmulator>());
 #endif
         }

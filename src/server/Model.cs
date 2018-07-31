@@ -94,6 +94,12 @@ namespace Monik.Service
         public double Value { get; set; }
     }
 
+    public class WindowResponse
+    {
+        public int MetricId { get; set; }
+        public double Value { get; set; }
+    }
+
     public class KeepAliveStatus
     {
         public short SourceID { get; set; }

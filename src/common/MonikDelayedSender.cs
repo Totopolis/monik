@@ -33,6 +33,8 @@ namespace Monik.Common
             Task.Delay(2000).Wait();
         }
 
+        // TODO: MAX/MIN aggregation type ?
+
         private void FillMeasures(KeyValuePair<string, double>[] measures,
             AggregationType aggregation)
         {

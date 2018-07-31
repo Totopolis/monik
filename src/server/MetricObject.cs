@@ -20,6 +20,9 @@ namespace Monik.Service
 
         public Metric_ Dto => _dto;
 
+        private readonly LinkedList<double> _last300SecQueue;
+        private double _last300SecAccum;
+
         public MetricObject(IMonik monik, IRepository repository)
         {
             _monik = monik;
@@ -27,6 +30,11 @@ namespace Monik.Service
 
             _dto = null;
             _measures = null;
+
+            var arr = Enumerable.Range(1, 300).Select(x => (double)0);
+            _last300SecQueue = new LinkedList<double>(arr);
+
+            _last300SecAccum = 0;
         }
 
         public MeasureResponse GetCurrentMeasure()
@@ -39,6 +47,15 @@ namespace Monik.Service
                 MetricId = _dto.ID,
                 Interval = _dto.ActualInterval,
                 Value = actualMeasure.Value
+            };
+        }
+
+        public WindowResponse GetWindow()
+        {
+            return new WindowResponse
+            {
+                MetricId = _dto.ID,
+                Value = _last300SecAccum / 300
             };
         }
 
@@ -81,10 +98,20 @@ namespace Monik.Service
             {
                 case AggregationType.Accumulator:
                     actualMeasure.Value += metric.Mc.Value;
+
+                    // lock
+                    _last300SecQueue.First.Value += metric.Mc.Value;
+                    _last300SecAccum += metric.Mc.Value;
                     break;
+
                 case AggregationType.Gauge:
                     actualMeasure.Value = (actualMeasure.Value + metric.Mc.Value) / 2;
+
+                    // ATTENTION: будут половиниться
+                    _last300SecQueue.First.Value = (_last300SecQueue.First.Value + metric.Mc.Value) / 2;
+                    _last300SecAccum = (_last300SecAccum + metric.Mc.Value) / 2;
                     break;
+
                 default:
                     // skip event
                     // increase skip metric
@@ -109,6 +136,10 @@ namespace Monik.Service
                 _dto.ActualID = _dto.ActualID == _dto.RangeTailID ?
                     _dto.RangeHeadID :
                     (_dto.ActualID + 1);
+
+                // TODO: cleanup next current interval !!!!
+                var actualMeasure = GetMeasure(_dto.ActualID);
+                actualMeasure.Value = 0;
             }
 
             if (_intervalsToSave.Count > 0)
@@ -119,6 +150,18 @@ namespace Monik.Service
 
                 _repository.SaveMetric(_dto, measures);
             }
+        }
+
+        public void BackgroundSecondPush()
+        {
+            // TODO: lock
+
+            var tmp = _last300SecQueue.Last.Value;
+            _last300SecQueue.RemoveLast();
+
+            _last300SecAccum -= tmp;
+
+            _last300SecQueue.AddFirst(0);
         }
 
         public void OnStart()

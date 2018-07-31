@@ -14,7 +14,8 @@ namespace Monik.Service
         private readonly ISourceInstanceCache _sourceCache;
         private readonly IMonik _monik;
 
-        private readonly Scheduler _sheduler;
+        private readonly Scheduler _shedulerPerMin;
+        private readonly Scheduler _shedulerPerSec;
         private readonly ConcurrentBag<IMetricObject> _metrics;
 
         public CacheMetric(IRepository repository, ILifetimeScope autofac,
@@ -25,7 +26,12 @@ namespace Monik.Service
             _sourceCache = sourceCache;
             _monik = monik;
 
-            _sheduler = Scheduler.CreatePerMinute(monik, this.BackgroundIntervalPush, "CacheMetric.BackgroundIntervalPush");
+            _shedulerPerMin = Scheduler.CreatePerMinute(monik, 
+                this.BackgroundIntervalPush, "CacheMetric.BackgroundIntervalPush");
+
+            _shedulerPerSec = Scheduler.CreatePerSecond(monik,
+                this.BackgroundSecondPush, "CacheMetric.BackgroundSecondPush");
+
             _metrics = new ConcurrentBag<IMetricObject>();
 
             _monik.ApplicationVerbose("CacheMetric.ctor");
@@ -50,6 +56,12 @@ namespace Monik.Service
             return measures.ToArray();
         }
 
+        public WindowResponse[] GetAllWindowsMeasures()
+        {
+            var windows = _metrics.Select(x => x.GetWindow());
+            return windows.ToArray();
+        }
+
         public void OnStart()
         {
             _monik.ApplicationVerbose("CacheMetric.OnStart");
@@ -71,12 +83,14 @@ namespace Monik.Service
             foreach (var mo in _metrics.ToArray())
                 mo.OnStart();
 
-            _sheduler.OnStart();
+            _shedulerPerMin.OnStart();
+            _shedulerPerSec.OnStart();
         }
 
         public void OnStop()
         {
-            _sheduler.OnStop();
+            _shedulerPerSec.OnStop();
+            _shedulerPerMin.OnStop();
 
             foreach (var mo in _metrics.ToArray())
                 mo.OnStop();
@@ -86,6 +100,12 @@ namespace Monik.Service
         {
             foreach (var mo in _metrics.ToArray())
                 mo.BackgroundIntervalPush();
+        }
+
+        private void BackgroundSecondPush()
+        {
+            foreach (var mo in _metrics.ToArray())
+                mo.BackgroundSecondPush();
         }
 
         public void OnNewMeasure(Instance instance, Event metric)

@@ -106,7 +106,7 @@ namespace Monik.Service
                             DisplayName = inst.SourceRef().Name + "." + inst.Name,
                             Created = ka.Created,
                             Received = ka.Received,
-                            StatusOK = (DateTime.UtcNow - ka.Created).TotalSeconds < 120 // in seconds
+                            StatusOK = (DateTime.UtcNow - ka.Created).TotalSeconds < 180 // in seconds
                                                                                          // TODO: use param or default value for delta seconds
                         };
 
@@ -162,6 +162,20 @@ namespace Monik.Service
                 catch (Exception ex)
                 {
                     monik.ApplicationError($"Method /metrics/id/current : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
+            };
+
+            Get["/metrics/windows"] = args =>
+            {
+                try
+                {
+                    var result = cacheMetric.GetAllWindowsMeasures();
+                    return Response.AsJson(result);
+                }
+                catch (Exception ex)
+                {
+                    monik.ApplicationError($"Method /metrics/currents : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
             };

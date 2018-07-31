@@ -112,6 +112,7 @@ namespace Monik.Service
         Metric_[] GetMetricsDescriptions();
         MeasureResponse GetCurrentMeasure(int metricId);
         MeasureResponse[] GetAllCurrentMeasures();
+        WindowResponse[] GetAllWindowsMeasures();
     }
 
     public interface IMessagePump : IObject
@@ -129,6 +130,7 @@ namespace Monik.Service
         Metric_ Dto { get; }
 
         MeasureResponse GetCurrentMeasure();
+        WindowResponse GetWindow();
 
         void CreateNew(string name, int aggregation, Instance instance);
         void Load(int metricId);
@@ -136,5 +138,6 @@ namespace Monik.Service
         void OnNewMeasure(Event metric);
 
         void BackgroundIntervalPush();
+        void BackgroundSecondPush();
     }
 }

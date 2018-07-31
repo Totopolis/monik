@@ -11,6 +11,7 @@ namespace Monik.Common
 
         public enum IntervalType
         {
+            Second,
             Minute,
             Hour,
             Day
@@ -31,7 +32,7 @@ namespace Monik.Common
 
         public void OnStart()
         {
-            Runner(DateTime.Now.AddSeconds(1));
+            Runner(DateTime.Now.AddMilliseconds(500));
         }
 
         public void OnStop()
@@ -39,16 +40,18 @@ namespace Monik.Common
             Cancellation.Cancel();
         }
 
-        private DateTime GetNextDate(DateTime aDate)
+        private DateTime GetNextDate(DateTime date)
         {
             switch (Interval)
             {
+                case IntervalType.Second:
+                    return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second).AddSeconds(1);
                 case IntervalType.Minute:
-                    return new DateTime(aDate.Year, aDate.Month, aDate.Day, aDate.Hour, aDate.Minute, 0).AddMinutes(1);
+                    return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, 0).AddMinutes(1);
                 case IntervalType.Hour:
-                    return new DateTime(aDate.Year, aDate.Month, aDate.Day, aDate.Hour, 0, 0).AddHours(1);
+                    return new DateTime(date.Year, date.Month, date.Day, date.Hour, 0, 0).AddHours(1);
                 case IntervalType.Day:
-                    return new DateTime(aDate.Year, aDate.Month, aDate.Day).AddDays(1);
+                    return new DateTime(date.Year, date.Month, date.Day).AddDays(1);
                 default:
                     throw new NotImplementedException();
             }
@@ -67,7 +70,7 @@ namespace Monik.Common
             }
 
             // for deviation
-            ts = ts.Add(TimeSpan.FromSeconds(1));
+            ts = ts.Add(TimeSpan.FromMilliseconds(500));
             //M.ApplicationInfo("Scheduler {0} delay: {1}ms", _name, ts.TotalMilliseconds);
 
             //waits certn time and run the code, in meantime yuo can cancel the task at any time
@@ -96,6 +99,12 @@ namespace Monik.Common
         public static Scheduler CreatePerMinute(IMonik monik, Action work, string name)
         {
             Scheduler result = new Scheduler(monik, work, IntervalType.Minute, name);
+            return result;
+        }
+
+        public static Scheduler CreatePerSecond(IMonik monik, Action work, string name)
+        {
+            Scheduler result = new Scheduler(monik, work, IntervalType.Second, name);
             return result;
         }
 

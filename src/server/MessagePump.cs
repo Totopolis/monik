@@ -18,8 +18,8 @@ namespace Monik.Service
 
     public class MessagePump : IMessagePump
     {
-        private const int DelayOnException = 1000; //in ms
-        private const int DelayOnProcess = 1000; //in ms
+        private const int DelayOnException = 500; //in ms
+        private const int DelayOnProcess = 500; //in ms
 
         private readonly IRepository _repository;
         private readonly ISourceInstanceCache _cache;
@@ -127,7 +127,8 @@ namespace Monik.Service
 
         private void InitializeServiceBus(ActiveQueue active)
         {
-            active.AzureQueue = QueueClient.CreateFromConnectionString(active.Config.ConnectionString, active.Config.QueueName);
+            active.AzureQueue = QueueClient.
+                CreateFromConnectionString(active.Config.ConnectionString, active.Config.QueueName);
 
             active.AzureQueue.OnMessage(message =>
             {
