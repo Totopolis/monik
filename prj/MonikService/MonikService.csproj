@@ -157,6 +157,9 @@
     <Compile Include="..\..\src\server\Settings.cs">
       <Link>server\Settings.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\server\WindowCalculator.cs">
+      <Link>server\WindowCalculator.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\test\MessageEmulator.cs">
       <Link>test\MessageEmulator.cs</Link>
     </Compile>

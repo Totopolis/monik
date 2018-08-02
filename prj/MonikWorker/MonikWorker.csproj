@@ -178,6 +178,9 @@
     <Compile Include="..\..\src\server\Settings.cs">
       <Link>Core\Settings.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\server\WindowCalculator.cs">
+      <Link>Core\WindowCalculator.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\server\WorkerRole.cs">
       <Link>WorkerRole.cs</Link>
     </Compile>
