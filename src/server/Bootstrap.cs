@@ -5,6 +5,7 @@ using Monik.Service.Test;
 using Autofac;
 using Monik.Common;
 using Nancy;
+using Nancy.Json;
 using Nancy.Bootstrapper;
 using Nancy.Bootstrappers.Autofac;
 
@@ -26,9 +27,9 @@ namespace Monik.Service
             // No registrations should be performed in here, however you may
             // resolve things that are needed during application startup.
 
-            Nancy.Json.JsonSettings.MaxJsonLength = int.MaxValue;
-            Nancy.Json.JsonSettings.MaxRecursions = 100;
-            Nancy.Json.JsonSettings.RetainCasing = true;
+            JsonSettings.MaxJsonLength = int.MaxValue;
+            JsonSettings.MaxRecursions = 100;
+            JsonSettings.RetainCasing = true;
 
             container.Resolve<IMonikServiceSettings>().OnStart();
             container.Resolve<ISourceInstanceCache>().OnStart();
