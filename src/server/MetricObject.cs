@@ -154,7 +154,8 @@ namespace Monik.Service
 
         public void BackgroundSecondPush()
         {
-            window.OnNextSecond();
+            if (window != null)
+                window.OnNextSecond();
         }
 
         public void OnStart()

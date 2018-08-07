@@ -80,9 +80,9 @@ namespace Monik.Common
                 {
                     _action();
                 }
-                catch (Exception ex)
+                catch //(Exception ex)
                 {
-                    _monik.ApplicationError($"Scheduler {_name} exception: {ex.Message}");
+                    //_monik.ApplicationError($"Scheduler {_name} exception: {ex.Message}");
                 }
 
                 Runner(GetNextDate(date));
