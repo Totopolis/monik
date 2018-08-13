@@ -47,15 +47,19 @@ namespace Monik.Service
 
         public void OnNextSecond()
         {
-            var last = queue.Last.Value;
-
-            if (last.HasValue)
+            if (queue.Count != 0)
             {
-                accum -= last.Value;
-                counter--;
+                var last = queue.Last.Value;
+
+                if (last.HasValue)
+                {
+                    accum -= last.Value;
+                    counter--;
+                }
+
+                queue.RemoveLast();
             }
 
-            queue.RemoveLast();
             queue.AddFirst((double?)null);
         }
 
@@ -83,11 +87,14 @@ namespace Monik.Service
 
         public void OnNextSecond()
         {
-            var last = queue.Last.Value;
+            if (queue.Count != 0)
+            {
+                var last = queue.Last.Value;
 
-            queue.RemoveLast();
+                queue.RemoveLast();
 
-            accum -= last;
+                accum -= last;
+            }
 
             queue.AddFirst((double)0);
         }
