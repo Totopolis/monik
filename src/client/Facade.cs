@@ -24,6 +24,11 @@ namespace Monik.Client
             _instance?.OnStop();
         }
 
+        public static void Measure(string metricName, AggregationType aggregate, double value)
+        {
+            _instance?.Measure(metricName, aggregate, value);
+        }
+
         public static void KeepAlive()
         {
             _instance?.KeepAlive();
