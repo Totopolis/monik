@@ -1,8 +1,9 @@
 # Monik
-Backend and client libraries to collect and process messages: logs, performance counters and keep-alive statuses. 
+Backend and client libraries to collect and process messages: logs, metrics (performance counters) and keep-alive statuses. 
+System can operate with Azure Queue or RabbitMQ for messages exchange.
 
-## Setup backend (Azure Cloud Service)
-1. Prepare Service Bus namespace and queue
+## Setup backend
+1. Prepare Azure Service Bus namespace and queue
 2. Prepare SQL Database and execute src/common/db.sql
 3. Fill ServiceConfiguration files in MonikCloud project
 4. Deploy service
@@ -31,11 +32,11 @@ M.SecurityInfo("User John log in");
 M.ApplicationError("Some error in application");
 M.LogicInfo($"{processName} completed, processid={processId}");
 ```
-## Methodology (todo):
+## Methodology:
 0. SecurityVerbose:
 1. SecurityInfo: user XX log-in or log-out
-2. SecurityWarning: user XX bad password
-3. SecurityError: domain not accessible
+2. SecurityWarning: user XX bad username or password
+3. SecurityError: domain or service not accessible
 4. ApplicationVerbose: debug and trace
 5. ApplicationInfo: 
 6. ApplicationWarning: service start or shutdown
@@ -43,4 +44,4 @@ M.LogicInfo($"{processName} completed, processid={processId}");
 8. LogicVerbose:
 9. LogicInfo: something calculated
 10. LogicWarning: user request's bad params (for the service)
-11. LogicError:
+11. LogicError: logic violation
