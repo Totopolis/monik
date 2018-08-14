@@ -27,40 +27,46 @@ namespace Monik.Service
 
         public void OnNewValue(double value)
         {
-            if (!queue.First.Value.HasValue)
+            lock (this)
             {
-                counter++;
-                queue.First.Value = value;
-                accum += value;
-            }
-            else
-            {
-                double prevValue = queue.First.Value.Value;
-                double newValue = (prevValue + value) / 2;
+                if (!queue.First.Value.HasValue)
+                {
+                    counter++;
+                    queue.First.Value = value;
+                    accum += value;
+                }
+                else
+                {
+                    double prevValue = queue.First.Value.Value;
+                    double newValue = (prevValue + value) / 2;
 
-                queue.First.Value += newValue;
+                    queue.First.Value += newValue;
 
-                accum -= prevValue;
-                accum += newValue;
-            }
+                    accum -= prevValue;
+                    accum += newValue;
+                }
+            }//lock
         }
 
         public void OnNextSecond()
         {
-            if (queue.Count != 0)
+            lock (this)
             {
-                var last = queue.Last.Value;
-
-                if (last.HasValue)
+                if (queue.Count != 0)
                 {
-                    accum -= last.Value;
-                    counter--;
+                    var last = queue.Last.Value;
+
+                    if (last.HasValue)
+                    {
+                        accum -= last.Value;
+                        counter--;
+                    }
+
+                    queue.RemoveLast();
                 }
 
-                queue.RemoveLast();
-            }
-
-            queue.AddFirst((double?)null);
+                queue.AddFirst((double?)null);
+            }//lock
         }
 
         public double GetValue() => counter == 0 ? 0 : (accum / counter);
@@ -81,22 +87,28 @@ namespace Monik.Service
 
         public void OnNewValue(double value)
         {
-            queue.First.Value += value;
-            accum += value;
+            lock (this)
+            {
+                queue.First.Value += value;
+                accum += value;
+            }
         }
 
         public void OnNextSecond()
         {
-            if (queue.Count != 0)
+            lock (this)
             {
-                var last = queue.Last.Value;
+                if (queue.Count != 0)
+                {
+                    var last = queue.Last.Value;
 
-                queue.RemoveLast();
+                    queue.RemoveLast();
 
-                accum -= last;
-            }
+                    accum -= last;
+                }
 
-            queue.AddFirst((double)0);
+                queue.AddFirst((double)0);
+            }//lock
         }
 
         public double GetValue() => accum;

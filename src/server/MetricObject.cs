@@ -35,15 +35,18 @@ namespace Monik.Service
 
         public MeasureResponse GetCurrentMeasure()
         {
-            var actualIndx = _dto.ActualID - _dto.RangeHeadID;
-            var actualMeasure = _measures[actualIndx];
-
-            return new MeasureResponse
+            lock (this)
             {
-                MetricId = _dto.ID,
-                Interval = _dto.ActualInterval,
-                Value = actualMeasure.Value
-            };
+                var actualIndx = _dto.ActualID - _dto.RangeHeadID;
+                var actualMeasure = _measures[actualIndx];
+
+                return new MeasureResponse
+                {
+                    MetricId = _dto.ID,
+                    Interval = _dto.ActualInterval,
+                    Value = actualMeasure.Value
+                };
+            }
         }
 
         public WindowResponse GetWindow()
@@ -77,49 +80,50 @@ namespace Monik.Service
         {
             var metTime = Helper.FromMillisecondsSinceUnixEpoch(metric.Created);
 
-            var actualIntervalEnd = _dto.ActualInterval;
-            var actualIntervalStart = _dto.ActualInterval.AddMinutes(-5);
-            
-            if (metTime < actualIntervalStart || metTime >= actualIntervalEnd)
+            lock (this)
             {
-                // skip event
-                // increase skip metric
+                var actualIntervalEnd = _dto.ActualInterval;
+                var actualIntervalStart = _dto.ActualInterval.AddMinutes(-5);
 
-                return;
-            }
-
-            var actualMeasure = GetMeasure(_dto.ActualID);
-
-            switch (metric.Mc.Aggregation)
-            {
-                case AggregationType.Accumulator:
-                    actualMeasure.Value += metric.Mc.Value;
-
-                    AccumWindowCalculator accWin = window as AccumWindowCalculator;
-                    if (accWin == null)
-                        window = new AccumWindowCalculator();
-
-                    window.OnNewValue(metric.Mc.Value);
-                    break;
-
-                case AggregationType.Gauge:
-                    actualMeasure.Value = (actualMeasure.Value + metric.Mc.Value) / 2;
-
-                    GaugeWindowCalculator gauWin = window as GaugeWindowCalculator;
-                    if (gauWin == null)
-                        window = new AccumWindowCalculator();
-
-                    window.OnNewValue(metric.Mc.Value);
-                    break;
-
-                default:
+                if (metTime < actualIntervalStart || metTime >= actualIntervalEnd)
+                {
                     // skip event
                     // increase skip metric
-                    break;
-            }
-        }
 
-        // TODO: lock sections
+                    return;
+                }
+
+                var actualMeasure = GetMeasure(_dto.ActualID);
+
+                switch (metric.Mc.Aggregation)
+                {
+                    case AggregationType.Accumulator:
+                        actualMeasure.Value += metric.Mc.Value;
+
+                        AccumWindowCalculator accWin = window as AccumWindowCalculator;
+                        if (accWin == null)
+                            window = new AccumWindowCalculator();
+
+                        window.OnNewValue(metric.Mc.Value);
+                        break;
+
+                    case AggregationType.Gauge:
+                        actualMeasure.Value = (actualMeasure.Value + metric.Mc.Value) / 2;
+
+                        GaugeWindowCalculator gauWin = window as GaugeWindowCalculator;
+                        if (gauWin == null)
+                            window = new AccumWindowCalculator();
+
+                        window.OnNewValue(metric.Mc.Value);
+                        break;
+
+                    default:
+                        // skip event
+                        // increase skip metric
+                        break;
+                }
+            }//lock
+        }
 
         public void BackgroundIntervalPush()
         {
@@ -127,29 +131,32 @@ namespace Monik.Service
 
             List<long> _intervalsToSave = new List<long>();
 
-            while (curInterval > _dto.ActualInterval)
+            lock (this)
             {
-                _dto.ActualInterval += TimeSpan.FromMinutes(5);
+                while (curInterval > _dto.ActualInterval)
+                {
+                    _dto.ActualInterval += TimeSpan.FromMinutes(5);
 
-                _intervalsToSave.Add(_dto.ActualID);
+                    _intervalsToSave.Add(_dto.ActualID);
 
-                _dto.ActualID = _dto.ActualID == _dto.RangeTailID ?
-                    _dto.RangeHeadID :
-                    (_dto.ActualID + 1);
+                    _dto.ActualID = _dto.ActualID == _dto.RangeTailID ?
+                        _dto.RangeHeadID :
+                        (_dto.ActualID + 1);
 
-                // cleanup next current interval !!!!
-                var actualMeasure = GetMeasure(_dto.ActualID);
-                actualMeasure.Value = 0;
-            }
+                    // cleanup next current interval !!!!
+                    var actualMeasure = GetMeasure(_dto.ActualID);
+                    actualMeasure.Value = 0;
+                }
 
-            if (_intervalsToSave.Count > 0)
-            {
-                var measures = _intervalsToSave
-                    .Select(x => GetMeasure(x))
-                    .ToArray();
+                if (_intervalsToSave.Count > 0)
+                {
+                    var measures = _intervalsToSave
+                        .Select(x => GetMeasure(x))
+                        .ToArray();
 
-                _repository.SaveMetric(_dto, measures);
-            }
+                    _repository.SaveMetric(_dto, measures);
+                }
+            }//lock
         }
 
         public void BackgroundSecondPush()
