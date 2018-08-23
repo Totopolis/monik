@@ -70,7 +70,7 @@ namespace Monik.Common
             }
 
             // for deviation
-            ts = ts.Add(TimeSpan.FromMilliseconds(500));
+            ts = ts.Add(TimeSpan.FromMilliseconds(100));
             //M.ApplicationInfo("Scheduler {0} delay: {1}ms", _name, ts.TotalMilliseconds);
 
             //waits certn time and run the code, in meantime yuo can cancel the task at any time

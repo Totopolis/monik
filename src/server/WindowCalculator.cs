@@ -94,6 +94,8 @@ namespace Monik.Service
             }
         }
 
+        // TODO: remove skipped seconds
+
         public void OnNextSecond()
         {
             lock (this)
@@ -111,6 +113,10 @@ namespace Monik.Service
             }//lock
         }
 
-        public double GetValue() => accum;
+        public double GetValue()
+        {
+            lock (this)
+                return accum;
+        }
     }//end of class
 }

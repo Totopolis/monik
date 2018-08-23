@@ -89,6 +89,7 @@ namespace Monik.Service
                 {
                     // skip event
                     // increase skip metric
+                    _monik.Measure("OutTimeMeasure", AggregationType.Accumulator, 1);
 
                     return;
                 }
