@@ -40,7 +40,7 @@ namespace Monik.Service
             container.Resolve<IMessageProcessor>().OnStart();
             container.Resolve<IMessagePump>().OnStart();
 
-#if (EMULATOR1)
+#if (EMULATOR)
             container.Resolve<MessageEmulator>().OnStart();
 #endif
         }
@@ -48,7 +48,7 @@ namespace Monik.Service
         // Raise at NancyHostHolder.Stop() when service shutdown
         public void OnApplicationStop()
         {
-#if (EMULATOR1)
+#if (EMULATOR)
             Singleton.Resolve<MessageEmulator>().OnStop();
 #endif
             Singleton.Resolve<IMonik>().OnStop();
@@ -66,7 +66,7 @@ namespace Monik.Service
         {
             existingContainer.RegisterSingleton<IMonikServiceSettings, MonikServiceSettings>();
 
-#if (EMULATOR1)
+#if (EMULATOR)
             // Stub have internal state !
             existingContainer.RegisterSingleton<IRepository, RepositoryStub>();
 #else
@@ -87,7 +87,7 @@ namespace Monik.Service
 
             existingContainer.Update(builder => builder.Register(c => existingContainer));
 
-#if (EMULATOR1)
+#if (EMULATOR)
             existingContainer.Update(builder => builder.RegisterType<MessageEmulator>());
 #endif
         }
