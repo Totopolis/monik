@@ -35,6 +35,8 @@ namespace Monik.Service
             get { return ConfigurationManager.AppSettings["InstanceName"]; }
         }
 
+        public int CleanupBatchSize => int.Parse(ConfigurationManager.AppSettings["CleanupBatchSize"]);
+
         public int DayDeepKeepAlive
         {
             get { return int.Parse(_settings["DayDeepKeepAlive"]); }

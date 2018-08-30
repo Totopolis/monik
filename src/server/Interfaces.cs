@@ -20,6 +20,7 @@ namespace Monik.Service
         string OutcomingQueue { get; }
         int DayDeepLog { get; }
         int DayDeepKeepAlive { get; }
+        int CleanupBatchSize { get; }
     }
 
     public class EventQueue

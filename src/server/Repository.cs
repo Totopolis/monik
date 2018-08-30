@@ -6,6 +6,30 @@ using System.Linq;
 
 namespace Monik.Service
 {
+    internal static class RepositoryHelper
+    {
+        public static int CleanUpInBatches(string connectionString, string tableName, long maxId, int batchSize)
+        {
+            var total = 0;
+            var stopWatch = new System.Diagnostics.Stopwatch();
+            while (true)
+            {
+                stopWatch.Restart();
+                var deleted = SimpleCommand.ExecuteNonQuery(connectionString,
+                    $"delete top ({batchSize}) from {tableName} with (readpast) where ID < @p0", maxId);
+                stopWatch.Stop();
+
+                total += deleted;
+
+                if (deleted > 0)
+                    System.Threading.Tasks.Task.Delay((int)stopWatch.ElapsedMilliseconds).Wait();
+                else
+                    break;
+            }
+            return total;
+        }
+    }
+
     public class Repository : IRepository
     {
         private readonly IMonikServiceSettings _settings;
@@ -103,13 +127,12 @@ namespace Monik.Service
 
         public int CleanUpLog(long lastLog)
         {
-            return SimpleCommand.ExecuteNonQuery(_settings.DbConnectionString, "delete from mon.Log where ID < @p0", lastLog);
+            return RepositoryHelper.CleanUpInBatches(_settings.DbConnectionString, "mon.Log", lastLog, _settings.CleanupBatchSize);
         }
 
         public int CleanUpKeepAlive(long lastKeepAlive)
         {
-            return SimpleCommand.ExecuteNonQuery(_settings.DbConnectionString, "delete from mon.KeepAlive where ID < @p0",
-                lastKeepAlive);
+            return RepositoryHelper.CleanUpInBatches(_settings.DbConnectionString, "mon.KeepAlive", lastKeepAlive, _settings.CleanupBatchSize);
         }
 
         public void CreateHourStat(DateTime hour, long lastLogId, long lastKeepAliveId)
