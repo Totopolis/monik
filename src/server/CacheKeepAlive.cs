@@ -4,29 +4,24 @@ using Monik.Common;
 
 namespace Monik.Service
 {
-    public class CacheKeepAlive : ICacheKeepAlive
+    public class CacheKeepAlive : CacheBase<KeepAlive_>, ICacheKeepAlive
     {
-        private readonly IRepository _repository;
-        private readonly ISourceInstanceCache _cache;
-        private readonly IMonik _monik;
-
         private readonly Dictionary<int, KeepAlive_> _status;
 
         public CacheKeepAlive(IRepository repository, ISourceInstanceCache cache, IMonik monik)
+            : base(repository, cache, monik)
         {
-            _repository = repository;
             _cache = cache;
-            _monik = monik;
-
+            
             _status = new Dictionary<int, KeepAlive_>();
 
             _monik.ApplicationVerbose("CacheKeepAlive created");
         }
 
-        public void OnStart()
+        public override void OnStart()
         {
             // fill from database
-            LastKeepAliveId = _repository.GetMaxKeepAliveId();
+            LastId = _repository.GetMaxKeepAliveId();
 
             List<KeepAlive_> top = _repository.GetLastKeepAlive(1000);
             top.Reverse();
@@ -41,27 +36,9 @@ namespace Monik.Service
             _monik.ApplicationVerbose("CacheKeepAlive started");
         }
 
-        public void OnStop()
+        public override void OnStop()
         {
             // nothing
-        }
-
-        public long LastKeepAliveId { get; private set; }
-
-        public void OnNewKeepAlive(KeepAlive_ keepAlive)
-        {
-            lock (this)
-            {
-                LastKeepAliveId = keepAlive.ID;
-
-                if (_status.ContainsKey(keepAlive.InstanceID))
-                {
-                    if (_status[keepAlive.InstanceID].Created < keepAlive.Created)
-                        _status[keepAlive.InstanceID] = keepAlive;
-                }
-                else
-                    _status.Add(keepAlive.InstanceID, keepAlive);
-            } // TODO: optimize lock
         }
 
         public List<KeepAlive_> GetKeepAlive2(KeepAliveRequest filter)
@@ -95,5 +72,27 @@ namespace Monik.Service
             } // TODO: optimize lock
         }
 
+        public override void Add(KeepAlive_ entity)
+        {
+            base.Add(entity);
+
+            lock (this)
+            {
+                if (_status.ContainsKey(entity.InstanceID))
+                {
+                    if (_status[entity.InstanceID].Created < entity.Created)
+                        _status[entity.InstanceID] = entity;
+                }
+                else
+                    _status.Add(entity.InstanceID, entity);
+            } // TODO: optimize lock
+        }
+
+        protected override void WriteEntites(IEnumerable<KeepAlive_> entities)
+        {
+            _repository.WriteKeepAlives(entities);
+        }
+
+        protected override string WriteTimeMetric => "WriteKeepAliveTime";
     } //end of class
 }

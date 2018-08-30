@@ -36,6 +36,8 @@ namespace Monik.Service
         }
 
         public int CleanupBatchSize => int.Parse(ConfigurationManager.AppSettings["CleanupBatchSize"]);
+        public int WriteBatchSize => int.Parse(ConfigurationManager.AppSettings["WriteBatchSize"]);
+        public int WriteBatchTimeout => int.Parse(ConfigurationManager.AppSettings["WriteBatchTimeout"]);
 
         public int DayDeepKeepAlive
         {

@@ -46,7 +46,7 @@ namespace Monik.Service
         public List<int> Instances { get; set; } = new List<int>();
     }
 
-    public class Log_
+    public class Log_ : ICacheEntity
     {
         public long ID { get; set; }
         public DateTime Created { get; set; }
@@ -59,7 +59,7 @@ namespace Monik.Service
         public string Tags { get; set; }
     }
 
-    public class KeepAlive_
+    public class KeepAlive_ : ICacheEntity
     {
         public long ID { get; set; }
         public DateTime Created { get; set; }

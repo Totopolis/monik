@@ -28,6 +28,13 @@ namespace Monik.Service
             }
             return total;
         }
+
+        public static void WriteInBulk<T>(IEnumerable<T> values, string connectionString, string tableName, int? batchSize = null, int? timeout = null)
+        {
+            values.WriteToServer(
+                new BulkOptions(batchSize, timeout, enableStreaming: true),
+                connectionString, tableName);
+        }
     }
 
     public class Repository : IRepository
@@ -141,15 +148,16 @@ namespace Monik.Service
             MappedCommand.Insert(_settings.DbConnectionString, "[mon].[HourStat]", stat);
         }
 
-        public void CreateKeepAlive(KeepAlive_ keepAlive)
+        public void WriteLogs(IEnumerable<Log_> values)
         {
-            keepAlive.ID =
-                (long)MappedCommand.InsertAndGetId<KeepAlive_>(_settings.DbConnectionString, "[mon].[KeepAlive]", keepAlive, "ID");
+            RepositoryHelper.WriteInBulk(values, _settings.DbConnectionString, "[mon].[Log]",
+                _settings.WriteBatchSize, _settings.WriteBatchTimeout);
         }
 
-        public void CreateLog(Log_ log)
+        public void WriteKeepAlives(IEnumerable<KeepAlive_> values)
         {
-            log.ID = (long)MappedCommand.InsertAndGetId<Log_>(_settings.DbConnectionString, "[mon].[Log]", log, "ID");
+            RepositoryHelper.WriteInBulk(values, _settings.DbConnectionString, "[mon].[KeepAlive]",
+                _settings.WriteBatchSize, _settings.WriteBatchTimeout);
         }
 
         public List<EventQueue> GetEventSources()

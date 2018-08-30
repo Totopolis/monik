@@ -12,14 +12,10 @@ namespace Monik.Service
         private readonly ICacheMetric _cacheMetric;
         private readonly IMonik _monik;
 
-        private readonly TimingHelper _timing;
-
         public const string TotalMessages = "TotalMessages";
         public const string LogCount = "LogCount";
         public const string KeepAliveCount = "KeepAliveCount";
         public const string MeasureCount = "MeasureCount";
-        public const string WriteLogTime = "WriteLogTime";
-        public const string WriteKeepAliveTime = "WriteKeepAliveTime";
 
         public MessageProcessor(IMonikServiceSettings settings, IRepository repository, 
             ICacheLog cacheLog, ICacheKeepAlive cacheKeepAlive, ICacheMetric cacheMetric, 
@@ -31,8 +27,6 @@ namespace Monik.Service
             _cacheKeepAlive = cacheKeepAlive;
             _cacheMetric = cacheMetric;
             _monik = monik;
-
-            _timing = TimingHelper.Create(_monik);
 
             _cleaner = Scheduler.CreatePerHour(_monik, CleanerTask, "cleaner");
             _statist = Scheduler.CreatePerHour(_monik, StatistTask, "statist");
@@ -86,7 +80,7 @@ namespace Monik.Service
                 DateTime now = DateTime.UtcNow;
                 DateTime hs = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0);
 
-                _repository.CreateHourStat(hs, _cacheLog.LastLogId, _cacheKeepAlive.LastKeepAliveId);
+                _repository.CreateHourStat(hs, _cacheLog.LastId, _cacheKeepAlive.LastId);
             }
             catch (Exception ex)
             {
@@ -110,13 +104,13 @@ namespace Monik.Service
                     throw new NotSupportedException("Bad event type");
                 case Event.MsgOneofCase.Ka:
                     _monik.Measure(KeepAliveCount, AggregationType.Accumulator, 1);
-                    var ka = WriteKeepAlive(ev, instance);
-                    _cacheKeepAlive.OnNewKeepAlive(ka);
+                    var ka = CreateKeepAlive(ev, instance);
+                    _cacheKeepAlive.Add(ka);
                     break;
                 case Event.MsgOneofCase.Lg:
                     _monik.Measure(LogCount, AggregationType.Accumulator, 1);
-                    var lg = WriteLog(ev, instance);
-                    _cacheLog.OnNewLog(lg);
+                    var lg = CreateLog(ev, instance);
+                    _cacheLog.Add(lg);
                     break;
                 case Event.MsgOneofCase.Mc:
                     _monik.Measure(MeasureCount, AggregationType.Accumulator, 1);
@@ -127,29 +121,25 @@ namespace Monik.Service
             }
         }
 
-        // TODO: move wrrite repository tO concrete cache and use id generator and bulk insert
-
-        private KeepAlive_ WriteKeepAlive(Event eventLog, Instance instance)
+        public void FinalizeProcessing()
         {
-            KeepAlive_ row = new KeepAlive_()
+            _cacheKeepAlive.Flush();
+            _cacheLog.Flush();
+        }
+
+        private static KeepAlive_ CreateKeepAlive(Event eventLog, Instance instance)
+        {
+            return new KeepAlive_
             {
                 Created = Helper.FromMillisecondsSinceUnixEpoch(eventLog.Created),
                 Received = DateTime.UtcNow,
                 InstanceID = instance.ID
             };
-
-            _timing.Begin();
-
-            _repository.CreateKeepAlive(row);
-
-            _timing.EndAndMeasure(WriteKeepAliveTime);
-
-            return row;
         }
 
-        private Log_ WriteLog(Event eventLog, Instance instance)
+        private static Log_ CreateLog(Event eventLog, Instance instance)
         {
-            Log_ row = new Log_()
+            return new Log_
             {
                 Created = Helper.FromMillisecondsSinceUnixEpoch(eventLog.Created),
                 Received = DateTime.UtcNow,
@@ -160,14 +150,6 @@ namespace Monik.Service
                 Body = eventLog.Lg.Body,
                 Tags = eventLog.Lg.Tags
             };
-
-            _timing.Begin();
-
-            _repository.CreateLog(row);
-
-            _timing.EndAndMeasure(WriteLogTime);
-
-            return row;
         }
     }//end of class
 }

@@ -81,6 +81,8 @@ namespace Monik.Service
                         }
                         // TODO: increase count of ignored messages
                     }
+
+                    _processor.FinalizeProcessing();
                 }
                 catch
                 {
