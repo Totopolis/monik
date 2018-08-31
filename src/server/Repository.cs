@@ -28,6 +28,13 @@ namespace Monik.Service
             }
             return total;
         }
+
+        public static void WriteInBulk<T>(IEnumerable<T> values, string connectionString, string tableName, int? batchSize = null, int? timeout = null)
+        {
+            values.WriteToServer(
+                new BulkOptions(batchSize, timeout, enableStreaming: true),
+                connectionString, tableName);
+        }
     }
 
     public class Repository : IRepository
@@ -41,18 +48,18 @@ namespace Monik.Service
 
         public List<Source> GetAllSources()
         {
-            return SimpleCommand.ExecuteQuery<Source>(_settings.DbConnectionString, "select * from [mon].[Source]").ToList();
+            return SimpleCommand.ExecuteQuery<Source>(_settings.DbConnectionString, "select * from [mon].[Source] with(nolock)").ToList();
         }
 
         public List<Instance> GetAllInstances()
         {
-            return SimpleCommand.ExecuteQuery<Instance>(_settings.DbConnectionString, "select * from [mon].[Instance]").ToList();
+            return SimpleCommand.ExecuteQuery<Instance>(_settings.DbConnectionString, "select * from [mon].[Instance] with(nolock)").ToList();
         }
 
         public List<Group> GetAllGroupsAndFill()
         {
             List<Group> result =
-                SimpleCommand.ExecuteQuery<Group>(_settings.DbConnectionString, "select * from [mon].[Group]").ToList();
+                SimpleCommand.ExecuteQuery<Group>(_settings.DbConnectionString, "select * from [mon].[Group] with(nolock)").ToList();
 
             Dictionary<short, Group> dic = new Dictionary<short, Group>();
             foreach (var it in result)
@@ -60,7 +67,7 @@ namespace Monik.Service
 
             var proto = new { GroupID = default(short), InstanceID = default(int) };
             var grInstances = SimpleCommand.ExecuteQueryAnonymous(proto, _settings.DbConnectionString,
-                "select GroupID, InstanceID from [mon].[GroupInstance]");
+                "select GroupID, InstanceID from [mon].[GroupInstance] with(nolock)");
 
             foreach (var it in grInstances)
                 if (dic.ContainsKey(it.GroupID))
@@ -87,13 +94,13 @@ namespace Monik.Service
 
         public long GetMaxLogId()
         {
-            var result = SimpleCommand.ExecuteScalar(_settings.DbConnectionString, "select max(ID) from [mon].[Log]");
+            var result = SimpleCommand.ExecuteScalar(_settings.DbConnectionString, "select max(ID) from [mon].[Log] with(nolock)");
             return result == System.DBNull.Value ? 0 : (long)result;
         }
 
         public long GetMaxKeepAliveId()
         {
-            var result = SimpleCommand.ExecuteScalar(_settings.DbConnectionString, "select max(ID) from [mon].[KeepAlive]");
+            var result = SimpleCommand.ExecuteScalar(_settings.DbConnectionString, "select max(ID) from [mon].[KeepAlive] with(nolock)");
             return result == System.DBNull.Value ? 0 : (long)result;
         }
 
@@ -101,27 +108,27 @@ namespace Monik.Service
         {
             return
                 SimpleCommand.ExecuteQuery<Log_>(_settings.DbConnectionString,
-                    $"select top {top} * from [mon].[Log] order by ID desc").OrderBy(x => x.ID).ToList();
+                    $"select top {top} * from [mon].[Log] with(nolock) order by ID desc").OrderBy(x => x.ID).ToList();
         }
 
         public List<KeepAlive_> GetLastKeepAlive(int top)
         {
             return
                 SimpleCommand.ExecuteQuery<KeepAlive_>(_settings.DbConnectionString,
-                    $"select top {top} * from [mon].[KeepAlive] order by ID desc").ToList();
+                    $"select top {top} * from [mon].[KeepAlive] with(nolock) order by ID desc").ToList();
         }
 
         public long? GetLogThreshold(int dayDeep)
         {
             var logThreshold = SimpleCommand.ExecuteScalar(_settings.DbConnectionString,
-                "select max(LastLogID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", dayDeep);
+                "select max(LastLogID) from mon.HourStat with(nolock) where Hour < DATEADD(DAY, -@p0, GETDATE())", dayDeep);
             return logThreshold == System.DBNull.Value ? null : (long?)logThreshold;
         }
 
         public long? GetKeepAliveThreshold(int dayDeep)
         {
             var kaThreshold = SimpleCommand.ExecuteScalar(_settings.DbConnectionString,
-                "select max(LastKeepAliveID) from mon.HourStat where Hour < DATEADD(DAY, -@p0, GETDATE())", dayDeep);
+                "select max(LastKeepAliveID) from mon.HourStat with(nolock) where Hour < DATEADD(DAY, -@p0, GETDATE())", dayDeep);
             return kaThreshold == System.DBNull.Value ? null : (long?)kaThreshold;
         }
 
@@ -141,20 +148,21 @@ namespace Monik.Service
             MappedCommand.Insert(_settings.DbConnectionString, "[mon].[HourStat]", stat);
         }
 
-        public void CreateKeepAlive(KeepAlive_ keepAlive)
+        public void WriteLogs(IEnumerable<Log_> values)
         {
-            keepAlive.ID =
-                (long)MappedCommand.InsertAndGetId<KeepAlive_>(_settings.DbConnectionString, "[mon].[KeepAlive]", keepAlive, "ID");
+            RepositoryHelper.WriteInBulk(values, _settings.DbConnectionString, "[mon].[Log]",
+                _settings.WriteBatchSize, _settings.WriteBatchTimeout);
         }
 
-        public void CreateLog(Log_ log)
+        public void WriteKeepAlives(IEnumerable<KeepAlive_> values)
         {
-            log.ID = (long)MappedCommand.InsertAndGetId<Log_>(_settings.DbConnectionString, "[mon].[Log]", log, "ID");
+            RepositoryHelper.WriteInBulk(values, _settings.DbConnectionString, "[mon].[KeepAlive]",
+                _settings.WriteBatchSize, _settings.WriteBatchTimeout);
         }
 
         public List<EventQueue> GetEventSources()
         {
-            return SimpleCommand.ExecuteQuery<EventQueue>(_settings.DbConnectionString, "select * from [mon].[EventQueue]").ToList();
+            return SimpleCommand.ExecuteQuery<EventQueue>(_settings.DbConnectionString, "select * from [mon].[EventQueue] with(nolock)").ToList();
         }
 
         public Metric_ CreateMetric(string name, int aggregation, int instanceId)
@@ -200,7 +208,7 @@ END";
         public Metric_ GetMetric(int metricId)
         {
             var q1 = SimpleCommand.ExecuteQuery<Metric_>(_settings.DbConnectionString,
-                $"select * from mon.Metric where ID={metricId}");
+                $"select * from mon.Metric with(nolock) where ID={metricId}");
 
             return q1.First();
         }
@@ -210,8 +218,8 @@ END";
             var q1 = SimpleCommand.ExecuteQuery<Measure_>(_settings.DbConnectionString,
 $@"
 select meas.*
-from mon.Measure meas
-join mon.Metric met on met.RangeHeadID <= meas.ID and met.RangeTailID >= meas.ID
+from mon.Measure meas with(nolock)
+join mon.Metric met with(nolock) on met.RangeHeadID <= meas.ID and met.RangeTailID >= meas.ID
 where met.ID = {metricId}
 order by meas.ID");
 
@@ -231,7 +239,7 @@ order by meas.ID");
             var proto = new { ID = 0 };
 
             var result = SimpleCommand
-                .ExecuteQueryAnonymous(proto, _settings.DbConnectionString, "select ID from mon.Metric")
+                .ExecuteQueryAnonymous(proto, _settings.DbConnectionString, "select ID from mon.Metric with(nolock)")
                 .Select(x => x.ID);
 
             return result.ToArray();

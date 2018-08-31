@@ -152,6 +152,9 @@
     <Compile Include="..\..\src\server\Bootstrap.cs">
       <Link>server\Bootstrap.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\server\CacheBase.cs">
+      <Link>server\CacheBase.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\server\CacheKeepAlive.cs">
       <Link>server\CacheKeepAlive.cs</Link>
     </Compile>

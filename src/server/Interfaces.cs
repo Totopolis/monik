@@ -20,7 +20,10 @@ namespace Monik.Service
         string OutcomingQueue { get; }
         int DayDeepLog { get; }
         int DayDeepKeepAlive { get; }
+
         int CleanupBatchSize { get; }
+        int WriteBatchSize { get; }
+        int WriteBatchTimeout { get; }
     }
 
     public class EventQueue
@@ -57,8 +60,8 @@ namespace Monik.Service
 
         void CreateHourStat(DateTime hour, long lastLogId, long lastKeepAliveId);
 
-        void CreateKeepAlive(KeepAlive_ keepAlive);
-        void CreateLog(Log_ log);
+        void WriteKeepAlives(IEnumerable<KeepAlive_> values);
+        void WriteLogs(IEnumerable<Log_> values);
 
         List<EventQueue> GetEventSources();
 
@@ -90,19 +93,25 @@ namespace Monik.Service
         bool IsInstanceInGroup(int instanceId, short groupId);
     }
 
-    public interface ICacheLog : IObject
+    public interface ICacheEntity
     {
-        long LastLogId { get; }
-        void OnNewLog(Log_ log);
+        long ID { get; set; }
+    }
 
+    public interface ICacheBase<in TEntity> : IObject where TEntity : ICacheEntity
+    {
+        void Flush();
+        void Add(TEntity entity);
+        long LastId { get; }
+    }
+
+    public interface ICacheLog : ICacheBase<Log_>
+    {
         List<Log_> GetLogs5(LogRequest filter);
     }
 
-    public interface ICacheKeepAlive : IObject
+    public interface ICacheKeepAlive : ICacheBase<KeepAlive_>
     {
-        long LastKeepAliveId { get; }
-        void OnNewKeepAlive(KeepAlive_ keepAlive);
-
         List<KeepAlive_> GetKeepAlive2(KeepAliveRequest filter);
     }
 
@@ -124,6 +133,7 @@ namespace Monik.Service
     public interface IMessageProcessor : IObject
     {
         void Process(Event ev, Instance instance);
+        void FinalizeProcessing();
     }
 
     public interface IMetricObject : IObject

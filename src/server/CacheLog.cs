@@ -1,18 +1,13 @@
-﻿using System;
+﻿using Monik.Common;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Monik.Common;
-using System.Collections.Concurrent;
 
 namespace Monik.Service
 {
-    public class CacheLog : ICacheLog
+    public class CacheLog : CacheBase<Log_>, ICacheLog
     {
-        private readonly IRepository _repository;
-        private readonly IMonik _monik;
-
         private ConcurrentQueue<Log_> _logs;
-        private ISourceInstanceCache _cache;
 
         private long _oldestLogId;
         public long OldestLogId
@@ -22,12 +17,9 @@ namespace Monik.Service
         }
 
         public CacheLog(IRepository repository, ISourceInstanceCache cache, IMonik monik)
+            : base(repository, cache, monik)
         {
-            _repository = repository;
-            _monik = monik;
-
-            _logs = null;
-            _cache = cache;
+            _logs = new ConcurrentQueue<Log_>();
             OldestLogId = 0;
 
             _monik.ApplicationVerbose("CacheLog created");
@@ -36,13 +28,11 @@ namespace Monik.Service
         // TODO: use database parameter
         private readonly int _logsDeep = 20000;
 
-        public void OnStart()
+        public override void OnStart()
         {
             // load from database
-
             // 1. last IDs
-            LastLogId = _repository.GetMaxLogId();
-
+            LastId = _repository.GetMaxLogId();
             // 2. load top logs
             var lastLogsFromDB = _repository.GetLastLogs(_logsDeep);
             _logs = new ConcurrentQueue<Log_>(lastLogsFromDB);
@@ -52,26 +42,9 @@ namespace Monik.Service
             _monik.ApplicationVerbose("CacheLog started");
         }
 
-        public void OnStop()
+        public override void OnStop()
         {
             // nothing
-        }
-
-        private long _lastLogId;
-        public long LastLogId
-        {
-            get { lock (this) return _lastLogId; }
-            private set { lock (this) _lastLogId = value; }
-        }
-
-        public void OnNewLog(Log_ log)
-        {
-            _logs.Enqueue(log);
-            LastLogId = log.ID;
-
-            while (_logs.Count > _logsDeep)
-                if (_logs.TryDequeue(out Log_ xx) && xx.ID > OldestLogId) // TODO: remove second condition?
-                    OldestLogId = xx.ID;
         }
 
         private bool IsFiltered5(Log_ log, LogRequest filter)
@@ -132,5 +105,23 @@ namespace Monik.Service
 
             return result;
         }
+
+        public override void Add(Log_ entity)
+        {
+            base.Add(entity);
+
+            _logs.Enqueue(entity);
+
+            while (_logs.Count > _logsDeep)
+                if (_logs.TryDequeue(out Log_ xx) && xx.ID > OldestLogId) // TODO: remove second condition?
+                    OldestLogId = xx.ID;
+        }
+
+        protected override void WriteEntites(IEnumerable<Log_> entities)
+        {
+            _repository.WriteLogs(entities);
+        }
+
+        protected override string WriteTimeMetric => "WriteLogTime";
     } //end of class
 }

@@ -67,16 +67,22 @@ namespace Monik.Service.Test
 
         public void CreateHourStat(DateTime hour, long lastLogId, long lastKeepAliveId) { }
 
-        public void CreateKeepAlive(KeepAlive_ keepAlive)
+        public void WriteKeepAlives(IEnumerable<KeepAlive_> values)
         {
-            _kaLastId++;
-            keepAlive.ID = _kaLastId;
+            foreach (var keepAlive in values)
+            {
+                _kaLastId++;
+                keepAlive.ID = _kaLastId;
+            }
         }
 
-        public void CreateLog(Log_ log)
+        public void WriteLogs(IEnumerable<Log_> values)
         {
-            _logLastId++;
-            log.ID = _logLastId;
+            foreach (var log in values)
+            {
+                _logLastId++;
+                log.ID = _logLastId;
+            }
         }
 
         public List<EventQueue> GetEventSources() => new List<EventQueue>();
