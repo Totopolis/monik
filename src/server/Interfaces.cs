@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Monik.Common;
+using Nancy;
+using Nancy.Security;
 
 namespace Monik.Service
 {
@@ -9,6 +11,11 @@ namespace Monik.Service
     {
         void OnStart();
         void OnStop();
+    }
+
+    public interface IUserIdentityProvider
+    {
+        IUserIdentity GetUserIdentity(NancyContext ctx);
     }
 
     public interface IMonikServiceSettings : IObject
@@ -24,6 +31,9 @@ namespace Monik.Service
         int CleanupBatchSize { get; }
         int WriteBatchSize { get; }
         int WriteBatchTimeout { get; }
+
+        string AuthSecretKeyBase64 { get; }
+        byte[] AuthSecretKey { get; }
     }
 
     public class EventQueue

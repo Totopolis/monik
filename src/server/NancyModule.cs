@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using Monik.Common;
+﻿using Monik.Common;
 using Nancy;
 using Nancy.ModelBinding;
+using Nancy.Security;
+using System;
+using System.Collections.Generic;
+using HttpStatusCode = Nancy.HttpStatusCode;
 
 namespace Monik.Service
 {
@@ -188,4 +190,28 @@ namespace Monik.Service
             // metrics/windows
         }
     }//end of class
+
+    public class SecureNancyModule : NancyModule
+    {
+        public SecureNancyModule()
+        {
+            this.RequiresAuthentication();
+
+            Delete["/instances/{id:int}"] = args =>
+            {
+                return 200;
+            };
+
+            Delete["/metrics/{id:int}"] = args =>
+            {
+                return 200;
+            };
+
+            Delete["/sources/{id:int}"] = args =>
+            {
+                return 200;
+            };
+        }
+    }//end of class
+
 }

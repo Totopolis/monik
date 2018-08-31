@@ -5,9 +5,10 @@ using Monik.Service.Test;
 using Autofac;
 using Monik.Common;
 using Nancy;
-using Nancy.Json;
+using Nancy.Authentication.Stateless;
 using Nancy.Bootstrapper;
 using Nancy.Bootstrappers.Autofac;
+using Nancy.Json;
 
 namespace Monik.Service
 {
@@ -30,6 +31,10 @@ namespace Monik.Service
             JsonSettings.MaxJsonLength = int.MaxValue;
             JsonSettings.MaxRecursions = 100;
             JsonSettings.RetainCasing = true;
+
+            var userIdentityProvider = container.Resolve<IUserIdentityProvider>();
+            var configuration = new StatelessAuthenticationConfiguration(userIdentityProvider.GetUserIdentity);
+            StatelessAuthentication.Enable(pipelines, configuration);
 
             container.Resolve<IMonikServiceSettings>().OnStart();
             container.Resolve<ISourceInstanceCache>().OnStart();
@@ -64,6 +69,8 @@ namespace Monik.Service
 
         protected override void ConfigureApplicationContainer(ILifetimeScope existingContainer)
         {
+            existingContainer.RegisterImplementation<IUserIdentityProvider, UserIdentityProvider>();
+
             existingContainer.RegisterSingleton<IMonikServiceSettings, MonikServiceSettings>();
 
 #if (EMULATOR)
