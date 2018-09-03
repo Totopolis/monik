@@ -50,7 +50,7 @@ namespace Monik.Service
                 }
                 catch (Exception ex)
                 {
-                    monik.ApplicationError($"Method /instances : {ex.Message}");
+                    monik.ApplicationError($"Method /groups : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
             };
@@ -177,7 +177,7 @@ namespace Monik.Service
                 }
                 catch (Exception ex)
                 {
-                    monik.ApplicationError($"Method /metrics/currents : {ex.Message}");
+                    monik.ApplicationError($"Method /metrics/windows : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
             };
@@ -193,23 +193,53 @@ namespace Monik.Service
 
     public class SecureNancyModule : NancyModule
     {
-        public SecureNancyModule()
+        public SecureNancyModule(ICacheMetric cacheMetric, ISourceInstanceCache sourceInstanceCache, IMonik monik)
         {
             this.RequiresAuthentication();
 
             Delete["/instances/{id:int}"] = args =>
             {
-                return 200;
+                try
+                {
+                    monik.ApplicationInfo($"Delete /instances/{args.id} by {Context.CurrentUser.UserName}");
+                    sourceInstanceCache.RemoveInstance(args.id);
+                    return HttpStatusCode.OK;
+                }
+                catch (Exception ex)
+                {
+                    monik.ApplicationError($"Method DELETE /instances/id : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
             };
 
             Delete["/metrics/{id:int}"] = args =>
             {
-                return 200;
+                try
+                {
+                    monik.ApplicationInfo($"Delete /metrics/{args.id} by {Context.CurrentUser.UserName}");
+                    cacheMetric.RemoveMetric(args.id);
+                    return HttpStatusCode.OK;
+                }
+                catch (Exception ex)
+                {
+                    monik.ApplicationError($"Method DELETE /metrics/id : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
             };
 
             Delete["/sources/{id:int}"] = args =>
             {
-                return 200;
+                try
+                {
+                    monik.ApplicationInfo($"Delete /sources/{args.id} by {Context.CurrentUser.UserName}");
+                    sourceInstanceCache.RemoveSource((short)args.id);
+                    return HttpStatusCode.OK;
+                }
+                catch (Exception ex)
+                {
+                    monik.ApplicationError($"Method DELETE /sources/id : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
             };
         }
     }//end of class

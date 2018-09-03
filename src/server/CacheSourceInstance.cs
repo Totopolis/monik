@@ -7,6 +7,11 @@ namespace Monik.Service
 {
     public class SourceInstanceCache : ISourceInstanceCache
     {
+        private static string GetSourceInstanceKey(string sourceName, string instanceName)
+        {
+            return $"{sourceName}*{instanceName}";
+        }
+
         private readonly IRepository _repository;
         private readonly IMonik _monik;
 
@@ -18,6 +23,8 @@ namespace Monik.Service
 
         private Dictionary<short, Group> _groups;
         private List<int> _defaultInstances; // from default group
+
+        public event Action<IEnumerable<int>> RemoveMetrics;
 
         public SourceInstanceCache(IRepository repository, IMonik monik)
         {
@@ -51,7 +58,7 @@ namespace Monik.Service
                 if (_sourceMap.ContainsKey(ins.SourceID))
                 {
                     Source src = _sourceMap[ins.SourceID];
-                    string key = $"{src.Name}*{ins.Name}";
+                    string key = GetSourceInstanceKey(src.Name, ins.Name);
 
                     if (!_sourceInstanceMap.ContainsKey(key))
                     {
@@ -86,6 +93,41 @@ namespace Monik.Service
 
         public void OnStop()
         {
+        }
+
+        public void RemoveInstance(int id)
+        {
+            _instanceMap.TryGetValue(id, out var instance);
+
+            // clear cache
+            _defaultInstances.Remove(id);
+            _instanceMap.Remove(id);
+            foreach (var item in _sourceInstanceMap.Where(kvp => kvp.Value.ID == id).ToList())
+                _sourceInstanceMap.Remove(item.Key);
+            foreach (var kvp in _groups)
+                kvp.Value.Instances.Remove(id);
+
+            // repository
+            _repository.RemoveInstance(id);
+
+            // cleanup metrics
+            if (instance != null)
+                RemoveMetrics?.Invoke(instance.Metrics.Values.Select(metObj => metObj.Dto.ID).ToList());
+        }
+
+        public void RemoveSource(short id)
+        {
+            // clear cache
+            _sourceMap.Remove(id);
+            foreach (var item in _sources.Where(kvp => kvp.Value.ID == id).ToList())
+                _sources.Remove(item.Key);
+
+            // repository
+            _repository.RemoveSource(id);
+
+            // cleanup instances
+            foreach (var item in _sourceInstanceMap.Where(kvp => kvp.Value.SourceID == id).ToList())
+                RemoveInstance(item.Value.ID);
         }
 
         public bool IsDefaultInstance(int instance)
@@ -134,7 +176,7 @@ namespace Monik.Service
 
         public Instance CheckSourceAndInstance(string sourceName, string instanceName)
         {
-            string key = $"{sourceName}*{instanceName}";
+            string key = GetSourceInstanceKey(sourceName, instanceName);
 
             lock (this)
             {

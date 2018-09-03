@@ -30,6 +30,9 @@ namespace Monik.Service
             try
             {
                 var authorizationHeader = ctx.Request.Headers.Authorization;
+                if (string.IsNullOrEmpty(authorizationHeader))
+                    return null;
+
                 var jwt = authorizationHeader.Substring(BearerDeclaration.Length);
 
                 var authToken = JWT.Decode<AuthToken>(jwt, _settings.AuthSecretKey, JwsAlgorithm.HS256);

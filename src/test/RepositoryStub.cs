@@ -138,5 +138,25 @@ namespace Monik.Service.Test
         {
             return new int[0];
         }
+
+
+
+        public void RemoveMetric(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveInstance(int id)
+        {
+            foreach (var item in _instanceList.Where(x => x.ID == id).ToList())
+                _instanceList.Remove(item);
+        }
+
+        public void RemoveSource(short id)
+        {
+            foreach (var item in _sourceList.Where(x => x.ID == id).ToList())
+                _sourceList.Remove(item);
+        }
+
     } //end of class
 }
