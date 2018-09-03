@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Monik.Common;
+using Nancy;
+using Nancy.Security;
 
 namespace Monik.Service
 {
@@ -9,6 +11,11 @@ namespace Monik.Service
     {
         void OnStart();
         void OnStop();
+    }
+
+    public interface IUserIdentityProvider
+    {
+        IUserIdentity GetUserIdentity(NancyContext ctx);
     }
 
     public interface IMonikServiceSettings : IObject
@@ -24,6 +31,9 @@ namespace Monik.Service
         int CleanupBatchSize { get; }
         int WriteBatchSize { get; }
         int WriteBatchTimeout { get; }
+
+        string AuthSecretKeyBase64 { get; }
+        byte[] AuthSecretKey { get; }
     }
 
     public class EventQueue
@@ -72,7 +82,10 @@ namespace Monik.Service
 
         void SaveMetric(Metric_ metric, Measure_[] measures);
 
-        // DeleteMetric(int id) ... also delete measures
+        void RemoveMetric(int id);
+        void RemoveInstance(int id);
+        void RemoveSource(short id);
+
         // int[] GetAllMetrics()
         // Metric_ GetMetric(int id)
         // int CreateMetric(string name, int aggregation, int instanceId) ... also created range in Measure table
@@ -88,6 +101,10 @@ namespace Monik.Service
         List<Instance> GetAllInstances();
         List<Source> GetAllSources();
         List<Group> GetAllGroups();
+
+        void RemoveSource(short id);
+        void RemoveInstance(int id);
+        event Action<IEnumerable<int>> RemoveMetrics; 
 
         bool IsDefaultInstance(int instance);
         bool IsInstanceInGroup(int instanceId, short groupId);
@@ -118,6 +135,8 @@ namespace Monik.Service
     public interface ICacheMetric : IObject
     {
         void OnNewMeasure(Instance instance, Event metric);
+
+        void RemoveMetric(int id);
 
         Metric_[] GetMetricsDescriptions();
         MeasureResponse GetCurrentMeasure(int metricId);

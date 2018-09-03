@@ -4,6 +4,12 @@ using System.Collections.Concurrent;
 
 namespace Monik.Service
 {
+    public class AuthToken
+    {
+        public string sub;
+        public long exp;
+    }
+
     public class Source
     {
         public short ID { get; set; }

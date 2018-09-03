@@ -234,6 +234,42 @@ order by meas.ID");
                 MappedCommand.Update(_settings.DbConnectionString, "mon.Measure", meas, "ID");
         }
 
+        public void RemoveMetric(int id)
+        {
+            const string query = @"
+begin transaction;
+
+	declare @measuresRange table ( RangeHeadID bigint, RangeTailID bigint );
+	
+	delete met
+	output deleted.RangeHeadID, deleted.RangeTailID	into @measuresRange
+	from [mon].[Metric] met
+	where met.ID = @p0
+
+	delete meas
+	from [mon].[Measure] meas
+		join @measuresRange r on r.RangeHeadID <= meas.ID and r.RangeTailID >= meas.ID
+
+commit transaction;
+";
+            SimpleCommand.ExecuteNonQuery(_settings.DbConnectionString, query, id);
+        }
+
+        public void RemoveInstance(int id)
+        {
+            const string query = @"
+delete from [mon].[Instance] where ID = @p0
+delete from [mon].[GroupInstance] where InstanceID = @p0
+";
+            SimpleCommand.ExecuteNonQuery(_settings.DbConnectionString, query, id);
+        }
+
+        public void RemoveSource(short id)
+        {
+            SimpleCommand.ExecuteNonQuery(_settings.DbConnectionString,
+                "delete from [mon].[Source] where ID = @p0", id);
+        }
+
         public int[] GetAllMetricIds()
         {
             var proto = new { ID = 0 };

@@ -64,5 +64,9 @@ namespace Monik.Service
             get { return _settings["OutcomingQueue"]; }
         }
 
+
+        public string AuthSecretKeyBase64 => ConfigurationManager.AppSettings["AuthSecretKeyBase64"];
+        public byte[] AuthSecretKey => Convert.FromBase64String(AuthSecretKeyBase64);
+
     } //end of class
 }
