@@ -113,7 +113,7 @@ namespace Monik.Service
 
                         GaugeWindowCalculator gauWin = window as GaugeWindowCalculator;
                         if (gauWin == null)
-                            window = new AccumWindowCalculator();
+                            window = new GaugeWindowCalculator();
 
                         window.OnNewValue(metric.Mc.Value);
                         break;
