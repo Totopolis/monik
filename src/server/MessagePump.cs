@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using Microsoft.ServiceBus.Messaging;
 using Monik.Common;
 using EasyNetQ;
 using System.Threading;
@@ -12,12 +11,21 @@ namespace Monik.Service
     public class ActiveQueue
     {
         public EventQueue Config { get; set; }
-        public QueueClient AzureQueue { get; set; }
+        public Microsoft.ServiceBus.Messaging.QueueClient AzureQueue { get; set; }
+        public SqlQueueClient SqlQueue { get; set; }
         public IAdvancedBus RabbitQueue { get; set; }
+    }
+
+    public class SqlQueueClient
+    {
+        public Gerakul.SqlQueue.InMemory.QueueClient Client { get; set; }
+        public Gerakul.SqlQueue.InMemory.AutoReader Reader { get; set; }
     }
 
     public class MessagePump : IMessagePump
     {
+        private const string SqlQueueSubscription = "Monik";
+
         private const int DelayOnException = 500; //in ms
         private const int DelayOnProcess = 500; //in ms
 
@@ -111,11 +119,19 @@ namespace Monik.Service
                         RabbitQueue = null
                     };
 
-                    if (it.Type == 1)
-                        InitializeServiceBus(queue);
-                    else if (it.Type == 2)
-                        InitializeRabbitMq(queue);
-
+                    switch (it.Type)
+                    {
+                        case EventQueueType.AzureQueue:
+                            InitializeServiceBus(queue);
+                            break;
+                        case EventQueueType.RabbitQueue:
+                            InitializeRabbitMq(queue);
+                            break;
+                        case EventQueueType.SqlQueue:
+                            InitializeSqlQueue(queue);
+                            break;
+                    }
+                    
                     _queues.Add(queue);
                 }
                 catch (Exception ex)
@@ -129,7 +145,7 @@ namespace Monik.Service
 
         private void InitializeServiceBus(ActiveQueue active)
         {
-            active.AzureQueue = QueueClient.
+            active.AzureQueue = Microsoft.ServiceBus.Messaging.QueueClient.
                 CreateFromConnectionString(active.Config.ConnectionString, active.Config.QueueName);
 
             active.AzureQueue.OnMessage(message =>
@@ -172,14 +188,62 @@ namespace Monik.Service
             }));
         }
 
+        private void InitializeSqlQueue(ActiveQueue active)
+        {
+            var client = Gerakul.SqlQueue.InMemory.QueueClient
+                .Create(active.Config.ConnectionString, active.Config.QueueName);
+
+            var subscriptionId = client.FindSubscription(SqlQueueSubscription);
+            if (subscriptionId == 0)
+                client.CreateSubscription(SqlQueueSubscription);
+
+            var reader = client.CreateAutoReader(SqlQueueSubscription);
+
+            active.SqlQueue = new SqlQueueClient
+            {
+                Client = client,
+                Reader = reader
+            };
+
+            reader.Start((msgs) => Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    foreach (var msg in msgs)
+                    {
+                        var e = Event.Parser.ParseFrom(msg.Body);
+                        _msgBuffer.Enqueue(e);
+                    }
+
+                    _newMessageEvent.Set();
+                }
+                catch (Exception ex)
+                {
+                    _monik.ApplicationError($"MessagePump.OnMessage SqlQueue Parse Error: {ex.Message}");
+                    System.Threading.Thread.Sleep(DelayOnException);
+                }
+            })).Wait();
+        }
+
         public void OnStop()
         {
             // 1. Stop all event sources
             foreach (var it in _queues)
-                if (it.Config.Type == 1)
-                    it.AzureQueue.Close();
-                else if (it.Config.Type == 2)
-                    it.RabbitQueue.Dispose();
+                switch (it.Config.Type)
+                {
+                    case EventQueueType.AzureQueue:
+                        it.AzureQueue.Close();
+                        break;
+                    case EventQueueType.RabbitQueue:
+                        it.RabbitQueue.Dispose();
+                        break;
+                    case EventQueueType.SqlQueue:
+                        it.SqlQueue.Reader.Stop().Wait();
+                        it.SqlQueue.Reader.Close();
+
+                        it.SqlQueue.Client.DeleteSubscription(SqlQueueSubscription); // TODO: is it needed?
+                        break;
+                }
 
             // 2. Flsuh buffers
             _newMessageEvent.Set();

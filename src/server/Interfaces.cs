@@ -36,12 +36,19 @@ namespace Monik.Service
         byte[] AuthSecretKey { get; }
     }
 
+    public enum EventQueueType : byte
+    {
+        AzureQueue = 1,
+        RabbitQueue = 2,
+        SqlQueue = 3
+    }
+
     public class EventQueue
     {
         public int ID { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public byte Type { get; set; }
+        public EventQueueType Type { get; set; }
         public string ConnectionString { get; set; }
         public string QueueName { get; set; }
     }

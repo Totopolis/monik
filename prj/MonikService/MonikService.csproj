@@ -58,6 +58,12 @@
     <Reference Include="Gerakul.FastSql, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Gerakul.FastSql.1.0.3\lib\net46\Gerakul.FastSql.dll</HintPath>
     </Reference>
+    <Reference Include="Gerakul.SqlQueue.Core, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Gerakul.SqlQueue.Core.1.0.4\lib\net46\Gerakul.SqlQueue.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Gerakul.SqlQueue.InMemory, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Gerakul.SqlQueue.InMemory.1.2.0\lib\net46\Gerakul.SqlQueue.InMemory.dll</HintPath>
+    </Reference>
     <Reference Include="Google.Protobuf, Version=3.6.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Protobuf.3.6.1\lib\net45\Google.Protobuf.dll</HintPath>
     </Reference>
