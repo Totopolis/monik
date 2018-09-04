@@ -1,21 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Monik.Common;
+using System;
 using System.Collections.Concurrent;
-using System.Threading.Tasks;
-using Microsoft.ServiceBus.Messaging;
-using Monik.Common;
-using EasyNetQ;
+using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Monik.Service
 {
-    public class ActiveQueue
-    {
-        public EventQueue Config { get; set; }
-        public QueueClient AzureQueue { get; set; }
-        public IAdvancedBus RabbitQueue { get; set; }
-    }
-
     public class MessagePump : IMessagePump
     {
         private const int DelayOnException = 500; //in ms
@@ -26,9 +17,9 @@ namespace Monik.Service
         private readonly IMessageProcessor _processor;
         private readonly IMonik _monik;
 
-        private List<ActiveQueue> _queues = new List<ActiveQueue>();
+        private readonly List<IActiveQueue> _queues = new List<IActiveQueue>();
 
-        private ConcurrentQueue<Event> _msgBuffer = new ConcurrentQueue<Event>();
+        private readonly ConcurrentQueue<Event> _msgBuffer = new ConcurrentQueue<Event>();
 
         private readonly Task _pumpTask;
         private readonly ManualResetEvent _newMessageEvent = new ManualResetEvent(false);
@@ -97,6 +88,27 @@ namespace Monik.Service
 
         public void OnStart()
         {
+            // Create context for ActiveQueues
+            var context = new ActiveQueueContext
+            {
+                OnError = (errorMessage) =>
+                {
+                    _monik.ApplicationError(errorMessage);
+                    Thread.Sleep(DelayOnException);
+                },
+                OnReceivedMessage = (msg) =>
+                {
+                    _msgBuffer.Enqueue(msg);
+                    _newMessageEvent.Set();
+                },
+                OnReceivedMessages = (messages) =>
+                {
+                    foreach (var msg in messages)
+                        _msgBuffer.Enqueue(msg);
+                    _newMessageEvent.Set();
+                }
+            };
+
             // Load events sources
             var configs = _repository.GetEventSources();
 
@@ -104,19 +116,16 @@ namespace Monik.Service
             {
                 try
                 {
-                    ActiveQueue queue = new ActiveQueue()
+                    var queue = CreateActiveQueueByType(it.Type);
+
+                    if (queue != null)
                     {
-                        Config = it,
-                        AzureQueue = null,
-                        RabbitQueue = null
-                    };
-
-                    if (it.Type == 1)
-                        InitializeServiceBus(queue);
-                    else if (it.Type == 2)
-                        InitializeRabbitMq(queue);
-
-                    _queues.Add(queue);
+                        _queues.Add(queue);
+                        queue.Start(it, context);
+                    }
+                    else
+                        _monik.ApplicationWarning(
+                            $"MessagePump.OnStart cannot initialize {it.Name}: unknown type {it.Type}");
                 }
                 catch (Exception ex)
                 {
@@ -127,65 +136,40 @@ namespace Monik.Service
             _monik.ApplicationVerbose("MessagePump started");
         }
 
-        private void InitializeServiceBus(ActiveQueue active)
-        {
-            active.AzureQueue = QueueClient.
-                CreateFromConnectionString(active.Config.ConnectionString, active.Config.QueueName);
-
-            active.AzureQueue.OnMessage(message =>
-            {
-                try
-                {
-                    byte[] buf = message.GetBody<byte[]>();
-                    Event msg = Event.Parser.ParseFrom(buf);
-
-                    _msgBuffer.Enqueue(msg);
-                    _newMessageEvent.Set();
-                }
-                catch (Exception ex)
-                {
-                    _monik.ApplicationError($"MessagePump.OnMessage ServiceBus Parse Error: {ex.Message}");
-                    System.Threading.Thread.Sleep(DelayOnException);
-                }
-            });
-        }
-
-        private void InitializeRabbitMq(ActiveQueue active)
-        {
-            active.RabbitQueue = RabbitHutch.CreateBus(active.Config.ConnectionString).Advanced;
-            var queue = active.RabbitQueue.QueueDeclare(active.Config.QueueName);
-
-            active.RabbitQueue.Consume(queue, (body, properties, info) => Task.Factory.StartNew(() =>
-            {
-                try
-                {
-                    Event msg = Event.Parser.ParseFrom(body);
-
-                    _msgBuffer.Enqueue(msg);
-                    _newMessageEvent.Set();
-                }
-                catch (Exception ex)
-                {
-                    _monik.ApplicationError($"MessagePump.OnMessage RabbitMQ Parse Error: {ex.Message}");
-                    System.Threading.Thread.Sleep(DelayOnException);
-                }
-            }));
-        }
-
         public void OnStop()
         {
             // 1. Stop all event sources
             foreach (var it in _queues)
-                if (it.Config.Type == 1)
-                    it.AzureQueue.Close();
-                else if (it.Config.Type == 2)
-                    it.RabbitQueue.Dispose();
+                it.Stop();
 
-            // 2. Flsuh buffers
+            // 2. Flush buffers
             _newMessageEvent.Set();
             _pumpCancellationTokenSource.Cancel();
 
             Task.Delay(2000).Wait(); // TODO: is it correct?
+        }
+
+        /// <summary>
+        /// ActiveQueue Factory
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns>New ActiveQueue instance based on the type parameter</returns>
+        private static IActiveQueue CreateActiveQueueByType(EventQueueType type)
+        {
+            switch (type)
+            {
+                case EventQueueType.Azure:
+                    return new AzureActiveQueue();
+
+                case EventQueueType.Rabbit:
+                    return new RabbitActiveQueue();
+
+                case EventQueueType.Sql:
+                    return new SqlActiveQueue();
+
+                default:
+                    return null;
+            }
         }
 
     } //end class

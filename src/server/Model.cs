@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using Monik.Common;
 
 namespace Monik.Service
 {
@@ -8,6 +9,30 @@ namespace Monik.Service
     {
         public string sub;
         public long exp;
+    }
+
+    public enum EventQueueType : byte
+    {
+        Azure = 1,
+        Rabbit = 2,
+        Sql = 3
+    }
+
+    public class ActiveQueueContext
+    {
+        public Action<string> OnError;
+        public Action<Event> OnReceivedMessage;
+        public Action<IEnumerable<Event>> OnReceivedMessages;
+    }
+
+    public class EventQueue
+    {
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public EventQueueType Type { get; set; }
+        public string ConnectionString { get; set; }
+        public string QueueName { get; set; }
     }
 
     public class Source

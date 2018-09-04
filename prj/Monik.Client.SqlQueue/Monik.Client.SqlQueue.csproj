@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\src\client\Facade.cs" Link="Facade.cs" />
+    <Compile Include="..\..\src\client\Interfaces.cs" Link="Interfaces.cs" />
+    <Compile Include="..\..\src\client\MonikClient.cs" Link="MonikClient.cs" />
+    <Compile Include="..\..\src\client\Settings.cs" Link="Settings.cs" />
+    <Compile Include="..\..\src\client\SqlQueueSender.cs" Link="SqlQueueSender.cs" />
+    <Compile Include="..\..\src\common\IMonik.cs" Link="Common\IMonik.cs" />
+    <Compile Include="..\..\src\common\Monik.cs" Link="Common\Monik.cs" />
+    <Compile Include="..\..\src\common\MonikBase.cs" Link="Common\MonikBase.cs" />
+    <Compile Include="..\..\src\common\MonikDelayedSender.cs" Link="Common\MonikDelayedSender.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Gerakul.SqlQueue.InMemory" Version="1.2.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.6.1" />
+  </ItemGroup>
+
+</Project>
