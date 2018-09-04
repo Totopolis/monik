@@ -162,6 +162,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\src\server\ActiveQueues.cs">
+      <Link>server\ActiveQueues.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\server\Bootstrap.cs">
       <Link>server\Bootstrap.cs</Link>
     </Compile>

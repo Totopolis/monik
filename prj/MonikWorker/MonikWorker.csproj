@@ -172,6 +172,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\src\server\ActiveQueues.cs">
+      <Link>Core\ActiveQueues.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\server\Bootstrap.cs">
       <Link>Core\Bootstrap.cs</Link>
     </Compile>
