@@ -1,4 +1,5 @@
 ﻿using Monik.Common;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Monik.Service
@@ -10,10 +11,9 @@ namespace Monik.Service
         protected ISourceInstanceCache _cache;
 
         private readonly TimingHelper _timing;
-        private readonly List<TEntity> _pendingEntities;
+        private readonly ConcurrentQueue<TEntity> _pendingEntities;
 
         private readonly object _lockLastId = new object();
-        private readonly object _lockPending = new object();
 
         private long _lastId;
         public long LastId
@@ -37,7 +37,7 @@ namespace Monik.Service
             _cache = cache;
 
             _timing = TimingHelper.Create(_monik);
-            _pendingEntities = new List<TEntity>();
+            _pendingEntities = new ConcurrentQueue<TEntity>();
         }
 
         public abstract void OnStart();
@@ -45,24 +45,26 @@ namespace Monik.Service
 
         public virtual void Flush()
         {
-            lock (_lockPending)
-            {
-                _timing.Begin();
+            _timing.Begin();
 
-                WriteEntites(_pendingEntities);
-                _pendingEntities.Clear();
+            var data = new List<TEntity>();
+            while (_pendingEntities.TryDequeue(out var item))
+                data.Add(item);
 
-                _timing.EndAndMeasure(WriteTimeMetric);
-            }
+            WriteEntites(data);
+
+            _timing.EndAndMeasure(WriteTimeMetric);
         }
 
         public virtual void Add(TEntity entity)
         {
             lock (_lockLastId)
                 entity.ID = ++LastId;
-            lock (_lockPending)
-                _pendingEntities.Add(entity);
+
+            _pendingEntities.Enqueue(entity);
         }
+
+        public int PendingAmount => _pendingEntities.Count;
 
         protected abstract void WriteEntites(IEnumerable<TEntity> entities);
         protected abstract string WriteTimeMetric { get; }

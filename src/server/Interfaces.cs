@@ -115,6 +115,7 @@ namespace Monik.Service
     {
         void Flush();
         void Add(TEntity entity);
+        int PendingAmount { get; }
         long LastId { get; }
     }
 

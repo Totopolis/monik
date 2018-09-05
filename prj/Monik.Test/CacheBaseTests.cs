@@ -76,7 +76,7 @@ namespace Monik.Test
         {
             IEnumerable<TEntity> writtenValues = null;
             SetupRepoWriteEntities(Repo)
-                .Callback((IEnumerable<TEntity> values) => writtenValues = values.ToList());
+                .Callback((IEnumerable<TEntity> values) => writtenValues = values);
             var log = new TEntity();
             Cache.Add(log);
 
@@ -88,15 +88,32 @@ namespace Monik.Test
         [TestMethod]
         public void Flush_AfterRun_WillClearPendingLogs()
         {
-            IEnumerable<TEntity> pendingLogs = null;
-            SetupRepoWriteEntities(Repo)
-                .Callback((IEnumerable<TEntity> values) => pendingLogs = values);
             var log = new TEntity();
             Cache.Add(log);
 
             Cache.Flush();
 
-            Assert.AreEqual(0, pendingLogs.Count());
+            Assert.AreEqual(0, Cache.PendingAmount);
+        }
+
+        [TestMethod]
+        public void PendingAmount_Empty_ReturnsZero()
+        {
+
+            var result = Cache.PendingAmount;
+
+            Assert.AreEqual(0, result);
+        }
+
+        [TestMethod]
+        public void PendingAmount_AfterAdd_ReturnsOne()
+        {
+            var log = new TEntity();
+            Cache.Add(log);
+
+            var result = Cache.PendingAmount;
+
+            Assert.AreEqual(1, result);
         }
     }
 }
