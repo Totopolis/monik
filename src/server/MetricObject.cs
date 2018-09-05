@@ -37,8 +37,7 @@ namespace Monik.Service
         {
             lock (this)
             {
-                var actualIndx = _dto.ActualID - _dto.RangeHeadID;
-                var actualMeasure = _measures[actualIndx];
+                var actualMeasure = GetMeasure(_dto.ActualID);
 
                 return new MeasureResponse
                 {

@@ -40,7 +40,7 @@ namespace Monik.Service
                     double prevValue = queue.First.Value.Value;
                     double newValue = (prevValue + value) / 2;
 
-                    queue.First.Value += newValue;
+                    queue.First.Value = newValue;
 
                     accum -= prevValue;
                     accum += newValue;
