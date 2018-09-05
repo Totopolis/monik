@@ -1,6 +1,7 @@
 ﻿using Monik.Common;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Monik.Service
 {
@@ -12,22 +13,12 @@ namespace Monik.Service
 
         private readonly TimingHelper _timing;
         private readonly ConcurrentQueue<TEntity> _pendingEntities;
-
-        private readonly object _lockLastId = new object();
-
+        
         private long _lastId;
         public long LastId
         {
-            get
-            {
-                lock (_lockLastId)
-                    return _lastId;
-            }
-            protected set
-            {
-                lock (_lockLastId)
-                    _lastId = value;
-            }
+            get => Interlocked.Read(ref _lastId);
+            protected set => Interlocked.Exchange(ref _lastId, value);
         }
 
         protected CacheBase(IRepository repository, ISourceInstanceCache cache, IMonik monik)
@@ -58,9 +49,7 @@ namespace Monik.Service
 
         public virtual void Add(TEntity entity)
         {
-            lock (_lockLastId)
-                entity.ID = ++LastId;
-
+            entity.ID = Interlocked.Increment(ref _lastId);
             _pendingEntities.Enqueue(entity);
         }
 
