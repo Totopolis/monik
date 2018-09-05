@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Monik.Common;
+﻿using Monik.Common;
+using System.Collections.Generic;
 
 namespace Monik.Service
 {
@@ -12,14 +12,25 @@ namespace Monik.Service
         private readonly TimingHelper _timing;
         private readonly List<TEntity> _pendingEntities;
 
+        private readonly object _lockLastId = new object();
+        private readonly object _lockPending = new object();
+
         private long _lastId;
         public long LastId
         {
-            get { lock (this) return _lastId; }
-            protected set { lock (this) _lastId = value; }
+            get
+            {
+                lock (_lockLastId)
+                    return _lastId;
+            }
+            protected set
+            {
+                lock (_lockLastId)
+                    _lastId = value;
+            }
         }
 
-        public CacheBase(IRepository repository, ISourceInstanceCache cache, IMonik monik)
+        protected CacheBase(IRepository repository, ISourceInstanceCache cache, IMonik monik)
         {
             _repository = repository;
             _monik = monik;
@@ -34,18 +45,23 @@ namespace Monik.Service
 
         public virtual void Flush()
         {
-            _timing.Begin();
+            lock (_lockPending)
+            {
+                _timing.Begin();
 
-            WriteEntites(_pendingEntities);
-            _pendingEntities.Clear();
+                WriteEntites(_pendingEntities);
+                _pendingEntities.Clear();
 
-            _timing.EndAndMeasure(WriteTimeMetric);
+                _timing.EndAndMeasure(WriteTimeMetric);
+            }
         }
 
         public virtual void Add(TEntity entity)
         {
-            entity.ID = ++LastId;
-            _pendingEntities.Add(entity);
+            lock (_lockLastId)
+                entity.ID = ++LastId;
+            lock (_lockPending)
+                _pendingEntities.Add(entity);
         }
 
         protected abstract void WriteEntites(IEnumerable<TEntity> entities);
