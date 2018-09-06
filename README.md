@@ -61,3 +61,25 @@ Method http://monikserver/keepalive-status can be used for Zabbix/Nagios monitor
 9. LogicInfo: something calculated
 10. LogicWarning: user request's bad params (for the service)
 11. LogicError: logic violation
+## Auth
+Some server methods require a token in the Authorization header
+### Create JWT token
+Here is an example of token creation process with `nodejs`:
+Generate a secret key
+```sh
+node -e "console.log(require('crypto').randomBytes(256).toString('base64'));"
+```
+Put the key in the app.config and deploy with the new config
+```xml
+<!--Authentication Secret Key-->
+<add key="AuthSecretKeyBase64" value="secret-key" />
+```
+Create a token with a subject `sub` and an expiration timestamp `exp`, sign it with the previously generated key
+```sh
+node -e "console.log(require('jsonwebtoken').sign({sub:'name', exp:1550102400}, Buffer.from('secret_key', 'base64')));"
+```
+### Use JWT token
+Send the token with requests in the Authorization header
+```sh
+curl -X DELETE -H 'Authorization: Bearer <token>' -i http://monikserver/instances/1
+```

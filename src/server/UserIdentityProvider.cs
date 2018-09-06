@@ -30,7 +30,8 @@ namespace Monik.Service
             try
             {
                 var authorizationHeader = ctx.Request.Headers.Authorization;
-                if (string.IsNullOrEmpty(authorizationHeader))
+                if (string.IsNullOrEmpty(authorizationHeader) ||
+                    !authorizationHeader.StartsWith(BearerDeclaration))
                     return null;
 
                 var jwt = authorizationHeader.Substring(BearerDeclaration.Length);
