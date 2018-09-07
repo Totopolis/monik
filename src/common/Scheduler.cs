@@ -60,15 +60,13 @@ namespace Monik.Common
         private void Runner(DateTime date)
         {
             var dateNow = DateTime.Now;
-            TimeSpan ts;
-            if (date > dateNow)
-                ts = date - dateNow;
-            else
-            {
-                date = GetNextDate(date);
-                ts = date - dateNow;
-            }
 
+            // rotate to the next actual date
+            while (date <= dateNow)
+                date = GetNextDate(date);
+            
+            var ts = date - dateNow;
+            
             // for deviation
             ts = ts.Add(TimeSpan.FromMilliseconds(100));
             //M.ApplicationInfo("Scheduler {0} delay: {1}ms", _name, ts.TotalMilliseconds);
