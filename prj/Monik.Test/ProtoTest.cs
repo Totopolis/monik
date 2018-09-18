@@ -1,14 +1,14 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Google.Protobuf;
 using Monik.Common;
-using Google.Protobuf;
+using NUnit.Framework;
+using System;
 
 namespace Monik.Test
 {
-    [TestClass]
+    [TestFixture]
     public class ProtoTest
     {
-        [TestMethod]
+        [Test]
         public void TestEventLog()
         {
             Event _src = new Event()
@@ -40,7 +40,7 @@ namespace Monik.Test
             Assert.AreEqual(_src.Lg.Body, _dst.Lg.Body);
         }
 
-        [TestMethod]
+        [Test]
         public void TestEventLogEmptyInstnce()
         {
             Event _src = new Event()

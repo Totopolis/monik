@@ -1,14 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Monik.Common;
+﻿using Monik.Common;
 using Monik.Service;
 using Moq;
+using Moq.Language.Flow;
+using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using Moq.Language.Flow;
 
 namespace Monik.Test
 {
-    [TestClass]
+    [TestFixture]
     public abstract class CacheBaseTests<TCache, TEntity>
         where TCache : CacheBase<TEntity>
         where TEntity : ICacheEntity, new()
@@ -23,7 +23,7 @@ namespace Monik.Test
         public abstract ISetup<IRepository, List<TEntity>> SetupRepoLast(Mock<IRepository> r);
         public abstract ISetup<IRepository> SetupRepoWriteEntities(Mock<IRepository> r);
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             Repo = new Mock<IRepository>();
@@ -32,7 +32,7 @@ namespace Monik.Test
             Cache = CreateCache(Repo.Object, SourceCache.Object, Monik.Object);
         }
 
-        [TestMethod]
+        [Test]
         public void LastLogId_WhenCreate_Zero()
         {
 
@@ -40,7 +40,7 @@ namespace Monik.Test
             Assert.AreEqual(0, Cache.LastId);
         }
 
-        [TestMethod]
+        [Test]
         public void Add_AddingLog_WillIncrementID()
         {
             var log = new TEntity();
@@ -50,7 +50,7 @@ namespace Monik.Test
             Assert.AreEqual(1, Cache.LastId);
         }
 
-        [TestMethod]
+        [Test]
         public void Add_AddingLog_WillSetLastIDToLogEntity()
         {
             var log = new TEntity {ID = 0};
@@ -60,7 +60,7 @@ namespace Monik.Test
             Assert.AreEqual(Cache.LastId, log.ID);
         }
 
-        [TestMethod]
+        [Test]
         public void OnStart_Run_LoadsLastID()
         {
             SetupRepoMaxId(Repo).Returns(999);
@@ -71,7 +71,7 @@ namespace Monik.Test
             Assert.AreEqual(999, Cache.LastId);
         }
 
-        [TestMethod]
+        [Test]
         public void Flush_OnRun_WillWritePendingLogs()
         {
             IEnumerable<TEntity> writtenValues = null;
@@ -85,7 +85,7 @@ namespace Monik.Test
             Assert.IsTrue(new[] { log }.SequenceEqual(writtenValues));
         }
 
-        [TestMethod]
+        [Test]
         public void Flush_AfterRun_WillClearPendingLogs()
         {
             var log = new TEntity();
@@ -96,7 +96,7 @@ namespace Monik.Test
             Assert.AreEqual(0, Cache.PendingAmount);
         }
 
-        [TestMethod]
+        [Test]
         public void PendingAmount_Empty_ReturnsZero()
         {
 
@@ -105,7 +105,7 @@ namespace Monik.Test
             Assert.AreEqual(0, result);
         }
 
-        [TestMethod]
+        [Test]
         public void PendingAmount_AfterAdd_ReturnsOne()
         {
             var log = new TEntity();

@@ -1,13 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Monik.Common;
+﻿using Monik.Common;
 using Monik.Service;
 using Moq;
 using Moq.Language.Flow;
+using NUnit.Framework;
 using System.Collections.Generic;
 
 namespace Monik.Test
 {
-    [TestClass]
+    [TestFixture]
     public class CacheLogTests : CacheBaseTests<CacheLog, Log_>
     {
         public override CacheLog CreateCache(IRepository repository, ISourceInstanceCache cache, IMonik monik)
