@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using Monik.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Autofac;
-using Monik.Common;
 
 namespace Monik.Service
 {
@@ -55,6 +53,38 @@ namespace Monik.Service
                 MetricId = _dto.ID,
                 Value = window == null ? 0 : window.GetValue()
             };
+        }
+
+        public MetricHistoryResponse GetMetricHistory(int deep)
+        {
+            var actualMeasure = GetMeasure(_dto.ActualID);
+            var historyMeasures =
+                GetHistoryValuesEnumerable()
+                    .Take(deep)
+                    .Reverse()
+                    .ToArray();
+
+            return new MetricHistoryResponse
+            {
+                MetricId = _dto.ID,
+                ActualInterval = _dto.ActualInterval,
+                CurrentValue = actualMeasure.Value,
+                HistoryValues = historyMeasures
+            };
+        }
+
+        private IEnumerable<double> GetHistoryValuesEnumerable()
+        {
+            var dif = _dto.RangeTailID - _dto.RangeHeadID;
+            var actualIdx = _dto.ActualID - _dto.RangeHeadID;
+            var i = 0;
+            while (i < int.MaxValue)
+            {
+                var index = (actualIdx - ++i) % dif;
+                if (index < 0)
+                    index += dif;
+                yield return _measures[index].Value;
+            }
         }
 
         private Measure_ GetMeasure(long intervalId)

@@ -81,10 +81,32 @@ namespace Monik.Service
             return measures.ToArray();
         }
 
+        public WindowResponse GetWindowMeasure(int metricId)
+        {
+            var metricSearch = _metrics.Keys.Where(x => x.Dto.ID == metricId).ToList();
+
+            if (!metricSearch.Any())
+                throw new Exception($"Metric {metricId} not found.");
+
+            var metric = metricSearch.First();
+            return metric.GetWindow();
+        }
+
         public WindowResponse[] GetAllWindowsMeasures()
         {
             var windows = _metrics.Keys.Select(x => x.GetWindow());
             return windows.ToArray();
+        }
+
+        public MetricHistoryResponse GetMetricHistory(int metricId, int deep)
+        {
+            var metricSearch = _metrics.Keys.Where(x => x.Dto.ID == metricId).ToList();
+
+            if (!metricSearch.Any())
+                throw new Exception($"Metric {metricId} not found.");
+
+            var metric = metricSearch.First();
+            return metric.GetMetricHistory(deep);
         }
 
         public void OnStart()
