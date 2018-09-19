@@ -203,8 +203,8 @@ namespace Monik.Service
                 try
                 {
                     int metricId = args.id;
-                    var deep = (int) Request.Query["deep"];
-                    var result = cacheMetric.GetMetricHistory(metricId, deep);
+                    var p = this.Bind<MetricHistoryRequestParameters>();
+                    var result = cacheMetric.GetMetricHistory(metricId, p.Amount, p.Skip);
                     return Response.AsJson(result);
                 }
                 catch (Exception ex)

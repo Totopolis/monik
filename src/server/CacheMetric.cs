@@ -98,7 +98,7 @@ namespace Monik.Service
             return windows.ToArray();
         }
 
-        public MetricHistoryResponse GetMetricHistory(int metricId, int deep)
+        public MetricHistoryResponse GetMetricHistory(int metricId, int amount, int skip)
         {
             var metricSearch = _metrics.Keys.Where(x => x.Dto.ID == metricId).ToList();
 
@@ -106,7 +106,7 @@ namespace Monik.Service
                 throw new Exception($"Metric {metricId} not found.");
 
             var metric = metricSearch.First();
-            return metric.GetMetricHistory(deep);
+            return metric.GetMetricHistory(amount, skip);
         }
 
         public void OnStart()

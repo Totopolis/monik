@@ -55,32 +55,30 @@ namespace Monik.Service
             };
         }
 
-        public MetricHistoryResponse GetMetricHistory(int deep)
+        public MetricHistoryResponse GetMetricHistory(int amount, int skip)
         {
-            var actualMeasure = GetMeasure(_dto.ActualID);
+            var interval = _dto.ActualInterval.AddMinutes(-5 * skip);
             var historyMeasures =
-                GetHistoryValuesEnumerable()
-                    .Take(deep)
-                    .Reverse()
+                GetHistoryValuesEnumerable(skip)
+                    .Take(amount)
                     .ToArray();
 
             return new MetricHistoryResponse
             {
                 MetricId = _dto.ID,
-                ActualInterval = _dto.ActualInterval,
-                CurrentValue = actualMeasure.Value,
-                HistoryValues = historyMeasures
+                Interval = interval,
+                Values = historyMeasures
             };
         }
 
-        private IEnumerable<double> GetHistoryValuesEnumerable()
+        private IEnumerable<double> GetHistoryValuesEnumerable(int skip)
         {
             var dif = _dto.RangeTailID - _dto.RangeHeadID;
             var actualIdx = _dto.ActualID - _dto.RangeHeadID;
-            var i = 0;
+            var i = skip;
             while (i < int.MaxValue)
             {
-                var index = (actualIdx - ++i) % dif;
+                var index = (actualIdx - i++) % dif;
                 if (index < 0)
                     index += dif;
                 yield return _measures[index].Value;
