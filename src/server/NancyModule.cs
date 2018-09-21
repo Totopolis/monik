@@ -182,12 +182,37 @@ namespace Monik.Service
                 }
             };
 
-            // + /metrics/1/current
-            // /metrics/1/history?deep...
-            // /metrics/1/window
+            Get["/metrics/{id:int}/window"] = args =>
+            {
+                try
+                {
+                    int metricId = args.id;
 
-            // + metrics/currents
-            // metrics/windows
+                    var result = cacheMetric.GetWindowMeasure(metricId);
+                    return Response.AsJson(result);
+                }
+                catch (Exception ex)
+                {
+                    monik.ApplicationError($"Method /metrics/id/window : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
+            };
+
+            Get["/metrics/{id:int}/history"] = args =>
+            {
+                try
+                {
+                    int metricId = args.id;
+                    var p = this.Bind<MetricHistoryRequestParameters>();
+                    var result = cacheMetric.GetMetricHistory(metricId, p.Amount, p.Skip);
+                    return Response.AsJson(result);
+                }
+                catch (Exception ex)
+                {
+                    monik.ApplicationError($"Method /metrics/id/history : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
+            };
         }
     }//end of class
 

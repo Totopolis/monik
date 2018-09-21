@@ -131,6 +131,19 @@ namespace Monik.Service
         public double Value { get; set; }
     }
 
+    public class MetricHistoryRequestParameters
+    {
+        public int Amount { get; set; } = 12;
+        public int Skip { get; set; } = 0;
+    }
+
+    public class MetricHistoryResponse
+    {
+        public int MetricId { get; set; }
+        public DateTime Interval { get; set; }
+        public double[] Values { get; set; }
+    }
+
     public class KeepAliveStatus
     {
         public short SourceID { get; set; }
