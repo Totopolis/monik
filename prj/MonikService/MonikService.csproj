@@ -189,6 +189,9 @@
     <Compile Include="..\..\src\server\Interfaces.cs">
       <Link>server\Interfaces.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\server\JsonNetSerializer.cs">
+      <Link>server\JsonNetSerializer.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\server\MessageProcessor.cs">
       <Link>server\MessageProcessor.cs</Link>
     </Compile>

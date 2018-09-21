@@ -9,7 +9,6 @@ using Nancy.Authentication.Stateless;
 using Nancy.Bootstrapper;
 using Nancy.Bootstrappers.Autofac;
 using Nancy.Gzip;
-using Nancy.Json;
 
 namespace Monik.Service
 {
@@ -31,10 +30,6 @@ namespace Monik.Service
 
             // Enable Compression with Default Settings
             pipelines.EnableGzipCompression();
-
-            JsonSettings.MaxJsonLength = int.MaxValue;
-            JsonSettings.MaxRecursions = 100;
-            JsonSettings.RetainCasing = true;
 
             var userIdentityProvider = container.Resolve<IUserIdentityProvider>();
             var configuration = new StatelessAuthenticationConfiguration(userIdentityProvider.GetUserIdentity);
@@ -113,6 +108,10 @@ namespace Monik.Service
             // No registrations should be performed in here, however you may
             // resolve things that are needed during request startup.
         }
+
+        // Use JSON.NET serializer
+        protected override NancyInternalConfiguration InternalConfiguration =>
+            NancyInternalConfiguration.WithOverrides(c => c.Serializers.Insert(0, typeof(JsonNetSerializer)));
     }
 
     public static class LifeTimeExtension
