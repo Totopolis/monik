@@ -3,6 +3,8 @@ using Monik.Service.Test;
 #endif
 
 using Autofac;
+using Gerakul.FastSql.Common;
+using Gerakul.FastSql.SqlServer;
 using Monik.Common;
 using Nancy;
 using Nancy.Authentication.Stateless;
@@ -35,7 +37,9 @@ namespace Monik.Service
             var configuration = new StatelessAuthenticationConfiguration(userIdentityProvider.GetUserIdentity);
             StatelessAuthentication.Enable(pipelines, configuration);
 
-            container.Resolve<IMonikServiceSettings>().OnStart();
+            var settings = container.Resolve<IRepository>().LoadSettings();
+            container.Resolve<IMonikServiceSettings>().UpdateSettings(settings);
+
             container.Resolve<ISourceInstanceCache>().OnStart();
             container.Resolve<ICacheLog>().OnStart();
             container.Resolve<ICacheKeepAlive>().OnStart();
@@ -63,7 +67,6 @@ namespace Monik.Service
             Singleton.Resolve<ICacheKeepAlive>().OnStop();
             Singleton.Resolve<ICacheLog>().OnStop();
             Singleton.Resolve<ISourceInstanceCache>().OnStop();
-            Singleton.Resolve<IMonikServiceSettings>().OnStop();
         }
 
         protected override void ConfigureApplicationContainer(ILifetimeScope existingContainer)
@@ -76,6 +79,7 @@ namespace Monik.Service
             // Stub have internal state !
             existingContainer.RegisterSingleton<IRepository, RepositoryStub>();
 #else
+            existingContainer.RegisterInstance<ContextProvider, SqlContextProvider>(SqlContextProvider.DefaultInstance);
             existingContainer.RegisterImplementation<IRepository, Repository>();
 #endif
 

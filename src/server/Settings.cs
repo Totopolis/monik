@@ -1,10 +1,6 @@
-﻿using Gerakul.FastSql;
-using System;
-using System.Configuration;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Configuration;
 
 namespace Monik.Service
 {
@@ -13,26 +9,19 @@ namespace Monik.Service
         // TODO: use concurent when online updates
         private static Dictionary<string, string> _settings = null;
 
-        public void OnStart()
+        public void UpdateSettings(Dictionary<string, string> val)
         {
-            if (_settings == null)
-            {
-                _settings = new Dictionary<string, string>();
-
-                var proto = new { name = default(string), value = default(string) };
-                var settings = SimpleCommand.ExecuteQueryAnonymous(proto, DbConnectionString, "select Name, Value from mon.Settings");
-                foreach (var it in settings)
-                    _settings[it.name] = it.value;
-            }
-        }
-
-        public void OnStop()
-        {
+            _settings = val;
         }
 
         public string InstanceName
         {
             get { return ConfigurationManager.AppSettings["InstanceName"]; }
+        }
+
+        public string DbConnectionString
+        {
+            get { return ConfigurationManager.AppSettings["DBConnectionString"]; }
         }
 
         public int CleanupBatchSize => int.Parse(ConfigurationManager.AppSettings["CleanupBatchSize"]);
@@ -47,11 +36,6 @@ namespace Monik.Service
         public int DayDeepLog
         {
             get { return int.Parse(_settings["DayDeepLog"]); }
-        }
-
-        public string DbConnectionString
-        {
-            get { return ConfigurationManager.AppSettings["DBConnectionString"]; }
         }
 
         public string OutcomingConnectionString

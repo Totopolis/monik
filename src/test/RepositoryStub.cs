@@ -15,6 +15,17 @@ namespace Monik.Service.Test
 
         public RepositoryStub() { }
 
+        public Dictionary<string, string> LoadSettings()
+        {
+            return new Dictionary<string, string>
+            {
+                {"OutcomingConnectionString", "[YOUR SERVICE BUS CONNECTION STRING]"},
+                {"OutcomingQueue", "[SERVICE BUS QUEUE]"},
+                {"DayDeepLog", "14"},
+                {"DayDeepKeepAlive", "1"}
+            };
+        }
+
         public List<Source> GetAllSources() => new List<Source>();
 
         public List<Instance> GetAllInstances() => new List<Instance>();

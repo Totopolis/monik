@@ -55,8 +55,11 @@
     <Reference Include="EasyNetQ, Version=3.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\EasyNetQ.3.3.0\lib\net451\EasyNetQ.dll</HintPath>
     </Reference>
-    <Reference Include="Gerakul.FastSql, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Gerakul.FastSql.1.0.3\lib\net46\Gerakul.FastSql.dll</HintPath>
+    <Reference Include="Gerakul.FastSql.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Gerakul.FastSql.Common.1.0.0\lib\net46\Gerakul.FastSql.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Gerakul.FastSql.SqlServer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Gerakul.FastSql.SqlServer.1.0.0\lib\net46\Gerakul.FastSql.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Gerakul.SqlQueue.Core, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Gerakul.SqlQueue.Core.1.0.4\lib\net46\Gerakul.SqlQueue.Core.dll</HintPath>

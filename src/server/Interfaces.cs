@@ -24,8 +24,10 @@ namespace Monik.Service
         void Stop();
     }
 
-    public interface IMonikServiceSettings : IObject
+    public interface IMonikServiceSettings
     {
+        void UpdateSettings(Dictionary<string, string> val);
+
         string DbConnectionString { get; }
         string InstanceName { get; }
 
@@ -44,6 +46,8 @@ namespace Monik.Service
 
     public interface IRepository
     {
+        Dictionary<string, string> LoadSettings();
+
         List<Source> GetAllSources();
         List<Instance> GetAllInstances();
         List<Group> GetAllGroupsAndFill();
