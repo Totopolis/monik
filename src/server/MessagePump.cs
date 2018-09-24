@@ -21,7 +21,7 @@ namespace Monik.Service
 
         private readonly ConcurrentQueue<Event> _msgBuffer = new ConcurrentQueue<Event>();
 
-        private readonly Task _pumpTask;
+        private Task _pumpTask;
         private readonly ManualResetEvent _newMessageEvent = new ManualResetEvent(false);
         private readonly CancellationTokenSource _pumpCancellationTokenSource = new CancellationTokenSource();
 
@@ -31,8 +31,6 @@ namespace Monik.Service
             _cache = cache;
             _processor = processor;
             _monik = monik;
-
-            _pumpTask = Task.Run(() => { OnProcessTask(); });
 
             _monik.ApplicationVerbose("MessagePump created");
         }
@@ -132,6 +130,9 @@ namespace Monik.Service
                     _monik.ApplicationError($"MessagePump.OnStart failed initialization {it.Name}: {ex.Message}");
                 }
             }//configure all event sources
+
+            // Start message processing
+            _pumpTask = Task.Run(() => { OnProcessTask(); });
 
             _monik.ApplicationVerbose("MessagePump started");
         }
