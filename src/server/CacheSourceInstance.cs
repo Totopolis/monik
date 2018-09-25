@@ -143,6 +143,63 @@ namespace Monik.Service
             return _groups[groupId].Instances.Contains(instanceId);
         }
 
+        public void AddInstanceToGroup(int instanceId, short groupId)
+        {
+            if (!_groups.ContainsKey(groupId) ||
+                _groups[groupId].Instances.Contains(instanceId))
+                return;
+
+            if (_groups[groupId].IsDefault)
+                _defaultInstances.Add(instanceId);
+
+            _groups[groupId].Instances.Add(instanceId);
+            _repository.AddInstanceToGroup(instanceId, groupId);
+        }
+
+        public bool RemoveInstanceFromGroup(int instanceId, short groupId)
+        {
+            if (!_groups.ContainsKey(groupId) ||
+                !_groups[groupId].Instances.Contains(instanceId))
+                return false;
+
+            if (IsDefaultInstance(instanceId))
+                _defaultInstances.Remove(instanceId);
+
+            _groups[groupId].Instances.Remove(instanceId);
+            _repository.RemoveInstanceFromGroup(instanceId, groupId);
+            return true;
+        }
+
+        public void CreateGroup(Group_ group)
+        {
+            var newId = _repository.CreateGroup(group);
+
+            var newGroup = new Group
+            {
+                ID = newId,
+                Name = group.Name,
+                Description = group.Description,
+                IsDefault = group.IsDefault,
+                Instances = new List<int>()
+            };
+
+            _groups.Add(newGroup.ID, newGroup);
+        }
+
+        public bool RemoveGroup(short groupId)
+        {
+            if (!_groups.ContainsKey(groupId))
+                return false;
+
+            if (_groups[groupId].IsDefault)
+                foreach (var ins in _groups[groupId].Instances)
+                    _defaultInstances.Remove(ins);
+
+            _groups.Remove(groupId);
+            _repository.RemoveGroup(groupId);
+            return true;
+        }
+
         public Source GetSourceByInstanceId(int instanceId)
         {
             lock (this)
@@ -208,7 +265,7 @@ namespace Monik.Service
                 {
                     var gr = _groups[src.DefaultGroupID.Value];
                     gr.Instances.Add(ins.ID);
-                    _repository.AddInstanceToGroup(ins, gr);
+                    _repository.AddInstanceToGroup(ins.ID, gr.ID);
                 }
 
                 return ins;

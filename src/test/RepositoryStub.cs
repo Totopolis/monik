@@ -58,7 +58,10 @@ namespace Monik.Service.Test
             ins.ID = maxInstanceId;
         }
 
-        public void AddInstanceToGroup(Instance ins, Group group) => throw new NotImplementedException();
+        public void AddInstanceToGroup(int iId, short gId) => throw new NotImplementedException();
+        public void RemoveInstanceFromGroup(int iId, short gId) => throw new NotImplementedException();
+        public short CreateGroup(Group_ group) => throw new NotImplementedException();
+        public void RemoveGroup(short id) => throw new NotImplementedException();
 
         public long GetMaxLogId() => _logLastId;
 

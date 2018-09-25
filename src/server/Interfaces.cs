@@ -54,7 +54,11 @@ namespace Monik.Service
 
         void CreateNewSource(Source src);
         void CreateNewInstance(Instance ins);
-        void AddInstanceToGroup(Instance ins, Group group);
+
+        void AddInstanceToGroup(int iId, short gId);
+        void RemoveInstanceFromGroup(int iId, short gId);
+        short CreateGroup(Group_ group);
+        void RemoveGroup(short id);
 
         long GetMaxLogId();
         long GetMaxKeepAliveId();
@@ -108,6 +112,11 @@ namespace Monik.Service
 
         bool IsDefaultInstance(int instance);
         bool IsInstanceInGroup(int instanceId, short groupId);
+
+        void CreateGroup(Group_ group);
+        bool RemoveGroup(short groupId);
+        void AddInstanceToGroup(int instanceId, short groupId);
+        bool RemoveInstanceFromGroup(int instanceId, short groupId);
     }
 
     public interface ICacheEntity

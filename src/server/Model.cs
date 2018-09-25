@@ -118,6 +118,13 @@ namespace Monik.Service
         public double Value { get; set; }
     }
 
+    public class Group_
+    {
+        public string Name { get; set; }
+        public bool IsDefault { get; set; }
+        public string Description { get; set; }
+    }
+
     public class MeasureResponse
     {
         public int MetricId { get; set; }

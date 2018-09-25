@@ -119,10 +119,33 @@ namespace Monik.Service
             ins.ID = _context.InsertAndGetId<Instance, int>("[mon].[Instance]", ins);
         }
 
-        public void AddInstanceToGroup(Instance ins, Group group)
+        public void AddInstanceToGroup(int iId, short gId)
         {
-            var value = new { GroupID = group.ID, InstanceID = ins.ID };
-            _context.Insert("mon.GroupInstance", value, "ID");
+            var value = new { GroupID = gId, InstanceID = iId };
+            _context.Insert("[mon].[GroupInstance]", value, "ID");
+        }
+
+        public void RemoveInstanceFromGroup(int iId, short gId)
+        {
+            _context
+                .CreateSimple(@"delete from [mon].[GroupInstance] where InstanceID = @p0", iId)
+                .ExecuteNonQuery();
+        }
+
+        public short CreateGroup(Group_ group)
+        {
+            return _context.InsertAndGetId<Group_, short>("[mon].[Group]", group);
+        }
+
+        public void RemoveGroup(short id)
+        {
+            const string query = @"
+delete from [mon].[Group] where ID = @p0
+delete from [mon].[GroupInstance] where GroupID = @p0
+";
+            _context
+                .CreateSimple(query, id)
+                .ExecuteNonQuery();
         }
 
         public long GetMaxLogId()

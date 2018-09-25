@@ -266,6 +266,65 @@ namespace Monik.Service
                     return HttpStatusCode.InternalServerError;
                 }
             };
+
+            Post["/groups"] = args =>
+            {
+                try
+                {
+                    var group = this.Bind<Group_>();
+                    monik.ApplicationInfo($"Post /groups {group.Name} by {Context.CurrentUser.UserName}");
+                    sourceInstanceCache.CreateGroup(group);
+                    return HttpStatusCode.Created;
+                }
+                catch (Exception ex)
+                {
+                    monik.ApplicationError($"Method POST /groups : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
+            };
+            Delete["/groups/{id:int}"] = args =>
+            {
+                try
+                {
+                    monik.ApplicationInfo($"Delete /groups/{args.id} by {Context.CurrentUser.UserName}");
+                    var result = sourceInstanceCache.RemoveGroup((short)args.id);
+                    return result ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+                }
+                catch (Exception ex)
+                {
+                    monik.ApplicationError($"Method DELETE /groups/id : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
+            };
+            Put["/groups/{groupId:int}/instances/{instanceId:int}"] = args =>
+            {
+                try
+                {
+                    monik.ApplicationInfo($"Put /groups/{args.groupId}/instances/{args.instanceId} by {Context.CurrentUser.UserName}");
+                    sourceInstanceCache.AddInstanceToGroup(args.instanceId, (short)args.groupId);
+                    return HttpStatusCode.OK;
+                }
+                catch (Exception ex)
+                {
+                    monik.ApplicationError($"Method PUT /groups/id/instances/id : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
+            };
+            Delete["/groups/{groupId:int}/instances/{instanceId:int}"] = args =>
+            {
+                try
+                {
+                    monik.ApplicationInfo($"Delete /groups/{args.groupId}/instances/{args.instanceId} by {Context.CurrentUser.UserName}");
+                    var result = sourceInstanceCache.RemoveInstanceFromGroup(args.instanceId, (short)args.groupId);
+                    return result ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+                }
+                catch (Exception ex)
+                {
+                    monik.ApplicationError($"Method DELETE /groups/id/instances/id : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
+            };
+
         }
     }//end of class
 
