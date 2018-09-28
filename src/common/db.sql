@@ -46,7 +46,7 @@ ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 CREATE TABLE [mon].[Group](
 	[ID] [smallint] IDENTITY(1,1) NOT NULL,
 	[Name] [nvarchar](256) NOT NULL,
-	[IsDefault] [bool] NOT NULL,
+	[IsDefault] [bit] NOT NULL,
 	[Description] [nvarchar](256) NULL,
  CONSTRAINT [PK_Group] PRIMARY KEY CLUSTERED 
 (

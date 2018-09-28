@@ -273,8 +273,9 @@ namespace Monik.Service
                 {
                     var group = this.Bind<Group_>();
                     monik.ApplicationInfo($"Post /groups {group.Name} by {Context.CurrentUser.UserName}");
-                    sourceInstanceCache.CreateGroup(group);
-                    return HttpStatusCode.Created;
+                    var result = sourceInstanceCache.CreateGroup(group);
+                    return Response.AsJson(result, HttpStatusCode.Created)
+                        .WithHeader("Location", $"/groups/{result.ID}");
                 }
                 catch (Exception ex)
                 {

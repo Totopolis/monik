@@ -170,7 +170,7 @@ namespace Monik.Service
             return true;
         }
 
-        public void CreateGroup(Group_ group)
+        public Group CreateGroup(Group_ group)
         {
             var newId = _repository.CreateGroup(group);
 
@@ -184,6 +184,7 @@ namespace Monik.Service
             };
 
             _groups.Add(newGroup.ID, newGroup);
+            return newGroup;
         }
 
         public bool RemoveGroup(short groupId)

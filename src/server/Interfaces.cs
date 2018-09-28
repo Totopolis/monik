@@ -113,7 +113,7 @@ namespace Monik.Service
         bool IsDefaultInstance(int instance);
         bool IsInstanceInGroup(int instanceId, short groupId);
 
-        void CreateGroup(Group_ group);
+        Group CreateGroup(Group_ group);
         bool RemoveGroup(short groupId);
         void AddInstanceToGroup(int instanceId, short groupId);
         bool RemoveInstanceFromGroup(int instanceId, short groupId);
