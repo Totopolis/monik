@@ -126,7 +126,13 @@ namespace Monik.Service
                 switch (metric.Mc.Aggregation)
                 {
                     case AggregationType.Accumulator:
-                        actualMeasure.Value += metric.Mc.Value;
+                        if (actualMeasure.HasValue)
+                            actualMeasure.Value += metric.Mc.Value;
+                        else
+                        {
+                            actualMeasure.Value = metric.Mc.Value;
+                            actualMeasure.HasValue = true;
+                        }
 
                         AccumWindowCalculator accWin = window as AccumWindowCalculator;
                         if (accWin == null)
@@ -136,7 +142,13 @@ namespace Monik.Service
                         break;
 
                     case AggregationType.Gauge:
-                        actualMeasure.Value = (actualMeasure.Value + metric.Mc.Value) / 2;
+                        if (actualMeasure.HasValue)
+                            actualMeasure.Value = (actualMeasure.Value + metric.Mc.Value) / 2;
+                        else
+                        {
+                            actualMeasure.Value = metric.Mc.Value;
+                            actualMeasure.HasValue = true;
+                        }
 
                         GaugeWindowCalculator gauWin = window as GaugeWindowCalculator;
                         if (gauWin == null)
@@ -174,6 +186,7 @@ namespace Monik.Service
                     // cleanup next current interval !!!!
                     var actualMeasure = GetMeasure(_dto.ActualID);
                     actualMeasure.Value = 0;
+                    actualMeasure.HasValue = false;
                 }
 
                 if (_intervalsToSave.Count > 0)

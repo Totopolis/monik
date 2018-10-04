@@ -116,6 +116,8 @@ namespace Monik.Service
     {
         public long ID { get; set; }
         public double Value { get; set; }
+
+        internal bool HasValue { get; set; }
     }
 
     public class Group_
