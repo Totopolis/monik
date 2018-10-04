@@ -150,7 +150,9 @@ namespace Monik.Service
 
         Metric_[] GetMetricsDescriptions();
         MeasureResponse GetCurrentMeasure(int metricId);
+        MeasureResponse[] GetCurrentMeasures(MetricRequest filter);
         MeasureResponse[] GetAllCurrentMeasures();
+        WindowResponse[] GetWindowMeasures(MetricRequest filter);
         WindowResponse[] GetAllWindowsMeasures();
         WindowResponse GetWindowMeasure(int metricId);
         MetricHistoryResponse GetMetricHistory(int metricId, int amount, int skip);

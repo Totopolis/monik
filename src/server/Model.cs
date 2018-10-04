@@ -168,30 +168,6 @@ namespace Monik.Service
         public bool StatusOK { get; set; }
     }
 
-    public enum Order
-    {
-        Asc,
-        Desc
-    }
-
-    public class LogsFilter
-    {
-        public bool FilterBySource { get; set; }
-        public int SourceId { get; set; }
-
-        public bool FilterByInstance { get; set; }
-        public int InstanceId { get; set; }
-
-        public bool FilterByLevel { get; set; }
-        public int Level { get; set; }
-
-        public bool FilterBySeverity { get; set; }
-        public int Severity { get; set; }
-
-        public bool EnableCutoffSeverity { get; set; }
-        public int CutoffSeverity { get; set; }
-    }
-
     public class LogRequest
     {
         public short[] Groups { get; set; } = new short[0];
@@ -204,6 +180,12 @@ namespace Monik.Service
     }
 
     public class KeepAliveRequest
+    {
+        public short[] Groups { get; set; } = new short[0];
+        public int[] Instances { get; set; } = new int[0];
+    }
+
+    public class MetricRequest
     {
         public short[] Groups { get; set; } = new short[0];
         public int[] Instances { get; set; } = new int[0];

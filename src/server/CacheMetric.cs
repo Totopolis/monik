@@ -64,6 +64,22 @@ namespace Monik.Service
 
         public Metric_[] GetMetricsDescriptions() => _metrics.Keys.Select(x => x.Dto).ToArray();
 
+        private IEnumerable<IMetricObject> GetMetricObjectsByFilter(MetricRequest filter)
+        {
+            if (filter.Groups.Length == 0 && filter.Instances.Length == 0)
+            {
+                return _metrics.Keys
+                    .Where(m => _sourceCache.IsDefaultInstance(m.Dto.InstanceID));
+            }
+            else
+            {
+                return _metrics.Keys
+                    .Where(m =>
+                        filter.Groups.Any(gr => _sourceCache.IsInstanceInGroup(m.Dto.InstanceID, gr)) ||
+                        filter.Instances.Contains(m.Dto.InstanceID));
+            }
+        }
+
         public MeasureResponse GetCurrentMeasure(int metricId)
         {
             var metricSearch = _metrics.Keys.Where(x => x.Dto.ID == metricId).ToList();
@@ -73,6 +89,13 @@ namespace Monik.Service
 
             var metric = metricSearch.First();
             return metric.GetCurrentMeasure();
+        }
+
+        public MeasureResponse[] GetCurrentMeasures(MetricRequest filter)
+        {
+            return GetMetricObjectsByFilter(filter)
+                .Select(m => m.GetCurrentMeasure())
+                .ToArray();
         }
 
         public MeasureResponse[] GetAllCurrentMeasures()
@@ -90,6 +113,13 @@ namespace Monik.Service
 
             var metric = metricSearch.First();
             return metric.GetWindow();
+        }
+
+        public WindowResponse[] GetWindowMeasures(MetricRequest filter)
+        {
+            return GetMetricObjectsByFilter(filter)
+                .Select(m => m.GetWindow())
+                .ToArray();
         }
 
         public WindowResponse[] GetAllWindowsMeasures()

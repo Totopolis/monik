@@ -152,6 +152,22 @@ namespace Monik.Service
                 }
             };
 
+            Post["/metrics/currents"] = args =>
+            {
+                try
+                {
+                    var filter = this.Bind<MetricRequest>();
+
+                    var result = cacheMetric.GetCurrentMeasures(filter);
+                    return Response.AsJson(result);
+                }
+                catch (Exception ex)
+                {
+                    monik.ApplicationError($"Method POST /metrics/currents : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
+            };
+
             Get["/metrics/{id:int}/current"] = args =>
             {
                 try
@@ -178,6 +194,22 @@ namespace Monik.Service
                 catch (Exception ex)
                 {
                     monik.ApplicationError($"Method /metrics/windows : {ex.Message}");
+                    return HttpStatusCode.InternalServerError;
+                }
+            };
+
+            Post["/metrics/windows"] = args =>
+            {
+                try
+                {
+                    var filter = this.Bind<MetricRequest>();
+
+                    var result = cacheMetric.GetWindowMeasures(filter);
+                    return Response.AsJson(result);
+                }
+                catch (Exception ex)
+                {
+                    monik.ApplicationError($"Method POST /metrics/windows : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
             };
