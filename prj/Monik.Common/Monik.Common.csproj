@@ -64,6 +64,7 @@
     <Compile Include="..\..\src\common\Scheduler.cs">
       <Link>Scheduler.cs</Link>
     </Compile>
+    <Compile Include="MonikFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
