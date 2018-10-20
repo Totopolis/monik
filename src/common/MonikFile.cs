@@ -30,7 +30,7 @@ namespace Monik.Common
             }
 
             text = $"{DateTime.Now.ToString("HH:mm")} {level.ToString()} {severity.ToString()} | {text}";
-            File.WriteAllText(fileName, text);
+            File.AppendAllText(fileName, text + Environment.NewLine);
         }
 
         public void KeepAlive() { }
