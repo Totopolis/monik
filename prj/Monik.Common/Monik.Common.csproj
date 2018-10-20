@@ -61,10 +61,12 @@
     <Compile Include="..\..\src\common\MonikDelayedSender.cs">
       <Link>MonikDelayedSender.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\common\MonikFile.cs">
+      <Link>MonikFile.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\common\Scheduler.cs">
       <Link>Scheduler.cs</Link>
     </Compile>
-    <Compile Include="MonikFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
