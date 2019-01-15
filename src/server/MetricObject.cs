@@ -10,6 +10,8 @@ namespace Monik.Service
 
     public class MetricObject : IMetricObject
     {
+        private const int IntervalEpsilon = 1000; // ms
+
         private readonly IMonik _monik;
         private readonly IRepository _repository;
 
@@ -109,20 +111,21 @@ namespace Monik.Service
 
             lock (this)
             {
-                var actualIntervalEnd = _dto.ActualInterval;
-                var actualIntervalStart = _dto.ActualInterval.AddMinutes(-5);
+                // actual interval with epsilon
+                var intervalStart = _dto.ActualInterval.AddMinutes(-5).AddMilliseconds(-IntervalEpsilon);
+                var intervalEnd = _dto.ActualInterval.AddMilliseconds(IntervalEpsilon);
 
-                if (metTime < actualIntervalStart || metTime >= actualIntervalEnd)
+                if (metTime < intervalStart || metTime > intervalEnd)
                 {
                     // skip event
                     // increase skip metric
                     _monik.Measure("OutTimeMeasure", AggregationType.Accumulator, 1);
                     var serverTime = DateTime.UtcNow;
-                    var diffInterval = metTime < actualIntervalStart
-                        ? (metTime - actualIntervalStart).TotalMilliseconds
-                        : (metTime - actualIntervalEnd).TotalMilliseconds;
+                    var diffInterval = metTime < intervalStart
+                        ? (metTime - intervalStart).TotalMilliseconds
+                        : (metTime - intervalEnd).TotalMilliseconds;
                     var diffServer = (serverTime - metTime).TotalMilliseconds;
-                    _monik.LogicVerbose($@"[OutTime] {metric.Source}.{metric.Instance}::{metric.Mc.Name}, lag:{diffServer}, lagInterval:{diffInterval}, {metric.Created} not in [{new DateTimeOffset(actualIntervalStart).ToUnixTimeMilliseconds()},{new DateTimeOffset(actualIntervalEnd).ToUnixTimeMilliseconds()}), now:{new DateTimeOffset(serverTime).ToUnixTimeMilliseconds()}");
+                    _monik.LogicVerbose($@"[OutTime] {metric.Source}.{metric.Instance}::{metric.Mc.Name}, lag:{diffServer}, lagInterval:{diffInterval}, {metric.Created} not in [{new DateTimeOffset(intervalStart).ToUnixTimeMilliseconds()},{new DateTimeOffset(intervalEnd).ToUnixTimeMilliseconds()}), now:{new DateTimeOffset(serverTime).ToUnixTimeMilliseconds()}");
                     return;
                 }
 
