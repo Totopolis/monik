@@ -111,9 +111,12 @@ namespace Monik.Service
 
             lock (this)
             {
-                // actual interval with epsilon
-                var intervalStart = _dto.ActualInterval.AddMinutes(-5).AddMilliseconds(-IntervalEpsilon);
-                var intervalEnd = _dto.ActualInterval.AddMilliseconds(IntervalEpsilon);
+                var actualIntervalStart = _dto.ActualInterval.AddMinutes(-5);
+                var actualIntervalEnd = _dto.ActualInterval;
+                
+                // interval with epsilon
+                var intervalStart = actualIntervalStart.AddMilliseconds(-IntervalEpsilon);
+                var intervalEnd = actualIntervalEnd.AddMilliseconds(IntervalEpsilon);
 
                 if (metTime < intervalStart || metTime > intervalEnd)
                 {
@@ -122,10 +125,10 @@ namespace Monik.Service
                     _monik.Measure("OutTimeMeasure", AggregationType.Accumulator, 1);
                     var serverTime = DateTime.UtcNow;
                     var diffInterval = metTime < intervalStart
-                        ? (metTime - intervalStart).TotalMilliseconds
-                        : (metTime - intervalEnd).TotalMilliseconds;
+                        ? (metTime - actualIntervalStart).TotalMilliseconds
+                        : (metTime - actualIntervalEnd).TotalMilliseconds;
                     var diffServer = (serverTime - metTime).TotalMilliseconds;
-                    _monik.LogicVerbose($@"[OutTime] {metric.Source}.{metric.Instance}::{metric.Mc.Name}, lag:{diffServer}, lagInterval:{diffInterval}, {metric.Created} not in [{new DateTimeOffset(intervalStart).ToUnixTimeMilliseconds()},{new DateTimeOffset(intervalEnd).ToUnixTimeMilliseconds()}), now:{new DateTimeOffset(serverTime).ToUnixTimeMilliseconds()}");
+                    _monik.LogicVerbose($@"[OutTime] {metric.Source}.{metric.Instance}::{metric.Mc.Name}, lag:{diffServer}, lagInterval:{diffInterval}, {metric.Created} not in [{new DateTimeOffset(actualIntervalStart).ToUnixTimeMilliseconds()},{new DateTimeOffset(actualIntervalEnd).ToUnixTimeMilliseconds()}), now:{new DateTimeOffset(serverTime).ToUnixTimeMilliseconds()}");
                     return;
                 }
 
