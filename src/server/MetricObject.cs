@@ -117,7 +117,12 @@ namespace Monik.Service
                     // skip event
                     // increase skip metric
                     _monik.Measure("OutTimeMeasure", AggregationType.Accumulator, 1);
-
+                    var serverTime = DateTime.UtcNow;
+                    var diffInterval = metTime < actualIntervalStart
+                        ? (metTime - actualIntervalStart).TotalMilliseconds
+                        : (metTime - actualIntervalEnd).TotalMilliseconds;
+                    var diffServer = (serverTime - metTime).TotalMilliseconds;
+                    _monik.LogicVerbose($@"[OutTime] {metric.Source}.{metric.Instance}::{metric.Mc.Name}, lag:{diffServer}, lagInterval:{diffInterval}, {metric.Created} not in [{new DateTimeOffset(actualIntervalStart).ToUnixTimeMilliseconds()},{new DateTimeOffset(actualIntervalEnd).ToUnixTimeMilliseconds()}), now:{new DateTimeOffset(serverTime).ToUnixTimeMilliseconds()}");
                     return;
                 }
 
