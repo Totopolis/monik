@@ -31,19 +31,25 @@ namespace Monik.Client
                 else
                 {
                     FAutoKeepAliveCancellationTokenSource = new CancellationTokenSource();
-                    FAutoKeepAliveTask = Task.Run(() => { OnAutoKeepAliveTask(); });
+                    FAutoKeepAliveTask = Task.Run(OnAutoKeepAliveTask);
                 }
             }
         }
 
-        private void OnAutoKeepAliveTask()
+        private async Task OnAutoKeepAliveTask()
         {
-            while (!FAutoKeepAliveCancellationTokenSource.IsCancellationRequested)
+            try
             {
-                int msDelay = _keepAliveInterval * 1000;
-                Task.Delay(msDelay).Wait();
+                while (!FAutoKeepAliveCancellationTokenSource.IsCancellationRequested)
+                {
+                    int msDelay = _keepAliveInterval * 1000;
+                    await Task.Delay(msDelay, FAutoKeepAliveCancellationTokenSource.Token);
 
-                KeepAlive();
+                    KeepAlive();
+                }
+            }
+            catch (TaskCanceledException)
+            {
             }
         }
 
