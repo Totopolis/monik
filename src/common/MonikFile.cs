@@ -1,19 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Monik.Common
 {
     public class MonikFile : IMonik
     {
         private readonly string fileName;
+        private readonly object fileLock;
 
         public MonikFile(string fn)
         {
             fileName = fn;
+            fileLock = new object();
         }
 
         protected virtual void LogToConsole(string body, LevelType level, SeverityType severity, params object[] parameters)
@@ -30,7 +28,10 @@ namespace Monik.Common
             }
 
             text = $"{DateTime.Now.ToString("HH:mm")} {level.ToString()} {severity.ToString()} | {text}";
-            File.AppendAllText(fileName, text + Environment.NewLine);
+            lock (fileLock)
+            {
+                File.AppendAllText(fileName, text + Environment.NewLine);
+            }
         }
 
         public void KeepAlive() { }
