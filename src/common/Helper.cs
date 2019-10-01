@@ -13,7 +13,7 @@ namespace Monik.Common
             byte[] utf8Bytes = Encoding.Convert(Encoding.Unicode, Encoding.UTF8, utf16Bytes);
 
             // Return UTF8 bytes as ANSI string
-            return Encoding.Default.GetString(utf8Bytes);
+            return Encoding.UTF8.GetString(utf8Bytes);
         }
 
         public static string Utf8ToUtf16(string utf8String)

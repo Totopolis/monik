@@ -1,6 +1,8 @@
 ﻿using System.Collections.Concurrent;
+using System.IO;
 using Google.Protobuf;
-using Microsoft.ServiceBus.Messaging;
+using Microsoft.Azure.ServiceBus;
+using Microsoft.Azure.ServiceBus.InteropExtensions;
 using Monik.Common;
 
 namespace Monik.Client
@@ -18,22 +20,30 @@ namespace Monik.Client
 
         public void SendMessages(ConcurrentQueue<Event> aQueue)
         {
-            var client = QueueClient.CreateFromConnectionString(_serviceBusConnectionString, _queueName);
+            var client = new QueueClient(_serviceBusConnectionString, _queueName);
 
             try
             {
-                Event msg;
-
-                while (aQueue.TryDequeue(out msg))
+                while (aQueue.TryDequeue(out var msg))
                 {
                     var arr = msg.ToByteArray();
-                    var message = new BrokeredMessage(arr);
-                    client.Send(message);
+                    var message = new Message(Serialize(arr));
+                    client.SendAsync(message).Wait();
                 }
             }
             finally
             {
-                client.Close();
+                client.CloseAsync().Wait();
+            }
+        }
+
+        private static byte[] Serialize<T>(T obj)
+        {
+            var serializer = DataContractBinarySerializer<T>.Instance;
+            using (var memoryStream = new MemoryStream(256))
+            {
+                serializer.WriteObject(memoryStream, obj);
+                return memoryStream.ToArray();
             }
         }
     }
