@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,6 +7,8 @@ namespace Monik.Common
 {
     public abstract class MonikDelayedSender : MonikBase
     {
+        private const int SenderTaskWaitingTimeOnStop = 10_000;
+
         private readonly Task _senderTask;
         private readonly ManualResetEvent _newMessageEvent = new ManualResetEvent(false);
         private readonly CancellationTokenSource _senderCancellationTokenSource = new CancellationTokenSource();
@@ -21,16 +21,15 @@ namespace Monik.Common
             base(sourceName, instanceName, keepAliveInterval)
         {
             _sendDelay = sendDelay;
-            _senderTask = Task.Run(() => { OnSenderTask(); });
+            _senderTask = Task.Run(OnSenderTask);
         }
 
         public override void OnStop()
         {
-            // TODO: is it correct?
             _newMessageEvent.Set();
             _senderCancellationTokenSource.Cancel();
 
-            Task.Delay(2000).Wait();
+            _senderTask.Wait(SenderTaskWaitingTimeOnStop);
         }
 
         // TODO: MAX/MIN aggregation type ?

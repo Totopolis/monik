@@ -1,24 +1,26 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2020
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29319.158
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "MonikCloud", "MonikCloud\MonikCloud.ccproj", "{4A6DA3F2-5DFD-4055-BD51-31D250387D15}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonikWorker", "MonikWorker\MonikWorker.csproj", "{F373F640-6E87-4853-98B3-4B131D88A761}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monik.Client.Azure", "Monik.Client.Azure\Monik.Client.Azure.csproj", "{FF0D9AC2-DB23-40ED-8BFD-2F42B406D876}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.Client.Azure", "Monik.Client.Azure\Monik.Client.Azure.csproj", "{FF0D9AC2-DB23-40ED-8BFD-2F42B406D876}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonikService", "MonikService\MonikService.csproj", "{EECC0530-1EE3-481D-94FA-2DDA9B0EEE72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonikService", "MonikService\MonikService.csproj", "{EECC0530-1EE3-481D-94FA-2DDA9B0EEE72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monik.Common", "Monik.Common\Monik.Common.csproj", "{5FAF8EDF-464A-431E-B3D6-C33B3E297313}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.Common", "Monik.Common\Monik.Common.csproj", "{5FAF8EDF-464A-431E-B3D6-C33B3E297313}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.Client.SqlQueue", "Monik.Client.SqlQueue\Monik.Client.SqlQueue.csproj", "{52FA8ABC-D816-410A-880E-17F21D79281E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monik.Test", "Monik.Test\Monik.Test.csproj", "{84B13D64-96C9-4726-9F27-546E9DF5F8D1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.Test", "Monik.Test\Monik.Test.csproj", "{84B13D64-96C9-4726-9F27-546E9DF5F8D1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5FAF8EDF-464A-431E-B3D6-C33B3E297313} = {5FAF8EDF-464A-431E-B3D6-C33B3E297313}
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.TestConsole", "Monik.TestConsole\Monik.TestConsole.csproj", "{42A64AF2-FB1E-42AC-9B0A-F02D31417C1E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,6 +56,10 @@ Global
 		{84B13D64-96C9-4726-9F27-546E9DF5F8D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84B13D64-96C9-4726-9F27-546E9DF5F8D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84B13D64-96C9-4726-9F27-546E9DF5F8D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42A64AF2-FB1E-42AC-9B0A-F02D31417C1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42A64AF2-FB1E-42AC-9B0A-F02D31417C1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42A64AF2-FB1E-42AC-9B0A-F02D31417C1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42A64AF2-FB1E-42AC-9B0A-F02D31417C1E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
