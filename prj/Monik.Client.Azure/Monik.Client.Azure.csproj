@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageProjectUrl>https://github.com/Totopolis/monik</PackageProjectUrl>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\src\client\AzureSender.cs" Link="AzureSender.cs" />
