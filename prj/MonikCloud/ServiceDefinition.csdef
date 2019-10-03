@@ -5,5 +5,7 @@
     <Endpoints>
       <InputEndpoint name="HTTP_EP" protocol="http" port="2222" localPort="2211" />
     </Endpoints>
+    <ConfigurationSettings>
+    </ConfigurationSettings>
   </WorkerRole>
 </ServiceDefinition>
