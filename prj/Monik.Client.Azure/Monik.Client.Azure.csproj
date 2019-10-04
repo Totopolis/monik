@@ -1,7 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Totopolis</Authors>
+    <PackageDescription>Client library to collect messages: logs, performance counters and keep-alive statuses. Uses Azure Service Bus</PackageDescription>
     <PackageProjectUrl>https://github.com/Totopolis/monik</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\src\client\AzureSender.cs" Link="AzureSender.cs" />
