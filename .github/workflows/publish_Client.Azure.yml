@@ -21,6 +21,9 @@ jobs:
       with:
         dotnet-version: '3.0.100' # SDK Version to use.
     - run: dotnet pack ./prj/Monik.Client.Azure/Monik.Client.Azure.csproj -c Release -o NuGetPackages /p:Version=$RELEASE_VERSION
-    - run: |
-      dotnet nuget push ./NuGetPackages/Monik.Client.Azure.$RELEASE_VERSION.nupkg -k ${{ secrets.MYGET_APIKEY }} -s "https://www.myget.org/F/totopolis/api/v3/index.json"
-      dotnet nuget push ./NuGetPackages/Monik.Client.Azure.$RELEASE_VERSION.nupkg
+    - name: Push to feeds
+      env:
+        MYGETSOURCE: https://www.myget.org/F/totopolis/api/v3/index.json
+      run: |
+        dotnet nuget push ./NuGetPackages/Monik.Client.Azure.$RELEASE_VERSION.nupkg -k ${{ secrets.MYGET_APIKEY }} -s $MYGETSOURCE
+        dotnet nuget push ./NuGetPackages/Monik.Client.Azure.$RELEASE_VERSION.nupkg
