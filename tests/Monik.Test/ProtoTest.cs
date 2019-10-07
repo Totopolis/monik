@@ -1,7 +1,7 @@
-﻿using Google.Protobuf;
+﻿using System;
+using Google.Protobuf;
 using Monik.Common;
 using NUnit.Framework;
-using System;
 
 namespace Monik.Test
 {

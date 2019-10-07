@@ -1,9 +1,9 @@
 ﻿
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Gerakul.SqlQueue.InMemory;
 using Google.Protobuf;
 using Monik.Common;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 
 namespace Monik.Client
 {

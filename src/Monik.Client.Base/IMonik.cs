@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text;
-
-namespace Monik.Common
+﻿namespace Monik.Common
 {
     public interface IMonik
     {

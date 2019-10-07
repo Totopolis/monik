@@ -1,11 +1,11 @@
 ﻿// https://github.com/dcomartin/Nancy.Gzip
 
+using System.IO.Compression;
+using System.Linq;
+using Nancy.Bootstrapper;
+
 namespace Nancy.Gzip
 {
-    using System.IO.Compression;
-    using System.Linq;
-    using Bootstrapper;
-
     public static class GzipCompression
     {
         private static GzipCompressionSettings _settings;

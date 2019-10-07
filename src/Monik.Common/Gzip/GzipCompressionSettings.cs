@@ -1,9 +1,9 @@
 ﻿// https://github.com/dcomartin/Nancy.Gzip
 
+using System.Collections.Generic;
+
 namespace Nancy.Gzip
 {
-    using System.Collections.Generic;
-
     public class GzipCompressionSettings
     {
         public int MinimumBytes { get; set; } = 4096;

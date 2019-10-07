@@ -2,9 +2,8 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.ServiceRuntime;
-using Monik.Service;
 using Monik.Common;
-using Autofac;
+using Monik.Service;
 
 namespace MonikWorker
 {

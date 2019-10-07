@@ -1,10 +1,10 @@
-﻿using Monik.Common;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Monik.Common;
 using Monik.Service;
 using Moq;
 using Moq.Language.Flow;
 using NUnit.Framework;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Monik.Test
 {
