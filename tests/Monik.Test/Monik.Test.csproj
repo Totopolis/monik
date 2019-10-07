@@ -3,8 +3,7 @@
     <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Monik.Common\Monik.Common.csproj" />
-    <ProjectReference Include="..\MonikService\MonikService.csproj" />
+    <ProjectReference Include="..\..\src\MonikService\MonikService.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.13.0" />

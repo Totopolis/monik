@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Monik.Common\Monik.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Topshelf" Version="4.2.1" />
+  </ItemGroup>
+</Project>

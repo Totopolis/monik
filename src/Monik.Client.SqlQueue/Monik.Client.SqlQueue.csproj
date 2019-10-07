@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+    <Authors>Totopolis</Authors>
+    <PackageDescription>Client library to collect messages: logs, performance counters and keep-alive statuses. Uses SqlQueue</PackageDescription>
+    <PackageProjectUrl>https://github.com/Totopolis/monik</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Monik.Client.Base\Monik.Client.Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Gerakul.SqlQueue.InMemory" Version="1.5.2" />
+  </ItemGroup>
+
+</Project>

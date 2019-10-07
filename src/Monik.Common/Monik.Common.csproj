@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+    <Authors>Totopolis</Authors>
+    <PackageProjectUrl>https://github.com/Totopolis/monik</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Monik.Client.Base\Monik.Client.Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.9.4" />
+    <PackageReference Include="EasyNetQ" Version="3.7.1" />
+    <PackageReference Include="Gerakul.FastSql.SqlServer" Version="1.0.0" />
+    <PackageReference Include="Gerakul.SqlQueue.InMemory" Version="1.5.2" />
+    <PackageReference Include="jose-jwt" Version="2.4.0" />
+    <PackageReference Include="Nancy" Version="1.4.4" />
+    <PackageReference Include="Nancy.Authentication.Stateless" Version="1.4.1" />
+    <PackageReference Include="Nancy.Bootstrappers.Autofac" Version="1.4.1" />
+    <PackageReference Include="Nancy.Gzip" Version="0.1.0" />
+    <PackageReference Include="Nancy.Hosting.Self" Version="1.4.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="WindowsAzure.ServiceBus" Version="6.0.0" />
+  </ItemGroup>
+</Project>

@@ -4,7 +4,7 @@ System can operate with Azure Queue or RabbitMQ for messages exchange.
 
 ## Setup backend
 1. Prepare Azure Service Bus namespace and queue
-2. Prepare SQL Database and execute src/common/db.sql
+2. Prepare SQL Database and execute src/db.sql
 3. Fill ServiceConfiguration files in MonikCloud project
 4. Deploy service
 
