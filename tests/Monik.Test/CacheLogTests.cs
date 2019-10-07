@@ -10,7 +10,7 @@ namespace Monik.Test
     [TestFixture]
     public class CacheLogTests : CacheBaseTests<CacheLog, Log_>
     {
-        public override CacheLog CreateCache(IRepository repository, ISourceInstanceCache cache, IMonik monik)
+        public override CacheLog CreateCache(IRepository repository, ICacheSourceInstance cache, IMonik monik)
         {
             return new CacheLog(repository, cache, monik);
         }

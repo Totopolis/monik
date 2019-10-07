@@ -5,7 +5,7 @@ using Monik.Common;
 
 namespace Monik.Service
 {
-    public class SourceInstanceCache : ISourceInstanceCache
+    public class CacheSourceInstance : ICacheSourceInstance
     {
         private static string GetSourceInstanceKey(string sourceName, string instanceName)
         {
@@ -26,7 +26,7 @@ namespace Monik.Service
 
         public event Action<IEnumerable<int>> RemoveMetrics;
 
-        public SourceInstanceCache(IRepository repository, IMonik monik)
+        public CacheSourceInstance(IRepository repository, IMonik monik)
         {
             _repository = repository;
             _monik = monik;
@@ -36,7 +36,7 @@ namespace Monik.Service
             _instanceMap = new Dictionary<int, Instance>();
             _sourceInstanceMap = new Dictionary<string, Instance>();
 
-            _monik.ApplicationVerbose("SourceInstanceCache created");
+            _monik.ApplicationVerbose("CacheSourceInstance created");
         }
 
         public void OnStart()
@@ -88,7 +88,7 @@ namespace Monik.Service
                 _groups.Add(it.ID, it);
             }
 
-            _monik.ApplicationVerbose("SourceInstanceCache started");
+            _monik.ApplicationVerbose("CacheSourceInstance started");
         }
 
         public void OnStop()

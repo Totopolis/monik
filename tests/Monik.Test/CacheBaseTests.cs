@@ -14,11 +14,11 @@ namespace Monik.Test
         where TEntity : ICacheEntity, new()
     {
         protected Mock<IRepository> Repo;
-        protected Mock<ISourceInstanceCache> SourceCache;
+        protected Mock<ICacheSourceInstance> SourceCache;
         protected Mock<IMonik> Monik;
         protected TCache Cache;
 
-        public abstract TCache CreateCache(IRepository repository, ISourceInstanceCache cache, IMonik monik);
+        public abstract TCache CreateCache(IRepository repository, ICacheSourceInstance cache, IMonik monik);
         public abstract ISetup<IRepository, long> SetupRepoMaxId(Mock<IRepository> r);
         public abstract ISetup<IRepository, List<TEntity>> SetupRepoLast(Mock<IRepository> r);
         public abstract ISetup<IRepository> SetupRepoWriteEntities(Mock<IRepository> r);
@@ -27,7 +27,7 @@ namespace Monik.Test
         public void SetUp()
         {
             Repo = new Mock<IRepository>();
-            SourceCache = new Mock<ISourceInstanceCache>();
+            SourceCache = new Mock<ICacheSourceInstance>();
             Monik = new Mock<IMonik>();
             Cache = CreateCache(Repo.Object, SourceCache.Object, Monik.Object);
         }

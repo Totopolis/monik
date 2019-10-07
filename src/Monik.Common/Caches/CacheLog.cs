@@ -16,7 +16,7 @@ namespace Monik.Service
             private set { lock (this) _oldestLogId = value; }
         }
 
-        public CacheLog(IRepository repository, ISourceInstanceCache cache, IMonik monik)
+        public CacheLog(IRepository repository, ICacheSourceInstance cache, IMonik monik)
             : base(repository, cache, monik)
         {
             _logs = new ConcurrentQueue<Log_>();

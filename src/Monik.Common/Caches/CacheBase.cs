@@ -9,7 +9,7 @@ namespace Monik.Service
     {
         protected readonly IRepository _repository;
         protected readonly IMonik _monik;
-        protected ISourceInstanceCache _cache;
+        protected ICacheSourceInstance _cache;
 
         private readonly TimingHelper _timing;
         private readonly ConcurrentQueue<TEntity> _pendingEntities;
@@ -21,7 +21,7 @@ namespace Monik.Service
             protected set => Interlocked.Exchange(ref _lastId, value);
         }
 
-        protected CacheBase(IRepository repository, ISourceInstanceCache cache, IMonik monik)
+        protected CacheBase(IRepository repository, ICacheSourceInstance cache, IMonik monik)
         {
             _repository = repository;
             _monik = monik;

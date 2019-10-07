@@ -13,7 +13,7 @@ namespace Monik.Service
         private const int DelayOnProcess = 500; //in ms
 
         private readonly IRepository _repository;
-        private readonly ISourceInstanceCache _cache;
+        private readonly ICacheSourceInstance _cache;
         private readonly IMessageProcessor _processor;
         private readonly IMonik _monik;
 
@@ -25,7 +25,7 @@ namespace Monik.Service
         private readonly ManualResetEvent _newMessageEvent = new ManualResetEvent(false);
         private readonly CancellationTokenSource _pumpCancellationTokenSource = new CancellationTokenSource();
 
-        public MessagePump(IRepository repository, ISourceInstanceCache cache, IMessageProcessor processor, IMonik monik)
+        public MessagePump(IRepository repository, ICacheSourceInstance cache, IMessageProcessor processor, IMonik monik)
         {
             _repository = repository;
             _cache = cache;

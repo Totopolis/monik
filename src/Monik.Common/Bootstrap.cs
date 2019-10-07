@@ -41,7 +41,7 @@ namespace Monik.Service
             var settings = container.Resolve<IRepository>().LoadSettings();
             container.Resolve<IMonikServiceSettings>().UpdateSettings(settings);
 
-            container.Resolve<ISourceInstanceCache>().OnStart();
+            container.Resolve<ICacheSourceInstance>().OnStart();
             container.Resolve<ICacheLog>().OnStart();
             container.Resolve<ICacheKeepAlive>().OnStart();
             container.Resolve<ICacheMetric>().OnStart();
@@ -67,7 +67,7 @@ namespace Monik.Service
             Singleton.Resolve<ICacheMetric>().OnStop();
             Singleton.Resolve<ICacheKeepAlive>().OnStop();
             Singleton.Resolve<ICacheLog>().OnStop();
-            Singleton.Resolve<ISourceInstanceCache>().OnStop();
+            Singleton.Resolve<ICacheSourceInstance>().OnStop();
         }
 
         protected override void ConfigureApplicationContainer(ILifetimeScope existingContainer)
@@ -86,7 +86,7 @@ namespace Monik.Service
 
             existingContainer.RegisterSingleton<IMonik, MonikEmbedded>();
 
-            existingContainer.RegisterSingleton<ISourceInstanceCache, SourceInstanceCache>();
+            existingContainer.RegisterSingleton<ICacheSourceInstance, CacheSourceInstance>();
             existingContainer.RegisterSingleton<ICacheLog, CacheLog>();
             existingContainer.RegisterSingleton<ICacheKeepAlive, CacheKeepAlive>();
             existingContainer.RegisterSingleton<ICacheMetric, CacheMetric>();

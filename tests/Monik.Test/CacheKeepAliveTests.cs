@@ -10,7 +10,7 @@ namespace Monik.Test
     [TestFixture]
     public class CacheKeepAliveTests : CacheBaseTests<CacheKeepAlive, KeepAlive_>
     {
-        public override CacheKeepAlive CreateCache(IRepository repository, ISourceInstanceCache cache, IMonik monik)
+        public override CacheKeepAlive CreateCache(IRepository repository, ICacheSourceInstance cache, IMonik monik)
         {
             return new CacheKeepAlive(repository, cache, monik);
         }

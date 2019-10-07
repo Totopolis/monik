@@ -11,7 +11,7 @@ namespace Monik.Service
     {
         private readonly IRepository _repository;
         private readonly ILifetimeScope _autofac;
-        private readonly ISourceInstanceCache _sourceCache;
+        private readonly ICacheSourceInstance _sourceCache;
         private readonly IMonik _monik;
 
         private readonly Scheduler _shedulerPerMin;
@@ -19,7 +19,7 @@ namespace Monik.Service
         private readonly ConcurrentDictionary<IMetricObject, byte> _metrics; // as HashSet, byte value is not used
 
         public CacheMetric(IRepository repository, ILifetimeScope autofac,
-            ISourceInstanceCache sourceCache, IMonik monik)
+            ICacheSourceInstance sourceCache, IMonik monik)
         {
             _repository = repository;
             _autofac = autofac;

@@ -8,7 +8,7 @@ namespace Monik.Service
     {
         private readonly Dictionary<int, KeepAlive_> _status;
 
-        public CacheKeepAlive(IRepository repository, ISourceInstanceCache cache, IMonik monik)
+        public CacheKeepAlive(IRepository repository, ICacheSourceInstance cache, IMonik monik)
             : base(repository, cache, monik)
         {
             _cache = cache;
