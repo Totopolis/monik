@@ -1,14 +1,13 @@
-﻿using Monik.Common;
+﻿using System;
+using System.Collections.Generic;
+using Monik.Common;
 using Nancy;
 using Nancy.ModelBinding;
 using Nancy.Security;
-using System;
-using System.Collections.Generic;
-using HttpStatusCode = Nancy.HttpStatusCode;
 
 namespace Monik.Service
 {
-    public class MainNancyModule : NancyModule
+    public sealed class MainNancyModule : NancyModule
     {
         private readonly IRepository _repo;
         private readonly ICacheLog _cacheLog;
@@ -27,7 +26,7 @@ namespace Monik.Service
             _sourceInstanceCache = sourceInstanceCache;
             _monik = monik;
 
-            Get["/sources"] = args =>
+            Get("/sources", args =>
             {
                 try
                 {
@@ -39,9 +38,9 @@ namespace Monik.Service
                     monik.ApplicationError($"Method /sources : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
-            Get["/instances"] = args =>
+            Get("/instances", args =>
             {
                 try
                 {
@@ -53,9 +52,9 @@ namespace Monik.Service
                     monik.ApplicationError($"Method /instances : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
-            Get["/groups"] = args =>
+            Get("/groups", args =>
             {
                 try
                 {
@@ -67,9 +66,9 @@ namespace Monik.Service
                     monik.ApplicationError($"Method /groups : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
-            Post["/logs5"] = args =>
+            Post("/logs5", args =>
             {
                 try
                 {
@@ -83,9 +82,9 @@ namespace Monik.Service
                     monik.ApplicationError($"Method /logs5 : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
-            Post["/keepalive2"] = args =>
+            Post("/keepalive2", args =>
             {
                 var filter = this.Bind<KeepAliveRequest>();
 
@@ -99,21 +98,21 @@ namespace Monik.Service
                     monik.ApplicationError($"Method /keepalive : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
-            Get["/keepalive-status"] = args =>
+            Get("/keepalive-status", args =>
             {
                 var filter = new KeepAliveRequest();
                 return GetKeepAliveStatuses(filter);
-            };
+            });
 
-            Post["/keepalive-status"] = args =>
+            Post("/keepalive-status", args =>
             {
                 var filter = this.Bind<KeepAliveRequest>();
                 return GetKeepAliveStatuses(filter);
-            };
+            });
 
-            Get["/metrics"] = args =>
+            Get("/metrics", args =>
             {
                 try
                 {
@@ -125,9 +124,9 @@ namespace Monik.Service
                     monik.ApplicationError($"Method /metrics : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
-            Get["/metrics/currents"] = args =>
+            Get("/metrics/currents", args =>
             {
                 try
                 {
@@ -139,9 +138,9 @@ namespace Monik.Service
                     monik.ApplicationError($"Method /metrics/currents : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
-            Post["/metrics/currents"] = args =>
+            Post("/metrics/currents", args =>
             {
                 try
                 {
@@ -155,9 +154,9 @@ namespace Monik.Service
                     monik.ApplicationError($"Method POST /metrics/currents : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
-            Get["/metrics/{id:int}/current"] = args =>
+            Get("/metrics/{id:int}/current", args =>
             {
                 try
                 {
@@ -171,9 +170,9 @@ namespace Monik.Service
                     monik.ApplicationError($"Method /metrics/id/current : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
-            Get["/metrics/windows"] = args =>
+            Get("/metrics/windows", args =>
             {
                 try
                 {
@@ -185,9 +184,9 @@ namespace Monik.Service
                     monik.ApplicationError($"Method /metrics/windows : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
-            Post["/metrics/windows"] = args =>
+            Post("/metrics/windows", args =>
             {
                 try
                 {
@@ -201,9 +200,9 @@ namespace Monik.Service
                     monik.ApplicationError($"Method POST /metrics/windows : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
-            Get["/metrics/{id:int}/window"] = args =>
+            Get("/metrics/{id:int}/window", args =>
             {
                 try
                 {
@@ -217,9 +216,9 @@ namespace Monik.Service
                     monik.ApplicationError($"Method /metrics/id/window : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
-            Get["/metrics/{id:int}/history"] = args =>
+            Get("/metrics/{id:int}/history", args =>
             {
                 try
                 {
@@ -233,7 +232,7 @@ namespace Monik.Service
                     monik.ApplicationError($"Method /metrics/id/history : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
         }
 
 
@@ -275,17 +274,17 @@ namespace Monik.Service
 
     }//end of class
 
-    public class SecureNancyModule : NancyModule
+    public sealed class SecureNancyModule : NancyModule
     {
         public SecureNancyModule(ICacheMetric cacheMetric, ISourceInstanceCache sourceInstanceCache, IMonik monik)
         {
             this.RequiresAuthentication();
 
-            Delete["/instances/{id:int}"] = args =>
+            Delete("/instances/{id:int}", args =>
             {
                 try
                 {
-                    monik.ApplicationInfo($"Delete /instances/{args.id} by {Context.CurrentUser.UserName}");
+                    monik.ApplicationInfo($"Delete /instances/{args.id} by {Context.CurrentUser.Identity.Name}");
                     sourceInstanceCache.RemoveInstance(args.id);
                     return HttpStatusCode.OK;
                 }
@@ -294,13 +293,13 @@ namespace Monik.Service
                     monik.ApplicationError($"Method DELETE /instances/id : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
-            Delete["/metrics/{id:int}"] = args =>
+            Delete("/metrics/{id:int}", args =>
             {
                 try
                 {
-                    monik.ApplicationInfo($"Delete /metrics/{args.id} by {Context.CurrentUser.UserName}");
+                    monik.ApplicationInfo($"Delete /metrics/{args.id} by {Context.CurrentUser.Identity.Name}");
                     cacheMetric.RemoveMetric(args.id);
                     return HttpStatusCode.OK;
                 }
@@ -309,13 +308,13 @@ namespace Monik.Service
                     monik.ApplicationError($"Method DELETE /metrics/id : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
-            Delete["/sources/{id:int}"] = args =>
+            Delete("/sources/{id:int}", args =>
             {
                 try
                 {
-                    monik.ApplicationInfo($"Delete /sources/{args.id} by {Context.CurrentUser.UserName}");
+                    monik.ApplicationInfo($"Delete /sources/{args.id} by {Context.CurrentUser.Identity.Name}");
                     sourceInstanceCache.RemoveSource((short)args.id);
                     return HttpStatusCode.OK;
                 }
@@ -324,14 +323,14 @@ namespace Monik.Service
                     monik.ApplicationError($"Method DELETE /sources/id : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
-            Post["/groups"] = args =>
+            Post("/groups", args =>
             {
                 try
                 {
                     var group = this.Bind<Group_>();
-                    monik.ApplicationInfo($"Post /groups {group.Name} by {Context.CurrentUser.UserName}");
+                    monik.ApplicationInfo($"Post /groups {group.Name} by {Context.CurrentUser.Identity.Name}");
                     var result = sourceInstanceCache.CreateGroup(group);
                     return Response.AsJson(result, HttpStatusCode.Created)
                         .WithHeader("Location", $"/groups/{result.ID}");
@@ -341,13 +340,13 @@ namespace Monik.Service
                     monik.ApplicationError($"Method POST /groups : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
-            Delete["/groups/{id:int}"] = args =>
+            });
+            Delete("/groups/{id:int}", args =>
             {
                 try
                 {
-                    monik.ApplicationInfo($"Delete /groups/{args.id} by {Context.CurrentUser.UserName}");
-                    var result = sourceInstanceCache.RemoveGroup((short)args.id);
+                    monik.ApplicationInfo($"Delete /groups/{args.id} by {Context.CurrentUser.Identity.Name}");
+                    var result = sourceInstanceCache.RemoveGroup((short) args.id);
                     return result ? HttpStatusCode.OK : HttpStatusCode.NotFound;
                 }
                 catch (Exception ex)
@@ -355,12 +354,12 @@ namespace Monik.Service
                     monik.ApplicationError($"Method DELETE /groups/id : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
-            Put["/groups/{groupId:int}/instances/{instanceId:int}"] = args =>
+            });
+            Put("/groups/{groupId:int}/instances/{instanceId:int}", args =>
             {
                 try
                 {
-                    monik.ApplicationInfo($"Put /groups/{args.groupId}/instances/{args.instanceId} by {Context.CurrentUser.UserName}");
+                    monik.ApplicationInfo($"Put /groups/{args.groupId}/instances/{args.instanceId} by {Context.CurrentUser.Identity.Name}");
                     sourceInstanceCache.AddInstanceToGroup(args.instanceId, (short)args.groupId);
                     return HttpStatusCode.OK;
                 }
@@ -369,12 +368,12 @@ namespace Monik.Service
                     monik.ApplicationError($"Method PUT /groups/id/instances/id : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
-            Delete["/groups/{groupId:int}/instances/{instanceId:int}"] = args =>
+            });
+            Delete("/groups/{groupId:int}/instances/{instanceId:int}", args =>
             {
                 try
                 {
-                    monik.ApplicationInfo($"Delete /groups/{args.groupId}/instances/{args.instanceId} by {Context.CurrentUser.UserName}");
+                    monik.ApplicationInfo($"Delete /groups/{args.groupId}/instances/{args.instanceId} by {Context.CurrentUser.Identity.Name}");
                     var result = sourceInstanceCache.RemoveInstanceFromGroup(args.instanceId, (short)args.groupId);
                     return result ? HttpStatusCode.OK : HttpStatusCode.NotFound;
                 }
@@ -383,7 +382,7 @@ namespace Monik.Service
                     monik.ApplicationError($"Method DELETE /groups/id/instances/id : {ex.Message}");
                     return HttpStatusCode.InternalServerError;
                 }
-            };
+            });
 
         }
     }//end of class

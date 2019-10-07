@@ -1,8 +1,9 @@
-﻿using Nancy;
-using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Nancy;
+using Nancy.Responses.Negotiation;
+using Newtonsoft.Json;
 
 namespace Monik.Service
 {
@@ -23,12 +24,13 @@ namespace Monik.Service
             _serializer = JsonSerializer.Create(settings);
         }
 
-        public bool CanSerialize(string contentType)
+        public bool CanSerialize(MediaRange mediaRange)
         {
-            return contentType == "application/json";
+            return mediaRange.Type == "application"
+                   && mediaRange.Subtype == "json";
         }
 
-        public void Serialize<TModel>(string contentType, TModel model, Stream outputStream)
+        public void Serialize<TModel>(MediaRange mediaRange, TModel model, Stream outputStream)
         {
             using (var writer = new JsonTextWriter(new StreamWriter(outputStream)))
             {

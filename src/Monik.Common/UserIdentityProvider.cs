@@ -1,21 +1,15 @@
-﻿using Jose;
-using Nancy;
-using Nancy.Security;
-using System;
-using System.Collections.Generic;
+﻿using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
 using Monik.Common;
+using Nancy;
 
 namespace Monik.Service
 {
-    public class UserIdentity : IUserIdentity
+    public class UserIdentityProvider : IUserIdentityProvider
     {
-        public string UserName { get; set; }
-        public IEnumerable<string> Claims { get; set; }
-    }
-
-    public class UserIdentityProvider: IUserIdentityProvider
-    {
-        private const string BearerDeclaration = "Bearer ";
+        private const string TokenPrefix = "Bearer ";
         private readonly IMonikServiceSettings _settings;
         private readonly IMonik _monik;
 
@@ -25,32 +19,37 @@ namespace Monik.Service
             _monik = monik;
         }
 
-        public IUserIdentity GetUserIdentity(NancyContext ctx)
+        public ClaimsPrincipal GetUserIdentity(NancyContext ctx)
         {
             try
             {
-                var authorizationHeader = ctx.Request.Headers.Authorization;
-                if (string.IsNullOrEmpty(authorizationHeader) ||
-                    !authorizationHeader.StartsWith(BearerDeclaration))
+                var authorization = ctx.Request.Headers.Authorization;
+
+                if (string.IsNullOrWhiteSpace(authorization))
                     return null;
 
-                var jwt = authorizationHeader.Substring(BearerDeclaration.Length);
+                if (!authorization.StartsWith(TokenPrefix, StringComparison.OrdinalIgnoreCase))
+                    return null;
 
-                var authToken = JWT.Decode<AuthToken>(jwt, _settings.AuthSecretKey, JwsAlgorithm.HS256);
+                var jwtToken = authorization.Substring(TokenPrefix.Length);
 
-                var tokenExpires = DateTimeOffset.FromUnixTimeSeconds(authToken.exp).UtcDateTime;
+                var handler = new JwtSecurityTokenHandler {SetDefaultTimesOnTokenCreation = false};
 
-                if (tokenExpires > DateTime.UtcNow)
-                {
-                    return new UserIdentity
+                var principal = handler.ValidateToken(
+                    jwtToken,
+                    new TokenValidationParameters
                     {
-                        UserName = authToken.sub
-                    };
-                }
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKeys = new[]
+                        {
+                            new SymmetricSecurityKey(Convert.FromBase64String(_settings.AuthSecretKey)),
+                        },
+                    },
+                    out _);
 
-                return null;
-
-
+                return principal;
             }
             catch (Exception ex)
             {
@@ -58,6 +57,5 @@ namespace Monik.Service
                 return null;
             }
         }
-
-    }//end of class
+    } //end of class
 }

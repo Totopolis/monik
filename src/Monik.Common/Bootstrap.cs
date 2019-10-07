@@ -2,6 +2,7 @@
 using Monik.Service.Test;
 #endif
 
+using System;
 using Autofac;
 using Gerakul.FastSql.Common;
 using Gerakul.FastSql.SqlServer;
@@ -114,8 +115,8 @@ namespace Monik.Service
         }
 
         // Use JSON.NET serializer
-        protected override NancyInternalConfiguration InternalConfiguration =>
-            NancyInternalConfiguration.WithOverrides(c => c.Serializers.Insert(0, typeof(JsonNetSerializer)));
+        protected override Func<ITypeCatalog, NancyInternalConfiguration> InternalConfiguration =>
+            NancyInternalConfiguration.WithOverrides(c => c.Serializers = new [] {typeof(JsonNetSerializer)});
     }
 
     public static class LifeTimeExtension

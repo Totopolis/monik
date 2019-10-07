@@ -49,8 +49,6 @@ namespace Monik.Service
         }
 
 
-        public string AuthSecretKeyBase64 => ConfigurationManager.AppSettings["AuthSecretKeyBase64"];
-        public byte[] AuthSecretKey => Convert.FromBase64String(AuthSecretKeyBase64);
-
+        public string AuthSecretKey => ConfigurationManager.AppSettings["AuthSecretKey"];
     } //end of class
 }

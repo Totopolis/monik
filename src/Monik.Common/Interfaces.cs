@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Security.Claims;
 using Monik.Common;
 using Nancy;
-using Nancy.Security;
 
 namespace Monik.Service
 {
@@ -15,7 +15,7 @@ namespace Monik.Service
 
     public interface IUserIdentityProvider
     {
-        IUserIdentity GetUserIdentity(NancyContext ctx);
+        ClaimsPrincipal GetUserIdentity(NancyContext ctx);
     }
 
     public interface IActiveQueue
@@ -40,8 +40,7 @@ namespace Monik.Service
         int WriteBatchSize { get; }
         int WriteBatchTimeout { get; }
 
-        string AuthSecretKeyBase64 { get; }
-        byte[] AuthSecretKey { get; }
+        string AuthSecretKey { get; }
     }
 
     public interface IRepository
