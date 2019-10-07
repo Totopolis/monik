@@ -1,18 +1,20 @@
 ﻿using System;
+using System.Threading.Tasks;
+using Microsoft.Azure.ServiceBus;
+using Microsoft.Azure.ServiceBus.InteropExtensions;
 using Monik.Common;
 
 namespace Monik.Service
 {
     public class AzureActiveQueue : IActiveQueue
     {
-        private Microsoft.ServiceBus.Messaging.QueueClient _client;
+        private QueueClient _client;
 
         public void Start(EventQueue config, ActiveQueueContext context)
         {
-            _client = Microsoft.ServiceBus.Messaging.QueueClient.
-                CreateFromConnectionString(config.ConnectionString, config.QueueName);
+            _client = new QueueClient(config.ConnectionString, config.QueueName);
 
-            _client.OnMessage(message =>
+            _client.RegisterMessageHandler((message, token) =>
             {
                 try
                 {
@@ -23,14 +25,20 @@ namespace Monik.Service
                 }
                 catch (Exception ex)
                 {
-                    context.OnError($"MessagePump.OnMessage ServiceBus Parse Error: {ex.Message}");
+                    context.OnError($"AzureActiveQueue - not able to handle message: {ex}");
                 }
-            });
+
+                return Task.CompletedTask;
+            }, (args =>
+            {
+                context.OnError($"AzureActiveQueue - exception received: {args.Exception}");
+                return Task.CompletedTask;
+            }));
         }
 
         public void Stop()
         {
-            _client?.Close();
+            _client?.CloseAsync().Wait();
         }
     }
 }
