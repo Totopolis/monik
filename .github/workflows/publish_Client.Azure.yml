@@ -11,19 +11,21 @@ jobs:
     - name: Set env
       run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:24})
     - uses: actions/checkout@master
-    - name: Add NuGet.config with credentials
+    - name: Add GPR source with credentials to NuGet.config
+      shell: pwsh
       env:
-        GRPSOURCE: https://nuget.pkg.github.com/Totopolis/index.json
-        GRPUSERNAME: Totopolis
-        GRPPASS: ${{ secrets.GITHUB_TOKEN }}
-      run: ./.github/workflows/AddNuGetConfigWithCredentials.sh
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_REPO_OWNER: Totopolis
+        GITHUB_SOURCE_NAME: GPR
+      run: ./.github/workflows/AddSourceWithCredentialsToNuGetConfig -ConfigFile ./NuGet.Config -Source $GITHUB_SOURCE_NAME -Username $GITHUB_REPO_OWNER -Password $GITHUB_TOKEN
     - uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '3.0.100' # SDK Version to use.
-    - run: dotnet pack ./prj/Monik.Client.Azure/Monik.Client.Azure.csproj -c Release -o NuGetPackages /p:Version=$RELEASE_VERSION
+    - run: dotnet pack ./src/Monik.Client.Azure/Monik.Client.Azure.csproj -c Release -o NuGetPackages /p:Version=$RELEASE_VERSION
     - name: Push to feeds
       env:
-        MYGETSOURCE: https://www.myget.org/F/totopolis/api/v3/index.json
+        MYGET_SOURCE: https://www.myget.org/F/totopolis/api/v3/index.json
+        GITHUB_SOURCE_NAME: GPR
       run: |
-        dotnet nuget push ./NuGetPackages/Monik.Client.Azure.$RELEASE_VERSION.nupkg -k ${{ secrets.MYGET_APIKEY }} -s $MYGETSOURCE
-        dotnet nuget push ./NuGetPackages/Monik.Client.Azure.$RELEASE_VERSION.nupkg
+        dotnet nuget push ./NuGetPackages/Monik.Client.Azure.$RELEASE_VERSION.nupkg -k ${{ secrets.MYGET_APIKEY }} -s $MYGET_SOURCE
+        dotnet nuget push ./NuGetPackages/Monik.Client.Azure.$RELEASE_VERSION.nupkg -s $GITHUB_SOURCE_NAME
