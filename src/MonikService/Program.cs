@@ -1,26 +1,26 @@
-﻿using Topshelf;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace Monik.Service
 {
     class Program
     {
-        static void Main(string[] args)
+        public static Task Main(string[] args)
         {
-            HostFactory.Run(hostConfigurator =>
-            {
-                hostConfigurator.Service<NancyHostHolder>(serviceConfigurator =>
-                {
-                    serviceConfigurator.ConstructUsing(name => new NancyHostHolder());
-                    serviceConfigurator.WhenStarted(hostHolder => hostHolder.Start());
-                    serviceConfigurator.WhenStopped(hostHolder => hostHolder.Stop());
-                });
-
-                hostConfigurator.RunAsLocalSystem();
-                //System.IO.Directory.SetCurrentDirectory(System.AppDomain.CurrentDomain.BaseDirectory);
-                hostConfigurator.SetDescription("Monik service");
-                hostConfigurator.SetDisplayName("Monik");
-                hostConfigurator.SetServiceName("Monik");
-            });
+            return CreateHostBuilder(args).Build().RunAsync();
         }
+
+        private static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .UseSystemd()
+                .UseWindowsService()
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder
+                        .UseKestrel(serverOptions => { serverOptions.AllowSynchronousIO = true; })
+                        .UseUrls("http://*:2211")
+                        .UseStartup<Startup>();
+                });
     }
 }
