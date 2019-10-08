@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Configuration;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
@@ -19,7 +20,7 @@ namespace Monik.Service
                 {
                     webBuilder
                         .UseKestrel(serverOptions => { serverOptions.AllowSynchronousIO = true; })
-                        .UseUrls("http://*:2211")
+                        .UseUrls(ConfigurationManager.AppSettings["Url"].Replace("localhost", "*"))
                         .UseStartup<Startup>();
                 });
     }

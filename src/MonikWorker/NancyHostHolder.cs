@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using Monik.Common;
 using Nancy.Hosting.Self;
 
@@ -12,7 +13,7 @@ namespace Monik.Service
         public NancyHostHolder()
         {
             _nancyHost = new NancyHost(
-                new Uri("http://localhost:2211"), 
+                new Uri(ConfigurationManager.AppSettings["Url"]), 
                 new Bootstrapper(), 
                 HostConfigs);
 
