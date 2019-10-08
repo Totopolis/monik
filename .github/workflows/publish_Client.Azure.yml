@@ -1,4 +1,4 @@
-name: build
+name: Publish Client.Azure
 on:
   push:
     tags:

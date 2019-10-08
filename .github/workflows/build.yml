@@ -1,4 +1,4 @@
-name: build
+name: Build on push
 on: [push]
 
 jobs:
@@ -6,4 +6,5 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@master
+    - uses: warrenbuckley/Setup-MSBuild@v1
     - run: msbuild /restore /v:m
