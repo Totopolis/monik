@@ -11,6 +11,7 @@ namespace Monik.Service
     {
         private const int DelayOnException = 500; //in ms
         private const int DelayOnProcess = 500; //in ms
+        private const int WaitOnExit = 10_000; //in ms
 
         private readonly IRepository _repository;
         private readonly ICacheSourceInstance _cache;
@@ -136,7 +137,7 @@ namespace Monik.Service
             }//configure all event sources
 
             // Start message processing
-            _pumpTask = Task.Run(() => { OnProcessTask(); });
+            _pumpTask = Task.Run(OnProcessTask);
 
             _monik.ApplicationVerbose("MessagePump started");
         }
@@ -151,7 +152,7 @@ namespace Monik.Service
             _newMessageEvent.Set();
             _pumpCancellationTokenSource.Cancel();
 
-            Task.Delay(2000).Wait(); // TODO: is it correct?
+            _pumpTask?.Wait(WaitOnExit);
         }
 
         /// <summary>

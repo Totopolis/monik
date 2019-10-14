@@ -34,7 +34,7 @@ namespace Monik.Common
 
         // TODO: MAX/MIN aggregation type ?
 
-        private void FillMeasures(KeyValuePair<string, double>[] measures,
+        private void FillMeasures(IEnumerable<KeyValuePair<string, double>> measures,
             AggregationType aggregation)
         {
             foreach (var measure in measures)
@@ -63,17 +63,17 @@ namespace Monik.Common
 
                 try
                 {
-                    if (!_intermediateMeasures_Accum.IsEmpty)
+                    if (!IntermediateMeasuresAccum.IsEmpty)
                     {
-                        var measures = _intermediateMeasures_Accum.ToArray();
-                        _intermediateMeasures_Accum.Clear();
+                        var measures = IntermediateMeasuresAccum;
+                        IntermediateMeasuresAccum = new ConcurrentDictionary<string, double>();
                         FillMeasures(measures, AggregationType.Accumulator);
                     }
 
-                    if (!_intermediateMeasures_Gauge.IsEmpty)
+                    if (!IntermediateMeasuresGauge.IsEmpty)
                     {
-                        var measures = _intermediateMeasures_Gauge.ToArray();
-                        _intermediateMeasures_Gauge.Clear();
+                        var measures = IntermediateMeasuresGauge;
+                        IntermediateMeasuresGauge = new ConcurrentDictionary<string, double>();
                         FillMeasures(measures, AggregationType.Gauge);
                     }
 
@@ -82,7 +82,7 @@ namespace Monik.Common
                 }
                 catch
                 {
-                    // TODO: ???  
+                    // ignore
                 }
                 finally
                 {
