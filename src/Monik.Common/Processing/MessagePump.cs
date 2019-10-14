@@ -94,6 +94,10 @@ namespace Monik.Service
                     _monik.ApplicationError(errorMessage);
                     Thread.Sleep(DelayOnException);
                 },
+                OnVerbose = (verboseMessage) =>
+                {
+                    _monik.ApplicationVerbose(verboseMessage);
+                },
                 OnReceivedMessage = (msg) =>
                 {
                     _msgBuffer.Enqueue(msg);
