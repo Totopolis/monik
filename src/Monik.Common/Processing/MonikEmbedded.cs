@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Autofac;
 using Monik.Common;
 
@@ -22,12 +23,13 @@ namespace Monik.Service
 
         private IMessagePump _pump = null;
 
-        protected override void OnSend(ConcurrentQueue<Event> events)
+        protected override Task OnSend(IEnumerable<Event> events)
         {
             if (_pump == null)
                 _pump = _autofac.Resolve<IMessagePump>();
 
             _pump.OnEmbeddedEvents(events);
+            return Task.CompletedTask;
         }
 
     }//end of class

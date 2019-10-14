@@ -35,9 +35,9 @@ namespace Monik.Service
             _monik.ApplicationVerbose("MessagePump created");
         }
 
-        public void OnEmbeddedEvents(ConcurrentQueue<Event> events)
+        public void OnEmbeddedEvents(IEnumerable<Event> events)
         {
-            while (events.TryDequeue(out Event msg))
+            foreach (var msg in events)
                 _msgBuffer.Enqueue(msg);
 
             _newMessageEvent.Set();

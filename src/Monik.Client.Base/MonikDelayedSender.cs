@@ -13,9 +13,9 @@ namespace Monik.Common
         private readonly ManualResetEvent _newMessageEvent = new ManualResetEvent(false);
         private readonly CancellationTokenSource _senderCancellationTokenSource = new CancellationTokenSource();
 
-        protected readonly ushort _sendDelay;
+        private readonly ushort _sendDelay;
 
-        private ConcurrentQueue<Event> _msgQueue = new ConcurrentQueue<Event>();
+        private readonly ConcurrentQueue<Event> _msgQueue = new ConcurrentQueue<Event>();
 
         public MonikDelayedSender(string sourceName, string instanceName, ushort keepAliveInterval, ushort sendDelay) :
             base(sourceName, instanceName, keepAliveInterval)
@@ -41,7 +41,7 @@ namespace Monik.Common
             {
                 Event msg = NewEvent();
 
-                msg.Mc = new Common.Metric()
+                msg.Mc = new Metric
                 {
                     Name = measure.Key,
                     Aggregation = aggregation,
@@ -63,20 +63,22 @@ namespace Monik.Common
 
                 try
                 {
-                    if (_msgQueue.IsEmpty && _intermediateMeasures_Accum.IsEmpty)
-                        continue;
+                    if (!_intermediateMeasures_Accum.IsEmpty)
+                    {
+                        var measures = _intermediateMeasures_Accum.ToArray();
+                        _intermediateMeasures_Accum.Clear();
+                        FillMeasures(measures, AggregationType.Accumulator);
+                    }
 
-                    var measures = _intermediateMeasures_Accum.ToArray();
-                    _intermediateMeasures_Accum.Clear();
+                    if (!_intermediateMeasures_Gauge.IsEmpty)
+                    {
+                        var measures = _intermediateMeasures_Gauge.ToArray();
+                        _intermediateMeasures_Gauge.Clear();
+                        FillMeasures(measures, AggregationType.Gauge);
+                    }
 
-                    FillMeasures(measures, AggregationType.Accumulator);
-
-                    measures = _intermediateMeasures_Gauge.ToArray();
-                    _intermediateMeasures_Gauge.Clear();
-
-                    FillMeasures(measures, AggregationType.Gauge);
-
-                    OnSend(_msgQueue);
+                    if (_msgQueue.TryDequeueAll(out var messages))
+                        OnSend(messages).Wait();
                 }
                 catch
                 {
@@ -89,7 +91,7 @@ namespace Monik.Common
             }
         }
 
-        protected abstract void OnSend(ConcurrentQueue<Event> events);
+        protected abstract Task OnSend(IEnumerable<Event> events);
 
         protected override void OnNewMessage(Event msg)
         {

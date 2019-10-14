@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Monik.Common;
@@ -74,9 +74,9 @@ namespace Monik.Client
             base.OnStop();
         }
 
-        protected override void OnSend(ConcurrentQueue<Event> events)
+        protected override Task OnSend(IEnumerable<Event> events)
         {
-            _sender.SendMessages(events);
+            return _sender.SendMessages(events);
         }
     }//end of class
 }
