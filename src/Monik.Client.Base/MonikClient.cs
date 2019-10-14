@@ -42,18 +42,17 @@ namespace Monik.Client
 
         private async Task OnKeepAliveTask()
         {
-            try
+            while (!_keepAliveCancellationTokenSource.IsCancellationRequested)
             {
-                while (!_keepAliveCancellationTokenSource.IsCancellationRequested)
-                {
-                    KeepAlive();
+                KeepAlive();
 
-                    var msDelay = _keepAliveInterval * 1000;
-                    await Task.Delay(msDelay, _keepAliveCancellationTokenSource.Token);
+                try
+                {
+                    await Task.Delay(_keepAliveInterval * 1000, _keepAliveCancellationTokenSource.Token);
                 }
-            }
-            catch (TaskCanceledException)
-            {
+                catch (TaskCanceledException)
+                {
+                }
             }
         }
     } //end of class

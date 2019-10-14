@@ -1,16 +1,18 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Monik.Client.Base;
 
 namespace Monik.Common
 {
     public abstract class MonikDelayedSender : MonikBase
     {
-        private const int SenderTaskWaitingTimeOnStop = 10_000;
+        private const int WaitOnExit = 10_000;
 
         private readonly Task _senderTask;
-        private readonly ManualResetEvent _newMessageEvent = new ManualResetEvent(false);
+        private readonly ManualResetEventAsync _newMessageEvent = new ManualResetEventAsync(false, false);
         private readonly CancellationTokenSource _senderCancellationTokenSource = new CancellationTokenSource();
 
         private readonly ushort _sendDelay;
@@ -26,10 +28,8 @@ namespace Monik.Common
 
         public override void OnStop()
         {
-            _newMessageEvent.Set();
             _senderCancellationTokenSource.Cancel();
-
-            _senderTask.Wait(SenderTaskWaitingTimeOnStop);
+            _senderTask.Wait(WaitOnExit);
         }
 
         // TODO: MAX/MIN aggregation type ?
@@ -52,14 +52,19 @@ namespace Monik.Common
             }//for
         }
 
-        private void OnSenderTask()
+        private async Task OnSenderTask()
         {
             while (!_senderCancellationTokenSource.IsCancellationRequested)
             {
-                _newMessageEvent.WaitOne();
-
-                int msDelay = _sendDelay * 1000;
-                Task.Delay(msDelay).Wait();
+                try
+                {
+                    await _newMessageEvent.WaitAsync(_senderCancellationTokenSource.Token);
+                    await Task.Delay(_sendDelay * 1000, _senderCancellationTokenSource.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    // ignore
+                }
 
                 try
                 {
@@ -78,7 +83,7 @@ namespace Monik.Common
                     }
 
                     if (_msgQueue.TryDequeueAll(out var messages))
-                        OnSend(messages).Wait();
+                        await OnSend(messages);
                 }
                 catch
                 {
