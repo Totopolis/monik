@@ -195,11 +195,7 @@ delete from [mon].[GroupInstance] where GroupID = @p0
 
         public Metric_ CreateMetric(string name, int aggregation, int instanceId)
         {
-            var measures = Enumerable.Range(1, 3999)
-                .Select(x => new Measure_ { ID = 0, Value = 0 })
-                .ToArray();
-
-            var firstId = _context.InsertAndGetId<Measure_, long>("mon.Measure", measures[0]);
+            var firstId = _context.InsertAndGetId<Measure_, long>("mon.Measure", new Measure_ { ID = 0, Value = 0 });
 
             const string fillScript = @"DECLARE @i int = 0;
 
@@ -214,8 +210,6 @@ END";
             _context
                 .CreateSimple(fillScript)
                 .ExecuteNonQuery();
-
-            // measures.WriteToServer(_context, "mon.Measure");
 
             var met = new Metric_
             {
