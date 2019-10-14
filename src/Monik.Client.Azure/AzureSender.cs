@@ -1,8 +1,6 @@
 ﻿using System.Collections.Concurrent;
-using System.IO;
 using Google.Protobuf;
 using Microsoft.Azure.ServiceBus;
-using Microsoft.Azure.ServiceBus.InteropExtensions;
 using Monik.Common;
 
 namespace Monik.Client
@@ -27,23 +25,13 @@ namespace Monik.Client
                 while (aQueue.TryDequeue(out var msg))
                 {
                     var arr = msg.ToByteArray();
-                    var message = new Message(Serialize(arr));
+                    var message = new Message(arr);
                     client.SendAsync(message).Wait();
                 }
             }
             finally
             {
                 client.CloseAsync().Wait();
-            }
-        }
-
-        private static byte[] Serialize<T>(T obj)
-        {
-            var serializer = DataContractBinarySerializer<T>.Instance;
-            using (var memoryStream = new MemoryStream(256))
-            {
-                serializer.WriteObject(memoryStream, obj);
-                return memoryStream.ToArray();
             }
         }
     }

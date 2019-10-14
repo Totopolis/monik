@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.InteropExtensions;
@@ -9,6 +10,7 @@ namespace Monik.Service
     public class AzureActiveQueue : IActiveQueue
     {
         private QueueClient _client;
+        private readonly Dictionary<string, DateTime> _fallbacks = new Dictionary<string, DateTime>();
 
         public void Start(EventQueue config, ActiveQueueContext context)
         {
@@ -16,16 +18,39 @@ namespace Monik.Service
 
             _client.RegisterMessageHandler((message, token) =>
             {
+                Event msg = null;
                 try
                 {
-                    var buf = message.GetBody<byte[]>();
-                    var msg = Event.Parser.ParseFrom(buf);
-
-                    context.OnReceivedMessage(msg);
+                    msg = Event.Parser.ParseFrom(message.Body);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    context.OnError($"AzureActiveQueue - not able to handle message: {ex}");
+                    // ToDo: remove temporal fallback
+                    try
+                    {
+                        var buf = message.GetBody<byte[]>();
+                        msg = Event.Parser.ParseFrom(buf);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.OnError($"AzureActiveQueue - not able to handle message: {ex}");
+                    }
+
+                    if (msg != null)
+                    {
+                        var curDate = DateTime.UtcNow;
+                        var name = $"{msg.Source}::{msg.Instance}";
+                        if (!_fallbacks.TryGetValue(name, out var date) || (curDate - date).TotalMinutes > 30)
+                        {
+                            context.OnVerbose($"[AzureActiveQueue] {name} used obsolete xml serialized Event");
+                            _fallbacks[name] = curDate;
+                        }
+                    }
+                }
+
+                if (msg != null)
+                {
+                    context.OnReceivedMessage(msg);
                 }
 
                 return Task.CompletedTask;
