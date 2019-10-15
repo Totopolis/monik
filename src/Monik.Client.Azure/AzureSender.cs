@@ -9,6 +9,9 @@ namespace Monik.Client
 {
     public class AzureSender : IMonikSender
     {
+        private const long MaxBatchSize = 262144; // 256 KB
+        private const long BatchSizeLimit = MaxBatchSize / 4;
+
         private readonly string _serviceBusConnectionString;
         private readonly string _queueName;
 
@@ -28,7 +31,7 @@ namespace Monik.Client
                     .Select(x => new Message(x.ToByteArray()))
                     .ToList();
 
-                await client.SendAsync(messages);
+                await client.SendBatchAsync(messages, BatchSizeLimit);
             }
             finally
             {
