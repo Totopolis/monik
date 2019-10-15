@@ -23,11 +23,11 @@ namespace Monik.Common
 
         protected Event NewEvent()
         {
-            return new Event()
+            return new Event
             {
-                Created = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds,
-                Source = _sourceName, //Helper.Utf16ToUtf8(FSourceName),
-                Instance = _instanceName //Helper.Utf16ToUtf8(FSourceInstance)
+                Created = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                Source = _sourceName,
+                Instance = _instanceName
             };
         }
 
@@ -50,7 +50,7 @@ namespace Monik.Common
             msg.Lg = new Log()
             {
                 Format = FormatType.Plain,
-                Body = text, //Helper.Utf16ToUtf8(_text),
+                Body = text,
                 Level = level,
                 Severity = severity
             };

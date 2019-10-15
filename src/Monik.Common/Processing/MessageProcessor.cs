@@ -127,11 +127,11 @@ namespace Monik.Service
             _cacheLog.Flush();
         }
 
-        private static KeepAlive_ CreateKeepAlive(Event eventLog, Instance instance)
+        private static KeepAlive_ CreateKeepAlive(Event eventKeepAlive, Instance instance)
         {
             return new KeepAlive_
             {
-                Created = Helper.FromMillisecondsSinceUnixEpoch(eventLog.Created),
+                Created = DateTimeOffset.FromUnixTimeMilliseconds(eventKeepAlive.Created).UtcDateTime,
                 Received = DateTime.UtcNow,
                 InstanceID = instance.ID
             };
@@ -141,7 +141,7 @@ namespace Monik.Service
         {
             return new Log_
             {
-                Created = Helper.FromMillisecondsSinceUnixEpoch(eventLog.Created),
+                Created = DateTimeOffset.FromUnixTimeMilliseconds(eventLog.Created).UtcDateTime,
                 Received = DateTime.UtcNow,
                 Level = (byte)eventLog.Lg.Level,
                 Severity = (byte)eventLog.Lg.Severity,

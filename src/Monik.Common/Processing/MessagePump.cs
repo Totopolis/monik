@@ -66,7 +66,7 @@ namespace Monik.Service
 
                         if (srcName.Trim().Length != 0 && instName.Trim().Length != 0)
                         {
-                            var instance = _cache.CheckSourceAndInstance(Helper.Utf8ToUtf16(srcName), Helper.Utf8ToUtf16(instName));
+                            var instance = _cache.CheckSourceAndInstance(srcName, instName);
                             _processor.Process(msg, instance);
                         }
                         // TODO: increase count of ignored messages

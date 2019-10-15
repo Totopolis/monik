@@ -11,12 +11,12 @@ namespace Monik.Test
         [Test]
         public void TestEventLog()
         {
-            Event _src = new Event()
+            Event _src = new Event
             {
-                Created = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds,
-                Source = Helper.Utf16ToUtf8("TestSource"),
-                Instance = Helper.Utf16ToUtf8("TestInstance"),
-                Lg = new Log()
+                Created = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                Source = "TestSource",
+                Instance = "TestInstance",
+                Lg = new Log
                 {
                     Level = LevelType.Application,
                     Severity = SeverityType.Fatal,
@@ -46,7 +46,7 @@ namespace Monik.Test
             Event _src = new Event()
             {
                 //Created = 0,
-                Source = Helper.Utf16ToUtf8("TestSource"),
+                Source = "TestSource",
                 //Instance = "",
                 Lg = new Log()
                 {
