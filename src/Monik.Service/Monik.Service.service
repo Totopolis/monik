@@ -1,0 +1,9 @@
+[Unit]
+Description=Monik.Service
+
+[Service]
+Type=notify
+ExecStart=/usr/sbin/Monik.Service
+
+[Install]
+WantedBy=multi-user.target
