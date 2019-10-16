@@ -107,7 +107,7 @@ namespace Monik.Service
 
         public void OnNewMeasure(Event metric)
         {
-            var metTime = Helper.FromMillisecondsSinceUnixEpoch(metric.Created);
+            var metTime = DateTimeOffset.FromUnixTimeMilliseconds(metric.Created).UtcDateTime;
 
             lock (this)
             {

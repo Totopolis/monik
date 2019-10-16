@@ -1,4 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Google.Protobuf;
 using Microsoft.Azure.ServiceBus;
 using Monik.Common;
@@ -7,6 +9,9 @@ namespace Monik.Client
 {
     public class AzureSender : IMonikSender
     {
+        private const long MaxBatchSize = 262144; // 256 KB
+        private const long BatchSizeLimit = MaxBatchSize / 4;
+
         private readonly string _serviceBusConnectionString;
         private readonly string _queueName;
 
@@ -16,22 +21,21 @@ namespace Monik.Client
             _queueName = aQueueName;
         }
 
-        public void SendMessages(ConcurrentQueue<Event> aQueue)
+        public async Task SendMessages(IEnumerable<Event> events)
         {
             var client = new QueueClient(_serviceBusConnectionString, _queueName);
 
             try
             {
-                while (aQueue.TryDequeue(out var msg))
-                {
-                    var arr = msg.ToByteArray();
-                    var message = new Message(arr);
-                    client.SendAsync(message).Wait();
-                }
+                var messages = events
+                    .Select(x => new Message(x.ToByteArray()))
+                    .ToList();
+
+                await client.SendBatchAsync(messages, BatchSizeLimit);
             }
             finally
             {
-                client.CloseAsync().Wait();
+                await client.CloseAsync();
             }
         }
     }

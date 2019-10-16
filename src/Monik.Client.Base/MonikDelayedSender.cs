@@ -1,47 +1,51 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Monik.Client.Base;
 
 namespace Monik.Common
 {
     public abstract class MonikDelayedSender : MonikBase
     {
-        private const int SenderTaskWaitingTimeOnStop = 10_000;
-
         private readonly Task _senderTask;
-        private readonly ManualResetEvent _newMessageEvent = new ManualResetEvent(false);
+        private readonly ManualResetEventAsync _newMessageEvent = new ManualResetEventAsync(false, false);
         private readonly CancellationTokenSource _senderCancellationTokenSource = new CancellationTokenSource();
 
-        protected readonly ushort _sendDelay;
+        private readonly ushort _sendDelay;
+        private readonly int _waitTimeOnStop;
+        private readonly bool _groupDuplicates;
 
-        private ConcurrentQueue<Event> _msgQueue = new ConcurrentQueue<Event>();
+        private readonly ConcurrentQueue<Event> _msgQueue = new ConcurrentQueue<Event>();
 
-        public MonikDelayedSender(string sourceName, string instanceName, ushort keepAliveInterval, ushort sendDelay) :
+        public MonikDelayedSender(string sourceName, string instanceName,
+            ushort keepAliveInterval, ushort sendDelay, int waitTimeOnStop,
+            bool groupDuplicates) :
             base(sourceName, instanceName, keepAliveInterval)
         {
+            _groupDuplicates = groupDuplicates;
+            _waitTimeOnStop = waitTimeOnStop;
             _sendDelay = sendDelay;
             _senderTask = Task.Run(OnSenderTask);
         }
 
         public override void OnStop()
         {
-            _newMessageEvent.Set();
             _senderCancellationTokenSource.Cancel();
-
-            _senderTask.Wait(SenderTaskWaitingTimeOnStop);
+            _senderTask.Wait(_waitTimeOnStop);
         }
 
         // TODO: MAX/MIN aggregation type ?
 
-        private void FillMeasures(KeyValuePair<string, double>[] measures,
+        private void FillMeasures(IEnumerable<KeyValuePair<string, double>> measures,
             AggregationType aggregation)
         {
             foreach (var measure in measures)
             {
                 Event msg = NewEvent();
 
-                msg.Mc = new Common.Metric()
+                msg.Mc = new Metric
                 {
                     Name = measure.Key,
                     Aggregation = aggregation,
@@ -52,35 +56,38 @@ namespace Monik.Common
             }//for
         }
 
-        private void OnSenderTask()
+        private async Task OnSenderTask()
         {
             while (!_senderCancellationTokenSource.IsCancellationRequested)
             {
-                _newMessageEvent.WaitOne();
-
-                int msDelay = _sendDelay * 1000;
-                Task.Delay(msDelay).Wait();
+                try
+                {
+                    await _newMessageEvent.WaitAsync(_senderCancellationTokenSource.Token);
+                    await Task.Delay(_sendDelay * 1000, _senderCancellationTokenSource.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    // ignore
+                }
 
                 try
                 {
-                    if (_msgQueue.IsEmpty && _intermediateMeasures_Accum.IsEmpty)
-                        continue;
+                    if (!IntermediateMeasuresAccum.IsEmpty)
+                    {
+                        var measures = IntermediateMeasuresAccum;
+                        IntermediateMeasuresAccum = new ConcurrentDictionary<string, double>();
+                        FillMeasures(measures, AggregationType.Accumulator);
+                    }
 
-                    var measures = _intermediateMeasures_Accum.ToArray();
-                    _intermediateMeasures_Accum.Clear();
+                    if (!IntermediateMeasuresGauge.IsEmpty)
+                    {
+                        var measures = IntermediateMeasuresGauge;
+                        IntermediateMeasuresGauge = new ConcurrentDictionary<string, double>();
+                        FillMeasures(measures, AggregationType.Gauge);
+                    }
 
-                    FillMeasures(measures, AggregationType.Accumulator);
-
-                    measures = _intermediateMeasures_Gauge.ToArray();
-                    _intermediateMeasures_Gauge.Clear();
-
-                    FillMeasures(measures, AggregationType.Gauge);
-
-                    OnSend(_msgQueue);
-                }
-                catch
-                {
-                    // TODO: ???  
+                    if (_msgQueue.TryDequeueAll(out var messages))
+                        await SendMessages(messages);
                 }
                 finally
                 {
@@ -89,7 +96,7 @@ namespace Monik.Common
             }
         }
 
-        protected abstract void OnSend(ConcurrentQueue<Event> events);
+        protected abstract Task OnSend(IEnumerable<Event> events);
 
         protected override void OnNewMessage(Event msg)
         {
@@ -98,5 +105,22 @@ namespace Monik.Common
 
             _newMessageEvent.Set();
         }
+
+
+        private async Task SendMessages(IList<Event> messages)
+        {
+            try
+            {
+                if (_groupDuplicates)
+                    messages = messages.GroupDuplicates();
+
+                await OnSend(messages);
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+
     }//end of class
 }

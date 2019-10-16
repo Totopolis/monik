@@ -15,19 +15,19 @@ namespace Monik.Common
             _instanceName = instanceName;
             _keepAliveInterval = keepAliveInterval;
 
-            _intermediateMeasures_Accum = new ConcurrentDictionary<string, double>();
-            _intermediateMeasures_Gauge = new ConcurrentDictionary<string, double>();
+            IntermediateMeasuresAccum = new ConcurrentDictionary<string, double>();
+            IntermediateMeasuresGauge = new ConcurrentDictionary<string, double>();
         }
 
         public abstract void OnStop();
 
         protected Event NewEvent()
         {
-            return new Event()
+            return new Event
             {
-                Created = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds,
-                Source = _sourceName, //Helper.Utf16ToUtf8(FSourceName),
-                Instance = _instanceName //Helper.Utf16ToUtf8(FSourceInstance)
+                Created = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                Source = _sourceName,
+                Instance = _instanceName
             };
         }
 
@@ -50,7 +50,7 @@ namespace Monik.Common
             msg.Lg = new Log()
             {
                 Format = FormatType.Plain,
-                Body = text, //Helper.Utf16ToUtf8(_text),
+                Body = text,
                 Level = level,
                 Severity = severity
             };
@@ -60,8 +60,8 @@ namespace Monik.Common
 
         public void KeepAlive()
         {
-            Event msg = NewEvent();
-            msg.Ka = new Common.KeepAlive() { Interval = _keepAliveInterval };
+            var msg = NewEvent();
+            msg.Ka = new KeepAlive { Interval = _keepAliveInterval };
 
             OnNewMessage(msg);
         }
@@ -87,17 +87,17 @@ namespace Monik.Common
         public void SecurityError(string body, params object[] parameters) => PrepareLogMessageAndRaise(body, LevelType.Security, SeverityType.Error, parameters);
         public void SecurityFatal(string body, params object[] parameters) => PrepareLogMessageAndRaise(body, LevelType.Security, SeverityType.Fatal, parameters);
 
-        protected ConcurrentDictionary<string, double> _intermediateMeasures_Accum;
-        protected ConcurrentDictionary<string, double> _intermediateMeasures_Gauge;
+        protected volatile ConcurrentDictionary<string, double> IntermediateMeasuresAccum;
+        protected volatile ConcurrentDictionary<string, double> IntermediateMeasuresGauge;
 
         public void Measure(string metricName, AggregationType aggregate, double value)
         {
             if (aggregate == AggregationType.Accumulator)
-                _intermediateMeasures_Accum.AddOrUpdate(metricName, value,
+                IntermediateMeasuresAccum.AddOrUpdate(metricName, value,
                     (key, existingVal) => existingVal + value);
 
             if (aggregate == AggregationType.Gauge)
-                _intermediateMeasures_Gauge.AddOrUpdate(metricName, value,
+                IntermediateMeasuresGauge.AddOrUpdate(metricName, value,
                     (key, existingVal) => (existingVal + value) / 2);
 
             OnNewMessage(null);

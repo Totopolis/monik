@@ -1,6 +1,7 @@
 ﻿
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Gerakul.SqlQueue.InMemory;
 using Google.Protobuf;
 using Monik.Common;
@@ -18,17 +19,17 @@ namespace Monik.Client
             _queueName = queueName;
         }
 
-        public void SendMessages(ConcurrentQueue<Event> aQueue)
+        public Task SendMessages(IEnumerable<Event> events)
         {
-            var client = QueueClient.Create(_connectionString, _queueName);
-            using (var writer = client.CreateWriter())
+            return Task.Run(() =>
             {
-                var data = new List<byte[]>();
-                while (aQueue.TryDequeue(out var msg))
-                    data.Add(msg.ToByteArray());
-
-                writer.WriteMany(data);
-            }
+                var client = QueueClient.Create(_connectionString, _queueName);
+                using (var writer = client.CreateWriter())
+                {
+                    var data = events.Select(x => x.ToByteArray());
+                    writer.WriteMany(data);
+                }
+            });
         }
     }
 }

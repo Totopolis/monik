@@ -11,6 +11,7 @@ namespace Monik.Service
     {
         private const int DelayOnException = 500; //in ms
         private const int DelayOnProcess = 500; //in ms
+        private const int WaitOnExit = 10_000; //in ms
 
         private readonly IRepository _repository;
         private readonly ICacheSourceInstance _cache;
@@ -35,9 +36,9 @@ namespace Monik.Service
             _monik.ApplicationVerbose("MessagePump created");
         }
 
-        public void OnEmbeddedEvents(ConcurrentQueue<Event> events)
+        public void OnEmbeddedEvents(IEnumerable<Event> events)
         {
-            while (events.TryDequeue(out Event msg))
+            foreach (var msg in events)
                 _msgBuffer.Enqueue(msg);
 
             _newMessageEvent.Set();
@@ -65,7 +66,7 @@ namespace Monik.Service
 
                         if (srcName.Trim().Length != 0 && instName.Trim().Length != 0)
                         {
-                            var instance = _cache.CheckSourceAndInstance(Helper.Utf8ToUtf16(srcName), Helper.Utf8ToUtf16(instName));
+                            var instance = _cache.CheckSourceAndInstance(srcName, instName);
                             _processor.Process(msg, instance);
                         }
                         // TODO: increase count of ignored messages
@@ -136,7 +137,7 @@ namespace Monik.Service
             }//configure all event sources
 
             // Start message processing
-            _pumpTask = Task.Run(() => { OnProcessTask(); });
+            _pumpTask = Task.Run(OnProcessTask);
 
             _monik.ApplicationVerbose("MessagePump started");
         }
@@ -151,7 +152,7 @@ namespace Monik.Service
             _newMessageEvent.Set();
             _pumpCancellationTokenSource.Cancel();
 
-            Task.Delay(2000).Wait(); // TODO: is it correct?
+            _pumpTask?.Wait(WaitOnExit);
         }
 
         /// <summary>

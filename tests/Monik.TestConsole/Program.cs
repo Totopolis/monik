@@ -1,5 +1,6 @@
 using System.Configuration;
 using Monik.Client;
+using Monik.Common;
 
 namespace Monik.TestConsole
 {
@@ -14,11 +15,14 @@ namespace Monik.TestConsole
                 ),
                 new ClientSettings
                 {
+                    AutoKeepAliveEnable = true,
                     SourceName = ConfigurationManager.AppSettings["SourceName"],
                     InstanceName = ConfigurationManager.AppSettings["InstanceName"]
                 });
 
             client.LogicInfo("Test");
+            client.Measure("Metric_Gauge", AggregationType.Gauge, 100);
+            client.Measure("Metric_Accum", AggregationType.Accumulator, 100);
 
             client.OnStop();
         }

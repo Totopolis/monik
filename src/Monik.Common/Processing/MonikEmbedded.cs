@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Autofac;
 using Monik.Common;
 
@@ -9,12 +10,17 @@ namespace Monik.Service
         private readonly IMonikServiceSettings _settings;
         private readonly ILifetimeScope _autofac;
 
-        public const string SourceName = "Monik";
-        public const int AutoKeepAliveInterval = 60; // in sec
-        public const ushort SendDelay = 1; // in sec
+        private const string SourceName = "Monik";
+        private const int AutoKeepAliveInterval = 60; // in sec
+        private const ushort SendDelay = 1; // in sec
+        private const int WaitTimeOnStop = 10_000;
+        private const bool GroupDuplicates = true;
+
 
         public MonikEmbedded(IMonikServiceSettings settings, ILifetimeScope autofac)
-            : base(SourceName, settings.InstanceName, AutoKeepAliveInterval, SendDelay)
+            : base(SourceName, settings.InstanceName,
+                AutoKeepAliveInterval, SendDelay, WaitTimeOnStop,
+                GroupDuplicates)
         {
             _settings = settings;
             _autofac = autofac;
@@ -22,12 +28,13 @@ namespace Monik.Service
 
         private IMessagePump _pump = null;
 
-        protected override void OnSend(ConcurrentQueue<Event> events)
+        protected override Task OnSend(IEnumerable<Event> events)
         {
             if (_pump == null)
                 _pump = _autofac.Resolve<IMessagePump>();
 
             _pump.OnEmbeddedEvents(events);
+            return Task.CompletedTask;
         }
 
     }//end of class
