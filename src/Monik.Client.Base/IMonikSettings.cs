@@ -33,6 +33,12 @@
         /// </summary>
         bool AutoKeepAliveEnable { get; set; }
 
+        /// <summary>
+        /// If enabled Logs and KeepAlives will be grouped,
+        /// Also KeepAlives and Metrics will be prioritised
+        /// </summary>
+        bool GroupDuplicates { get; set; }
+
         // TODO: logging level client cut support
     }
 }

@@ -14,10 +14,13 @@ namespace Monik.Service
         private const int AutoKeepAliveInterval = 60; // in sec
         private const ushort SendDelay = 1; // in sec
         private const int WaitTimeOnStop = 10_000;
+        private const bool GroupDuplicates = true;
 
 
         public MonikEmbedded(IMonikServiceSettings settings, ILifetimeScope autofac)
-            : base(SourceName, settings.InstanceName, AutoKeepAliveInterval, SendDelay, WaitTimeOnStop)
+            : base(SourceName, settings.InstanceName,
+                AutoKeepAliveInterval, SendDelay, WaitTimeOnStop,
+                GroupDuplicates)
         {
             _settings = settings;
             _autofac = autofac;

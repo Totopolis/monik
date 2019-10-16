@@ -15,12 +15,16 @@ namespace Monik.Common
 
         private readonly ushort _sendDelay;
         private readonly int _waitTimeOnStop;
+        private readonly bool _groupDuplicates;
 
         private readonly ConcurrentQueue<Event> _msgQueue = new ConcurrentQueue<Event>();
 
-        public MonikDelayedSender(string sourceName, string instanceName, ushort keepAliveInterval, ushort sendDelay, int waitTimeOnStop) :
+        public MonikDelayedSender(string sourceName, string instanceName,
+            ushort keepAliveInterval, ushort sendDelay, int waitTimeOnStop,
+            bool groupDuplicates) :
             base(sourceName, instanceName, keepAliveInterval)
         {
+            _groupDuplicates = groupDuplicates;
             _waitTimeOnStop = waitTimeOnStop;
             _sendDelay = sendDelay;
             _senderTask = Task.Run(OnSenderTask);
@@ -83,11 +87,7 @@ namespace Monik.Common
                     }
 
                     if (_msgQueue.TryDequeueAll(out var messages))
-                        await OnSend(messages);
-                }
-                catch
-                {
-                    // ignore
+                        await SendMessages(messages);
                 }
                 finally
                 {
@@ -105,5 +105,22 @@ namespace Monik.Common
 
             _newMessageEvent.Set();
         }
+
+
+        private async Task SendMessages(IList<Event> messages)
+        {
+            try
+            {
+                if (_groupDuplicates)
+                    messages = messages.GroupDuplicates();
+
+                await OnSend(messages);
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+
     }//end of class
 }

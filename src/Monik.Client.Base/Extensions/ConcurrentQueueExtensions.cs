@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Monik.Common
 {
-    public static class ConcurrentQueueExtensions
+    internal static class ConcurrentQueueExtensions
     {
         public static IEnumerable<T> DequeueExisting<T>(this ConcurrentQueue<T> queue)
         {

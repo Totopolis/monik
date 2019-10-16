@@ -14,5 +14,6 @@
 
         public ushort AutoKeepAliveInterval { get; set; } = 60;
 
+        public bool GroupDuplicates { get; set; } = true;
     } //end of class
 }
