@@ -8,6 +8,8 @@
 
         public ushort SendDelay { get; set; } = 1;
 
+        public int WaitTimeOnStop { get; set; } = 10_000;
+
         public bool AutoKeepAliveEnable { get; set; } = false;
 
         public ushort AutoKeepAliveInterval { get; set; } = 60;

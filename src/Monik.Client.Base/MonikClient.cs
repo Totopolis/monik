@@ -13,7 +13,7 @@ namespace Monik.Client
         private readonly Task _keepAliveTask;
 
         public MonikClient(IMonikSender sender, IMonikSettings settings)
-            : base(settings.SourceName, settings.InstanceName, settings.AutoKeepAliveInterval, settings.SendDelay)
+            : base(settings.SourceName, settings.InstanceName, settings.AutoKeepAliveInterval, settings.SendDelay, settings.WaitTimeOnStop)
         {
             _sender = sender;
 

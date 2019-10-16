@@ -9,19 +9,19 @@ namespace Monik.Common
 {
     public abstract class MonikDelayedSender : MonikBase
     {
-        private const int WaitOnExit = 10_000;
-
         private readonly Task _senderTask;
         private readonly ManualResetEventAsync _newMessageEvent = new ManualResetEventAsync(false, false);
         private readonly CancellationTokenSource _senderCancellationTokenSource = new CancellationTokenSource();
 
         private readonly ushort _sendDelay;
+        private readonly int _waitTimeOnStop;
 
         private readonly ConcurrentQueue<Event> _msgQueue = new ConcurrentQueue<Event>();
 
-        public MonikDelayedSender(string sourceName, string instanceName, ushort keepAliveInterval, ushort sendDelay) :
+        public MonikDelayedSender(string sourceName, string instanceName, ushort keepAliveInterval, ushort sendDelay, int waitTimeOnStop) :
             base(sourceName, instanceName, keepAliveInterval)
         {
+            _waitTimeOnStop = waitTimeOnStop;
             _sendDelay = sendDelay;
             _senderTask = Task.Run(OnSenderTask);
         }
@@ -29,7 +29,7 @@ namespace Monik.Common
         public override void OnStop()
         {
             _senderCancellationTokenSource.Cancel();
-            _senderTask.Wait(WaitOnExit);
+            _senderTask.Wait(_waitTimeOnStop);
         }
 
         // TODO: MAX/MIN aggregation type ?
