@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.Client.SqlQueue", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.Common", "src\Monik.Common\Monik.Common.csproj", "{A82613A9-0773-4BD4-BE3D-39587613EFD3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonikService", "src\MonikService\MonikService.csproj", "{DB7BDEA7-6BBC-44F0-AFB9-6F7D0B5D46C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.Service", "src\Monik.Service\Monik.Service.csproj", "{DB7BDEA7-6BBC-44F0-AFB9-6F7D0B5D46C9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonikWorker", "src\MonikWorker\MonikWorker.csproj", "{F373F640-6E87-4853-98B3-4B131D88A761}"
 EndProject
