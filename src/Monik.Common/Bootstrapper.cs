@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Autofac;
 using Gerakul.FastSql.Common;
 using Gerakul.FastSql.SqlServer;
@@ -37,26 +38,37 @@ namespace Monik.Service
             var settings = container.Resolve<IRepository>().LoadSettings();
             container.Resolve<IMonikServiceSettings>().UpdateSettings(settings);
 
-            container.Resolve<ICacheSourceInstance>().OnStart();
-            container.Resolve<ICacheLog>().OnStart();
-            container.Resolve<ICacheKeepAlive>().OnStart();
-            container.Resolve<ICacheMetric>().OnStart();
+            OnApplicationStart();
+        }
 
-            container.Resolve<IMessageProcessor>().OnStart();
-            container.Resolve<IMessagePump>().OnStart();
+        public void OnApplicationStart()
+        {
+            Resolve<IMonik>().ApplicationWarning(
+                $"Starting {Assembly.GetExecutingAssembly().GetName().Version}");
+
+            Resolve<ICacheSourceInstance>().OnStart();
+            Resolve<ICacheLog>().OnStart();
+            Resolve<ICacheKeepAlive>().OnStart();
+            Resolve<ICacheMetric>().OnStart();
+
+            Resolve<IMessageProcessor>().OnStart();
+            Resolve<IMessagePump>().OnStart();
         }
 
         // Raise at NancyHostHolder.Stop() when service shutdown
         public void OnApplicationStop()
         {
-            Singleton.Resolve<IMonik>().OnStop();
-            Singleton.Resolve<IMessagePump>().OnStop();
-            Singleton.Resolve<IMessageProcessor>().OnStop();
+            Resolve<IMonik>().ApplicationWarning(
+                $"Stopping {Assembly.GetExecutingAssembly().GetName().Version}");
 
-            Singleton.Resolve<ICacheMetric>().OnStop();
-            Singleton.Resolve<ICacheKeepAlive>().OnStop();
-            Singleton.Resolve<ICacheLog>().OnStop();
-            Singleton.Resolve<ICacheSourceInstance>().OnStop();
+            Resolve<IMonik>().OnStop();
+            Resolve<IMessagePump>().OnStop();
+            Resolve<IMessageProcessor>().OnStop();
+
+            Resolve<ICacheMetric>().OnStop();
+            Resolve<ICacheKeepAlive>().OnStop();
+            Resolve<ICacheLog>().OnStop();
+            Resolve<ICacheSourceInstance>().OnStop();
         }
 
         protected override void ConfigureApplicationContainer(ILifetimeScope existingContainer)
