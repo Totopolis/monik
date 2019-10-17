@@ -34,9 +34,6 @@ namespace Monik.Service
                         messages = await _receiver.ReceiveAsync(MaxMessageCount);
                         if (messages == null || messages.Count == 0)
                             continue;
-
-                        var lockTokens = messages.Select(x => x.SystemProperties.LockToken);
-                        await _receiver.CompleteAsync(lockTokens);
                     }
                     catch (Exception ex)
                     {
@@ -51,6 +48,9 @@ namespace Monik.Service
                         }
                         continue;
                     }
+
+                    var lockTokens = messages.Select(x => x.SystemProperties.LockToken);
+                    var completeMessagesTask = _receiver.CompleteAsync(lockTokens);
 
                     foreach (var message in messages)
                     {
@@ -89,14 +89,24 @@ namespace Monik.Service
                             context.OnReceivedMessage(msg);
                         }
                     }
+
+                    try
+                    {
+                        await completeMessagesTask;
+                    }
+                    catch (Exception ex)
+                    {
+                        context.OnError($"Failed to complete messages: {ex}");
+                    }
                 }
             });
         }
 
         public void Stop()
         {
-            _receiverTokenSource.Cancel();
-            _receiverTask.Wait();
+            _receiverTokenSource?.Cancel();
+            _receiverTask?.Wait();
+            _receiver?.CloseAsync().Wait();
         }
     }
 }
