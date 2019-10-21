@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.Client.Azure.Test", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.Client.Base.Test", "tests\Monik.Client.Base.Test\Monik.Client.Base.Test.csproj", "{2758F69F-D687-458B-9626-04845849EB92}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monik.Client.RabbitMQ", "src\Monik.Client.RabbitMQ\Monik.Client.RabbitMQ.csproj", "{3CEF6BCE-00F3-4A53-AD91-45F92705D834}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -79,6 +81,10 @@ Global
 		{2758F69F-D687-458B-9626-04845849EB92}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2758F69F-D687-458B-9626-04845849EB92}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2758F69F-D687-458B-9626-04845849EB92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CEF6BCE-00F3-4A53-AD91-45F92705D834}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CEF6BCE-00F3-4A53-AD91-45F92705D834}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CEF6BCE-00F3-4A53-AD91-45F92705D834}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CEF6BCE-00F3-4A53-AD91-45F92705D834}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -91,6 +97,7 @@ Global
 		{ABDED7C4-2E65-4286-8C4B-F37DB7C0DE82} = {767AF9D1-1F26-4DE5-9683-979137B38E16}
 		{F8E99792-3FE7-4839-84D5-CE0F08A4733B} = {767AF9D1-1F26-4DE5-9683-979137B38E16}
 		{2758F69F-D687-458B-9626-04845849EB92} = {767AF9D1-1F26-4DE5-9683-979137B38E16}
+		{3CEF6BCE-00F3-4A53-AD91-45F92705D834} = {4B497B9F-27AE-4736-9173-53875BE8BD64}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EF63EDB2-706A-43E1-9756-34825B871387}
