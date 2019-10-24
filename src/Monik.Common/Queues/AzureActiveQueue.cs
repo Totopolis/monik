@@ -12,8 +12,8 @@ namespace Monik.Service
 {
     public class AzureActiveQueue : IActiveQueue
     {
-        private const int MaxMessageCount = 50;
-        private const int PrefetchCount = 150;
+        private const int MaxMessageCount = 200;
+        private const int PrefetchCount = 400;
         private const int TimeoutOnException = 1_000; // ms
 
         private IMessageReceiver _receiver;
