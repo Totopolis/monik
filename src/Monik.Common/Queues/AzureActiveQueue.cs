@@ -13,6 +13,7 @@ namespace Monik.Service
     public class AzureActiveQueue : IActiveQueue
     {
         private const int MaxMessageCount = 50;
+        private const int PrefetchCount = 150;
         private const int TimeoutOnException = 1_000; // ms
 
         private IMessageReceiver _receiver;
@@ -22,12 +23,19 @@ namespace Monik.Service
 
         public void Start(EventQueue config, ActiveQueueContext context)
         {
-            _receiver = new MessageReceiver(new ServiceBusConnection(config.ConnectionString), config.QueueName);
+            _receiver = new MessageReceiver(
+                new ServiceBusConnection(config.ConnectionString),
+                config.QueueName,
+                prefetchCount: PrefetchCount
+            );
             
             _receiverTokenSource = new CancellationTokenSource();
+            var completeTime = DateTime.UtcNow;
             _receiverTask = Task.Run(async () => {
                 while (!_receiverTokenSource.IsCancellationRequested)
                 {
+                    var receiveTime = DateTime.UtcNow;
+                    context.OnMeasure("AzureCTime", (receiveTime - completeTime).TotalMilliseconds);
                     IList<Message> messages;
                     try
                     {
@@ -48,6 +56,10 @@ namespace Monik.Service
                         }
                         continue;
                     }
+
+                    var processTime = DateTime.UtcNow;
+                    context.OnMeasure("AzureRTime", (processTime - receiveTime).TotalMilliseconds);
+                    context.OnMeasure("AzureBSize", messages.Count);
 
                     var lockTokens = messages.Select(x => x.SystemProperties.LockToken);
                     var completeMessagesTask = _receiver.CompleteAsync(lockTokens);
@@ -89,6 +101,9 @@ namespace Monik.Service
                             context.OnReceivedMessage(msg);
                         }
                     }
+
+                    completeTime = DateTime.UtcNow;
+                    context.OnMeasure("AzurePTime", (completeTime - processTime).TotalMilliseconds);
 
                     try
                     {

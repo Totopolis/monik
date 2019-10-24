@@ -99,6 +99,11 @@ namespace Monik.Service
                 {
                     _monik.ApplicationVerbose(verboseMessage);
                 },
+                OnMeasure = (metricName, value) =>
+                {
+                    _monik.Measure(metricName, AggregationType.Gauge, value);
+                    _monik.Measure(metricName + "All", AggregationType.Accumulator, value);
+                },
                 OnReceivedMessage = (msg) =>
                 {
                     _msgBuffer.Enqueue(msg);

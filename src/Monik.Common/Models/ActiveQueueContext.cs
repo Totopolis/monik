@@ -8,6 +8,7 @@ namespace Monik.Service
     {
         public Action<string> OnError;
         public Action<string> OnVerbose;
+        public Action<string, double> OnMeasure;
         public Action<Event> OnReceivedMessage;
         public Action<IEnumerable<Event>> OnReceivedMessages;
     }
