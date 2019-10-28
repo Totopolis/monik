@@ -15,7 +15,7 @@ namespace Monik.Client
         public MonikClient(IMonikSender sender, IMonikSettings settings)
             : base(settings.SourceName, settings.InstanceName,
                 settings.AutoKeepAliveInterval, settings.SendDelay, settings.WaitTimeOnStop,
-                settings.GroupDuplicates)
+                settings.GroupDuplicates, settings.QueueCapacity)
         {
             _sender = sender;
 

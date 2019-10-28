@@ -15,5 +15,7 @@
         public ushort AutoKeepAliveInterval { get; set; } = 60;
 
         public bool GroupDuplicates { get; set; } = true;
+
+        public int QueueCapacity { get; set; } = 10_000;
     } //end of class
 }

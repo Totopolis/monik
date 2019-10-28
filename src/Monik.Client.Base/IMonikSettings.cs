@@ -39,6 +39,9 @@
         /// </summary>
         bool GroupDuplicates { get; set; }
 
-        // TODO: logging level client cut support
+        /// <summary>
+        /// Capacity of the events queue, old events are discarded
+        /// </summary>
+        int QueueCapacity { get; set; }
     }
 }
