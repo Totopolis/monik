@@ -11,10 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Monik.Client.Base\Monik.Client.Base.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="Monik.Client.Base" Version="1.0.0" />
     <PackageReference Include="Gerakul.SqlQueue.InMemory" Version="1.5.2" />
   </ItemGroup>
 
