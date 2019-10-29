@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Google.Protobuf;
@@ -12,30 +13,27 @@ namespace Monik.Client
         private const long MaxBatchSize = 262144; // 256 KB
         private const long BatchSizeLimit = MaxBatchSize / 4;
 
-        private readonly string _serviceBusConnectionString;
-        private readonly string _queueName;
+        private readonly Lazy<QueueClient> _client;
 
-        public AzureSender(string aServiceBusConnectionString, string aQueueName)
+        public AzureSender(string connectionString, string queueName)
         {
-            _serviceBusConnectionString = aServiceBusConnectionString;
-            _queueName = aQueueName;
+            _client = new Lazy<QueueClient>(() => new QueueClient(connectionString, queueName));
         }
 
         public async Task SendMessages(IEnumerable<Event> events)
         {
-            var client = new QueueClient(_serviceBusConnectionString, _queueName);
+            var messages = events
+                .Select(x => new Message(x.ToByteArray()))
+                .ToList();
 
-            try
-            {
-                var messages = events
-                    .Select(x => new Message(x.ToByteArray()))
-                    .ToList();
+            await _client.Value.SendBatchAsync(messages, BatchSizeLimit);
+        }
 
-                await client.SendBatchAsync(messages, BatchSizeLimit);
-            }
-            finally
+        public void Dispose()
+        {
+            if (_client.IsValueCreated)
             {
-                await client.CloseAsync();
+                _client.Value.CloseAsync().Wait();
             }
         }
     }
