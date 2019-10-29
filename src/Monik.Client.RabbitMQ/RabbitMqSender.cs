@@ -5,7 +5,7 @@ using EasyNetQ.Topology;
 using Google.Protobuf;
 using Monik.Common;
 
-namespace Monik.Client.RabbitMQ
+namespace Monik.Client
 {
     public class RabbitMqSender : IMonikSender
     {
