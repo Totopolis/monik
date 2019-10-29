@@ -35,6 +35,8 @@ namespace Monik.Client
             _keepAliveTask?.Wait();
 
             base.OnStop();
+
+            _sender?.Dispose();
         }
 
         protected override Task OnSend(IEnumerable<Event> events)
