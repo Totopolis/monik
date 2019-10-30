@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using EasyNetQ;
+using EasyNetQ.ConnectionString;
 using Monik.Common;
+using Monik.Common.RabbitMQ;
 
 namespace Monik.Service
 {
@@ -11,7 +13,16 @@ namespace Monik.Service
 
         public void Start(EventQueue config, ActiveQueueContext context)
         {
-            _client = RabbitHutch.CreateBus(config.ConnectionString).Advanced;
+            var connectionString = config.ConnectionString.FetchConnectionSslOptions(out var configure);
+
+            _client = RabbitHutch
+                .CreateBus(x =>
+                {
+                    var connectionConfig = x.Resolve<IConnectionStringParser>().Parse(connectionString);
+                    return configure(connectionConfig);
+                }, x => { })
+                .Advanced;
+
             var queue = _client.QueueDeclare(config.QueueName);
 
             _client.Consume(queue, (body, properties, info) => Task.Factory.StartNew(() =>

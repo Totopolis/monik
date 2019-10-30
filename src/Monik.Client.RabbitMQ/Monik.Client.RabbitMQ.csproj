@@ -10,7 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Monik.Common.RabbitMQ\Monik.Common.RabbitMQ.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Monik.Client.Base" Version="1.0.0" />
-    <PackageReference Include="EasyNetQ" Version="3.7.1" />
   </ItemGroup>
 </Project>

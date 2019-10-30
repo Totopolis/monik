@@ -10,11 +10,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Monik.Client.Base\Monik.Client.Base.csproj" />
+    <ProjectReference Include="..\Monik.Common.RabbitMQ\Monik.Common.RabbitMQ.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.4" />
-    <PackageReference Include="EasyNetQ" Version="3.7.1" />
     <PackageReference Include="Gerakul.FastSql.SqlServer" Version="1.0.0" />
     <PackageReference Include="Gerakul.SqlQueue.InMemory" Version="1.5.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.5.0" />
