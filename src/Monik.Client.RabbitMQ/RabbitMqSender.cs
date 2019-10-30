@@ -21,6 +21,9 @@ namespace Monik.Client
 
         public async Task SendMessages(IEnumerable<Event> events)
         {
+            if (!_client.Value.IsConnected)
+                return;
+
             foreach (var ev in events)
             {
                 var body = ev.ToByteArray();
