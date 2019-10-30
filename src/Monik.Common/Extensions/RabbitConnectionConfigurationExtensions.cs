@@ -5,7 +5,7 @@ using EasyNetQ;
 
 namespace Monik.Common.RabbitMQ
 {
-    public static class ConnectionConfigurationExtensions
+    public static class RabbitConnectionConfigurationExtensions
     {
         private static readonly Dictionary<string, Action<string, ConnectionConfiguration>> SslFields = new
             Dictionary<string, Action<string, ConnectionConfiguration>>

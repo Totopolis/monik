@@ -31,8 +31,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.Client.Base.Test", "t
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.Client.RabbitMQ", "src\Monik.Client.RabbitMQ\Monik.Client.RabbitMQ.csproj", "{3CEF6BCE-00F3-4A53-AD91-45F92705D834}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.Common.RabbitMQ", "src\Monik.Common.RabbitMQ\Monik.Common.RabbitMQ.csproj", "{DFB2F219-73E6-420D-8466-DA2989D57457}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,10 +85,6 @@ Global
 		{3CEF6BCE-00F3-4A53-AD91-45F92705D834}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3CEF6BCE-00F3-4A53-AD91-45F92705D834}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3CEF6BCE-00F3-4A53-AD91-45F92705D834}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DFB2F219-73E6-420D-8466-DA2989D57457}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DFB2F219-73E6-420D-8466-DA2989D57457}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DFB2F219-73E6-420D-8466-DA2989D57457}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DFB2F219-73E6-420D-8466-DA2989D57457}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

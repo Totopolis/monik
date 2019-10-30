@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Monik.Client.Base" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="4.0.0" />
+    <PackageReference Include="Monik.Client.Base" Version="1.0.2" />
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="4.1.0" />
   </ItemGroup>
 </Project>
