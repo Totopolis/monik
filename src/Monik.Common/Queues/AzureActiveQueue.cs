@@ -15,6 +15,7 @@ namespace Monik.Service
         private const int MaxMessageCount = 200;
         private const int PrefetchCount = 400;
         private const int TimeoutOnException = 1_000; // ms
+        private const int ReceiverTimeoutOnExit = 10_000; // ms
 
         private IMessageReceiver _receiver;
         private Task _receiverTask;
@@ -120,7 +121,7 @@ namespace Monik.Service
         public void Stop()
         {
             _receiverTokenSource?.Cancel();
-            _receiverTask?.Wait();
+            _receiverTask?.Wait(ReceiverTimeoutOnExit);
             _receiver?.CloseAsync().Wait();
         }
     }
