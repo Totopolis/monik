@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>Totopolis</Authors>
-    <PackageProjectUrl>https://github.com/Totopolis/monik</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Totopolis/monik</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
