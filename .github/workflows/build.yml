@@ -3,8 +3,11 @@ on: [push]
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - uses: warrenbuckley/Setup-MSBuild@v1
-    - run: msbuild /restore /v:m
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.0.100' # SDK Version to use.
+    - run: dotnet build
+    - run: dotnet test
