@@ -17,10 +17,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.Common", "src\Monik.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.Service", "src\Monik.Service\Monik.Service.csproj", "{DB7BDEA7-6BBC-44F0-AFB9-6F7D0B5D46C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonikWorker", "src\MonikWorker\MonikWorker.csproj", "{F373F640-6E87-4853-98B3-4B131D88A761}"
-EndProject
-Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "MonikCloud", "src\MonikCloud\MonikCloud.ccproj", "{4A6DA3F2-5DFD-4055-BD51-31D250387D15}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.Test", "tests\Monik.Test\Monik.Test.csproj", "{BBC2DDB9-9986-43AD-8DFB-53A61F7620FF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monik.TestConsole", "tests\Monik.TestConsole\Monik.TestConsole.csproj", "{ABDED7C4-2E65-4286-8C4B-F37DB7C0DE82}"
@@ -57,14 +53,6 @@ Global
 		{DB7BDEA7-6BBC-44F0-AFB9-6F7D0B5D46C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB7BDEA7-6BBC-44F0-AFB9-6F7D0B5D46C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB7BDEA7-6BBC-44F0-AFB9-6F7D0B5D46C9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F373F640-6E87-4853-98B3-4B131D88A761}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F373F640-6E87-4853-98B3-4B131D88A761}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F373F640-6E87-4853-98B3-4B131D88A761}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F373F640-6E87-4853-98B3-4B131D88A761}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4A6DA3F2-5DFD-4055-BD51-31D250387D15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4A6DA3F2-5DFD-4055-BD51-31D250387D15}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4A6DA3F2-5DFD-4055-BD51-31D250387D15}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4A6DA3F2-5DFD-4055-BD51-31D250387D15}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BBC2DDB9-9986-43AD-8DFB-53A61F7620FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BBC2DDB9-9986-43AD-8DFB-53A61F7620FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBC2DDB9-9986-43AD-8DFB-53A61F7620FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
