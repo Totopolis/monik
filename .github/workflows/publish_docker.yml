@@ -1,0 +1,21 @@
+name: Publish docker
+on:
+  push:
+    tags:
+      - 'docker/v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set env
+      run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:18})
+    - uses: actions/checkout@master
+    - name: Publish to Docker Repository
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: totopolis/monik/service:${{ env.RELEASE_VERSION }}
+        username: Totopolis
+        password: ${{ secrets.GITHUB_TOKEN }}
+        registry: docker.pkg.github.com
+        buildargs: VERSION=${{ env.RELEASE_VERSION }}
