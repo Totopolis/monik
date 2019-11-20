@@ -70,34 +70,6 @@ ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 )
 
 
-CREATE TABLE [mon].[Settings](
-	[ID] [int] IDENTITY(1,1) NOT NULL,
-	[Name] [nvarchar](256) NOT NULL,
-	[Value] [nvarchar](max) NOT NULL,
- CONSTRAINT [PK_Settings] PRIMARY KEY CLUSTERED 
-(
-	[ID] ASC
-)WITH 
-(PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, 
-ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
-)
-
-INSERT INTO mon.Settings (Name, Value)
-VAlUES ('NeedUpdate', '0')
-
-INSERT INTO mon.Settings (Name, Value)
-VAlUES ('OutcomingConnectionString', '[YOUR SERVICE BUS CONNECTION STRING]')
-
-INSERT INTO mon.Settings (Name, Value)
-VAlUES ('OutcomingQueue', '[SERVICE BUS QUEUE]')
-
-INSERT INTO mon.Settings (Name, Value)
-VAlUES ('DayDeepLog', '14')
-
-INSERT INTO mon.Settings (Name, Value)
-VAlUES ('DayDeepKeepAlive', '1')
-
-
 CREATE TABLE [mon].[Log](
 	[ID] [bigint] IDENTITY(1,1) NOT NULL,
 	[Created] [datetime] NOT NULL,

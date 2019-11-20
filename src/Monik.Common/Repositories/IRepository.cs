@@ -5,8 +5,6 @@ namespace Monik.Service
 {
     public interface IRepository
     {
-        Dictionary<string, string> LoadSettings();
-
         List<Source> GetAllSources();
         List<Instance> GetAllInstances();
         List<Group> GetAllGroupsAndFill();

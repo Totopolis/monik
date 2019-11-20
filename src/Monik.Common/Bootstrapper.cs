@@ -35,9 +35,6 @@ namespace Monik.Service
             var configuration = new StatelessAuthenticationConfiguration(userIdentityProvider.GetUserIdentity);
             StatelessAuthentication.Enable(pipelines, configuration);
 
-            var settings = container.Resolve<IRepository>().LoadSettings();
-            container.Resolve<IMonikServiceSettings>().UpdateSettings(settings);
-
             OnApplicationStart();
         }
 

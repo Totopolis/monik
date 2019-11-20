@@ -26,16 +26,6 @@ namespace Monik.Service
             }
         }
 
-        public Dictionary<string, string> LoadSettings()
-        {
-            var proto = new { name = default(string), value = default(string) };
-
-            return _context
-                .CreateSimple("select Name, Value from mon.Settings")
-                .ExecuteQueryAnonymous(proto)
-                .ToDictionary(v => v.name, v => v.value);
-        }
-
         public List<Source> GetAllSources()
         {
             return _context
