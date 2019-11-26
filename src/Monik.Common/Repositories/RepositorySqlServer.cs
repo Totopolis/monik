@@ -7,13 +7,13 @@ using Monik.Common;
 
 namespace Monik.Service
 {
-    public class Repository : IRepository
+    public class RepositorySqlServer : IRepository
     {
         private readonly IMonikServiceSettings _settings;
         private readonly DbContext _context;
         private readonly BulkOptions _bulkOptions;
 
-        public Repository(IMonikServiceSettings settings, ContextProvider provider)
+        public RepositorySqlServer(IMonikServiceSettings settings, ContextProvider provider)
         {
             _settings = settings;
             _context = provider.CreateContext(_settings.DbConnectionString);

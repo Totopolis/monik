@@ -15,6 +15,7 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.4" />
     <PackageReference Include="EasyNetQ" Version="3.7.1" />
+    <PackageReference Include="Gerakul.FastSql.PostgreSQL" Version="0.9.0" />
     <PackageReference Include="Gerakul.FastSql.SqlServer" Version="1.0.0" />
     <PackageReference Include="Gerakul.SqlQueue.InMemory" Version="1.5.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.6.0" />

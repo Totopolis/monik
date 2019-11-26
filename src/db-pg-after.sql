@@ -1,0 +1,45 @@
+\set ON_ERROR_STOP
+\set ECHO all
+BEGIN;
+\set ECHO all
+CREATE SEQUENCE "mon"."eventqueue_id_seq" INCREMENT BY 1 MINVALUE 1 START WITH 1 OWNED BY "mon"."EventQueue"."ID";
+CREATE SEQUENCE "mon"."group_id_seq" INCREMENT BY 1 MINVALUE 1 START WITH 1 OWNED BY "mon"."Group"."ID";
+CREATE SEQUENCE "mon"."groupinstance_id_seq" INCREMENT BY 1 MINVALUE 1 START WITH 1 OWNED BY "mon"."GroupInstance"."ID";
+CREATE SEQUENCE "mon"."hourstat_id_seq" INCREMENT BY 1 MINVALUE 1 START WITH 1 OWNED BY "mon"."HourStat"."ID";
+CREATE SEQUENCE "mon"."instance_id_seq" INCREMENT BY 1 MINVALUE 1 START WITH 1 OWNED BY "mon"."Instance"."ID";
+CREATE SEQUENCE "mon"."keepalive_id_seq" INCREMENT BY 1 MINVALUE 1 START WITH 1 OWNED BY "mon"."KeepAlive"."ID";
+CREATE SEQUENCE "mon"."log_id_seq" INCREMENT BY 1 MINVALUE 1 START WITH 1 OWNED BY "mon"."Log"."ID";
+CREATE SEQUENCE "mon"."measure_id_seq" INCREMENT BY 1 MINVALUE 1 START WITH 1 OWNED BY "mon"."Measure"."ID";
+CREATE SEQUENCE "mon"."metric_id_seq" INCREMENT BY 1 MINVALUE 1 START WITH 1 OWNED BY "mon"."Metric"."ID";
+CREATE SEQUENCE "mon"."source_id_seq" INCREMENT BY 1 MINVALUE 1 START WITH 1 OWNED BY "mon"."Source"."ID";
+ALTER TABLE "mon"."EventQueue" ADD CONSTRAINT "PK_EventQueue" PRIMARY KEY ("ID");
+ALTER TABLE "mon"."Group" ADD CONSTRAINT "PK_Group" PRIMARY KEY ("ID");
+ALTER TABLE "mon"."GroupInstance" ADD CONSTRAINT "PK_GroupInstance" PRIMARY KEY ("ID");
+ALTER TABLE "mon"."HourStat" ADD CONSTRAINT "PK_HourStat" PRIMARY KEY ("ID");
+ALTER TABLE "mon"."Instance" ADD CONSTRAINT "PK_Instance" PRIMARY KEY ("ID");
+ALTER TABLE "mon"."KeepAlive" ADD CONSTRAINT "PK_KeepAlive" PRIMARY KEY ("ID");
+ALTER TABLE "mon"."Log" ADD CONSTRAINT "PK_Log" PRIMARY KEY ("ID");
+ALTER TABLE "mon"."Measure" ADD CONSTRAINT "PK_Measure" PRIMARY KEY ("ID");
+ALTER TABLE "mon"."Metric" ADD CONSTRAINT "PK_Metric" PRIMARY KEY ("ID");
+ALTER TABLE "mon"."Source" ADD CONSTRAINT "PK_Source" PRIMARY KEY ("ID");
+ALTER TABLE "mon"."EventQueue" ALTER COLUMN "ID" SET DEFAULT nextval('"mon"."eventqueue_id_seq"');
+ALTER TABLE "mon"."Group" ALTER COLUMN "ID" SET DEFAULT nextval('"mon"."group_id_seq"');
+ALTER TABLE "mon"."GroupInstance" ALTER COLUMN "ID" SET DEFAULT nextval('"mon"."groupinstance_id_seq"');
+ALTER TABLE "mon"."HourStat" ALTER COLUMN "ID" SET DEFAULT nextval('"mon"."hourstat_id_seq"');
+ALTER TABLE "mon"."Instance" ALTER COLUMN "ID" SET DEFAULT nextval('"mon"."instance_id_seq"');
+ALTER TABLE "mon"."KeepAlive" ALTER COLUMN "ID" SET DEFAULT nextval('"mon"."keepalive_id_seq"');
+ALTER TABLE "mon"."Log" ALTER COLUMN "ID" SET DEFAULT nextval('"mon"."log_id_seq"');
+ALTER TABLE "mon"."Measure" ALTER COLUMN "ID" SET DEFAULT nextval('"mon"."measure_id_seq"');
+ALTER TABLE "mon"."Metric" ALTER COLUMN "ID" SET DEFAULT nextval('"mon"."metric_id_seq"');
+ALTER TABLE "mon"."Source" ALTER COLUMN "ID" SET DEFAULT nextval('"mon"."source_id_seq"');
+select setval('"mon"."eventqueue_id_seq"',(select max("ID") from "mon"."EventQueue")::bigint);
+select setval('"mon"."group_id_seq"',(select max("ID") from "mon"."Group")::bigint);
+select setval('"mon"."groupinstance_id_seq"',(select max("ID") from "mon"."GroupInstance")::bigint);
+select setval('"mon"."hourstat_id_seq"',(select max("ID") from "mon"."HourStat")::bigint);
+select setval('"mon"."instance_id_seq"',(select max("ID") from "mon"."Instance")::bigint);
+select setval('"mon"."keepalive_id_seq"',(select max("ID") from "mon"."KeepAlive")::bigint);
+select setval('"mon"."log_id_seq"',(select max("ID") from "mon"."Log")::bigint);
+select setval('"mon"."measure_id_seq"',(select max("ID") from "mon"."Measure")::bigint);
+select setval('"mon"."metric_id_seq"',(select max("ID") from "mon"."Metric")::bigint);
+select setval('"mon"."source_id_seq"',(select max("ID") from "mon"."Source")::bigint);
+COMMIT;
