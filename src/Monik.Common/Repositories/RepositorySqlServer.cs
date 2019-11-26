@@ -222,21 +222,22 @@ END";
         public Metric_ GetMetric(int metricId)
         {
             return _context
-                .CreateSimple($"select * from mon.Metric with(nolock) where ID={metricId}")
+                .CreateSimple("select * from mon.Metric with(nolock) where ID = @p0", metricId)
                 .ExecuteQuery<Metric_>()
                 .First();
         }
 
         public Measure_[] GetMeasures(int metricId)
         {
-            return _context
-                .CreateSimple($@"
+            const string query = @"
 select meas.*
 from mon.Measure meas with(nolock)
 join mon.Metric met with(nolock) on met.RangeHeadID <= meas.ID and met.RangeTailID >= meas.ID
-where met.ID = {metricId}
-order by meas.ID"
-                )
+where met.ID = @p0
+order by meas.ID
+";
+            return _context
+                .CreateSimple(query, metricId)
                 .ExecuteQuery<Measure_>()
                 .ToArray();
         }
