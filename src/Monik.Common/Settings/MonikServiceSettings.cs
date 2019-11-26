@@ -4,6 +4,8 @@ namespace Monik.Service
 {
     public class MonikServiceSettings : IMonikServiceSettings
     {
+        public DbProvider DbProvider =>
+            (DbProvider) System.Enum.Parse(typeof(DbProvider), ConfigurationManager.AppSettings["DBProvider"]);
         public string InstanceName => ConfigurationManager.AppSettings["InstanceName"];
 
         public string DbConnectionString => ConfigurationManager.AppSettings["DBConnectionString"];

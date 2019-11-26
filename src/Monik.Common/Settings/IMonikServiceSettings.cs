@@ -3,6 +3,7 @@
     public interface IMonikServiceSettings
     {
         string DbConnectionString { get; }
+        DbProvider DbProvider { get; }
         string InstanceName { get; }
 
         int DayDeepLog { get; }

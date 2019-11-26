@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Autofac;
-using Gerakul.FastSql.Common;
+using Gerakul.FastSql.PostgreSQL;
 using Gerakul.FastSql.SqlServer;
 using Monik.Common;
 using Nancy;
@@ -74,8 +74,22 @@ namespace Monik.Service
 
             existingContainer.RegisterSingleton<IMonikServiceSettings, MonikServiceSettings>();
 
-            existingContainer.RegisterInstance<ContextProvider, SqlContextProvider>(SqlContextProvider.DefaultInstance);
-            existingContainer.RegisterImplementation<IRepository, Repository>();
+            existingContainer.Update(
+                b => b.Register<IRepository>(c =>
+                    {
+                        var settings = c.Resolve<IMonikServiceSettings>();
+                        switch (settings.DbProvider)
+                        {
+                            case DbProvider.SqlServer:
+                                return new RepositorySqlServer(settings, SqlContextProvider.DefaultInstance);
+                            case DbProvider.PostgreSql:
+                                return new RepositoryPostgreSql(settings, NpgsqlContextProvider.DefaultInstance);
+                            default:
+                                throw new ArgumentException($"Unsupported {nameof(DbProvider)}: {settings.DbProvider}");
+                        }
+                    })
+                    .SingleInstance()
+            );
 
             existingContainer.RegisterSingleton<IMonik, MonikEmbedded>();
 
