@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using Autofac;
-using Gerakul.FastSql.PostgreSQL;
-using Gerakul.FastSql.SqlServer;
 using Monik.Common;
 using Nancy;
 using Nancy.Authentication.Stateless;
@@ -81,9 +79,9 @@ namespace Monik.Service
                         switch (settings.DbProvider)
                         {
                             case DbProvider.SqlServer:
-                                return new RepositorySqlServer(settings, SqlContextProvider.DefaultInstance);
+                                return new RepositorySqlServer(settings);
                             case DbProvider.PostgreSql:
-                                return new RepositoryPostgreSql(settings, NpgsqlContextProvider.DefaultInstance);
+                                return new RepositoryPostgreSql(settings);
                             default:
                                 throw new ArgumentException($"Unsupported {nameof(DbProvider)}: {settings.DbProvider}");
                         }

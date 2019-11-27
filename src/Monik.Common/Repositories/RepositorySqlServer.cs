@@ -1,230 +1,365 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
-using Gerakul.FastSql.Common;
-using Gerakul.FastSql.SqlServer;
+using Dapper;
 using Monik.Common;
 
 namespace Monik.Service
 {
-    public class RepositorySqlServer : IRepository
+    public class RepositorySqlServer : RepositoryBase, IRepository
     {
         private readonly IMonikServiceSettings _settings;
-        private readonly DbContext _context;
-        private readonly BulkOptions _bulkOptions;
 
-        public RepositorySqlServer(IMonikServiceSettings settings, ContextProvider provider)
+        public RepositorySqlServer(IMonikServiceSettings settings)
         {
             _settings = settings;
-            _context = provider.CreateContext(_settings.DbConnectionString);
-
-            _bulkOptions = provider.BulkOptions;
-            if (_bulkOptions is SqlBulkOptions options)
-            {
-                options.BatchSize = _settings.WriteBatchSize;
-                options.BulkCopyTimeout = _settings.WriteBatchTimeout;
-            }
         }
+
+        protected override IDbConnection Connection => new SqlConnection(_settings.DbConnectionString);
 
         public List<Source> GetAllSources()
         {
-            return _context
-                .CreateSimple("select * from [mon].[Source] with(nolock)")
-                .ExecuteQuery<Source>()
-                .ToList();
+            using (var con = Connection)
+            {
+                return con
+                    .Query<Source>("select * from [mon].[Source] with(nolock)")
+                    .ToList();
+            }
         }
 
         public List<Instance> GetAllInstances()
         {
-            return _context
-                .CreateSimple("select * from [mon].[Instance] with(nolock)")
-                .ExecuteQuery<Instance>()
-                .ToList();
+            using (var con = Connection)
+            {
+                return con
+                    .Query<Instance>("select * from [mon].[Instance] with(nolock)")
+                    .ToList();
+            }
         }
 
         public List<Group> GetAllGroupsAndFill()
         {
-            List<Group> result = _context
-                .CreateSimple("select * from [mon].[Group] with(nolock)")
-                .ExecuteQuery<Group>()
-                .ToList();
+            const string query = @"
+select * from [mon].[Group] with(nolock);
+select GroupID, InstanceID from [mon].[GroupInstance] with(nolock);
+";
 
-            Dictionary<short, Group> dic = new Dictionary<short, Group>();
-            foreach (var it in result)
-                dic.Add(it.ID, it);
+            List<Group> groups;
+            List<dynamic> grInstances;
+            using (var con = Connection)
+            using (var multi = con.QueryMultiple(query))
+            {
+                groups = multi.Read<Group>().ToList();
+                grInstances = multi.Read<dynamic>().ToList();
+            }
 
-            var proto = new { GroupID = default(short), InstanceID = default(int) };
-            var grInstances = _context
-                .CreateSimple("select GroupID, InstanceID from [mon].[GroupInstance] with(nolock)")
-                .ExecuteQueryAnonymous(proto);
+            var groupDic = groups.ToDictionary(g => g.ID);
+            foreach (var it in grInstances.Where(it => groupDic.ContainsKey(it.GroupID)))
+                groupDic[it.GroupID].Instances.Add(it.InstanceID);
 
-            foreach (var it in grInstances)
-                if (dic.ContainsKey(it.GroupID))
-                    dic[it.GroupID].Instances.Add(it.InstanceID);
-
-            return result;
+            return groups;
         }
 
         public void CreateNewSource(Source src)
         {
-            src.ID = _context.InsertAndGetId<Source, short>("[mon].[Source]", src);
+            const string query = @"
+insert into [mon].[Source]
+([Created], [Name], [Description], [DefaultGroupID])
+values
+(@Created, @Name, @Description, @DefaultGroupID)
+;select SCOPE_IDENTITY() id
+";
+
+            using (var con = Connection)
+            {
+                src.ID = con.ExecuteScalar<short>(query, src);
+            }
         }
 
         public void CreateNewInstance(Instance ins)
         {
-            ins.ID = _context.InsertAndGetId<Instance, int>("[mon].[Instance]", ins);
+            const string query = @"
+insert into [mon].[Instance]
+([Created], [SourceID], [Name], [Description])
+values
+(@Created, @SourceID, @Name, @Description)
+;select SCOPE_IDENTITY() id
+";
+
+            using (var con = Connection)
+            {
+                ins.ID = con.ExecuteScalar<int>(query, ins);
+            }
         }
 
         public void AddInstanceToGroup(int iId, short gId)
         {
-            var value = new { GroupID = gId, InstanceID = iId };
-            _context.Insert("[mon].[GroupInstance]", value, "ID");
+            const string query = @"
+insert into [mon].[GroupInstance]
+([GroupID], [InstanceID])
+values
+(@GroupID, @InstanceID)
+";
+
+            using (var con = Connection)
+            {
+                con.Execute(query, new {GroupID = gId, InstanceID = iId});
+            }
         }
 
         public void RemoveInstanceFromGroup(int iId, short gId)
         {
-            _context
-                .CreateSimple(@"delete from [mon].[GroupInstance] where InstanceID = @p0", iId)
-                .ExecuteNonQuery();
+            const string query = @"delete from [mon].[GroupInstance] where InstanceID = @InstanceId";
+
+            using (var con = Connection)
+            {
+                con.Execute(query, new {InstanceId = iId});
+            }
         }
 
         public short CreateGroup(Group_ group)
         {
-            return _context.InsertAndGetId<Group_, short>("[mon].[Group]", group);
+            const string query = @"
+insert into [mon].[Group]
+([Name], [IsDefault], [Description])
+values
+(@Name, @IsDefault, @Description)
+;select SCOPE_IDENTITY() id
+";
+
+            using (var con = Connection)
+            {
+                return con.ExecuteScalar<short>(query, group);
+            }
         }
 
         public void RemoveGroup(short id)
         {
             const string query = @"
-delete from [mon].[Group] where ID = @p0
-delete from [mon].[GroupInstance] where GroupID = @p0
+delete from [mon].[Group] where ID = @Id;
+delete from [mon].[GroupInstance] where GroupID = @Id;
 ";
-            _context
-                .CreateSimple(query, id)
-                .ExecuteNonQuery();
+
+            using (var con = Connection)
+            {
+                con.Execute(query, new {Id = id});
+            }
         }
 
         public long GetMaxLogId()
         {
-            var result = _context.CreateSimple("select max(ID) from [mon].[Log] with(nolock)").ExecuteScalar();
-            return result == DBNull.Value ? 0 : (long)result;
+            using (var con = Connection)
+            {
+                return con.QueryFirstOrDefault<long>("select max(ID) from [mon].[Log] with(nolock)");
+            }
         }
 
         public long GetMaxKeepAliveId()
         {
-            var result = _context.CreateSimple("select max(ID) from [mon].[KeepAlive] with(nolock)").ExecuteScalar();
-            return result == DBNull.Value ? 0 : (long)result;
+            using (var con = Connection)
+            {
+                return con.QueryFirstOrDefault<long>("select max(ID) from [mon].[KeepAlive] with(nolock)");
+            }
         }
 
         public List<Log_> GetLastLogs(int top)
         {
-            return _context
-                .CreateSimple($"select top {top} * from [mon].[Log] with(nolock) order by ID desc")
-                .ExecuteQuery<Log_>()
-                .OrderBy(x => x.ID)
-                .ToList();
+            const string query = "select top (@Top) * from [mon].[Log] with(nolock) order by ID desc";
+
+            using (var con = Connection)
+            {
+                return con.Query<Log_>(query, new {Top = top})
+                    .OrderBy(x => x.ID)
+                    .ToList();
+            }
         }
 
         public List<KeepAlive_> GetLastKeepAlive(int top)
         {
-            return _context
-                .CreateSimple($"select top {top} * from [mon].[KeepAlive] with(nolock) order by ID desc")
-                .ExecuteQuery<KeepAlive_>()
-                .ToList();
+            const string query = @"
+select top (@Top) *
+from [mon].[KeepAlive] with(nolock)
+order by ID desc
+";
+
+            using (var con = Connection)
+            {
+                return con.Query<KeepAlive_>(query, new {Top = top})
+                    .OrderBy(x => x.ID)
+                    .ToList();
+            }
         }
 
         public long? GetLogThreshold(int dayDeep)
         {
-            var logThreshold = _context
-                .CreateSimple("select max(LastLogID) from mon.HourStat with(nolock) where Hour < DATEADD(DAY, -@p0, GETDATE())", dayDeep)
-                .ExecuteScalar();
-            return logThreshold == DBNull.Value ? null : (long?)logThreshold;
+            const string query = @"
+select max(LastLogID)
+from [mon].[HourStat] with(nolock)
+where Hour < DATEADD(DAY, -@DayDeep, GETDATE())
+";
+
+            using (var con = Connection)
+            {
+                return con.ExecuteScalar<long?>(query, new {DayDeep = dayDeep});
+            }
         }
 
         public long? GetKeepAliveThreshold(int dayDeep)
         {
-            var kaThreshold = _context
-                .CreateSimple("select max(LastKeepAliveID) from mon.HourStat with(nolock) where Hour < DATEADD(DAY, -@p0, GETDATE())", dayDeep)
-                .ExecuteScalar();
-            return kaThreshold == DBNull.Value ? null : (long?)kaThreshold;
+            const string query = @"
+select max(LastKeepAliveID)
+from [mon].[HourStat] with(nolock)
+where Hour < DATEADD(DAY, -@DayDeep, GETDATE())
+";
+
+            using (var con = Connection)
+            {
+                return con.ExecuteScalar<long?>(query, new {DayDeep = dayDeep});
+            }
         }
 
         public int CleanUpLog(long lastLog)
         {
-            return _context.CleanUpInBatches("mon.Log", lastLog, _settings.CleanupBatchSize);
+            const string query = @"
+delete top (@BatchSize)
+from [mon].[Log] with (readpast)
+where ID < @Id
+";
+            return ExecuteInBatches(query, new
+            {
+                Id = lastLog,
+                BatchSize = _settings.CleanupBatchSize
+            });
         }
 
         public int CleanUpKeepAlive(long lastKeepAlive)
         {
-            return _context.CleanUpInBatches("mon.KeepAlive", lastKeepAlive, _settings.CleanupBatchSize);
+            const string query = @"
+delete top (@BatchSize)
+from [mon].[KeepAlive] with (readpast)
+where ID < @Id
+";
+            return ExecuteInBatches(query, new
+            {
+                Id = lastKeepAlive,
+                BatchSize = _settings.CleanupBatchSize
+            });
         }
 
         public void CreateHourStat(DateTime hour, long lastLogId, long lastKeepAliveId)
         {
-            var stat = new { Hour = hour, LastLogID = lastLogId, LastKeepAliveID = lastKeepAliveId };
-            _context.Insert("[mon].[HourStat]", stat);
+            const string query = @"
+insert into [mon].[HourStat]
+([Hour], [LastLogID], [LastKeepAliveID])
+values
+(@Hour, @LastLogID, @LastKeepAliveID)
+";
+
+            using (var con = Connection)
+            {
+                con.Execute(query, new
+                {
+                    Hour = hour,
+                    LastLogID = lastLogId,
+                    LastKeepAliveID = lastKeepAliveId
+                });
+            }
         }
 
         public void WriteLogs(IEnumerable<Log_> values)
         {
-            values.WriteToServer(_context, "[mon].[Log]", _bulkOptions);
+            const string query = @"
+insert into [mon].[Log]
+([Created], [Received], [Level], [Severity], [InstanceID], [Format], [Body], [Tags])
+values
+(@Created, @Received, @Level, @Severity, @InstanceID, @Format, @Body, @Tags)
+";
+
+            using (var con = Connection)
+            {
+                con.Execute(query, values);
+            }
         }
 
         public void WriteKeepAlives(IEnumerable<KeepAlive_> values)
         {
-            values.WriteToServer(_context, "[mon].[KeepAlive]", _bulkOptions);
+            const string query = @"
+insert into [mon].[KeepAlive]
+([Created], [Received], [InstanceID])
+values
+(@Created, @Received, @InstanceID)
+";
+
+            using (var con = Connection)
+            {
+                con.Execute(query, values);
+            }
         }
 
         public List<EventQueue> GetEventSources()
         {
-            return _context
-                .CreateSimple("select * from [mon].[EventQueue] with(nolock)")
-                .ExecuteQuery<EventQueue>()
-                .ToList();
+            using (var con = Connection)
+            {
+                return con
+                    .Query<EventQueue>("select * from [mon].[EventQueue] with(nolock)")
+                    .ToList();
+            }
         }
 
         public Metric_ CreateMetric(string name, int aggregation, int instanceId)
         {
-            var firstId = _context.InsertAndGetId<Measure_, long>("mon.Measure", new Measure_ { ID = 0, Value = 0 });
+            const string insertMeasures = @"
+begin transaction;
 
-            const string fillScript = @"DECLARE @i int = 0;
+declare @i int = 1;
+while (@i <= @Count)
+begin
+     insert into [mon].[Measure] ([Value]) values (0)
+     set @i = @i + 1
+end
+;select SCOPE_IDENTITY() id
 
-WHILE @i <= 3999 -- insert n rows.  change this value to whatever you want.
-BEGIN
+commit transaction;
+";
+            const string insertMetric = @"
+insert into [mon].[Metric]
+([Name], [InstanceID], [Aggregation], [RangeHeadID], [RangeTailID], [ActualInterval], [ActualID])
+VALUES
+(@Name, @InstanceID, @Aggregation, @RangeHeadID, @RangeTailID, @ActualInterval, @ActualID)
+;select SCOPE_IDENTITY() id    
+";
 
-insert [mon].[Measure] values (0)
-SET @i = @i + 1;
-
-END";
-
-            _context
-                .CreateSimple(fillScript)
-                .ExecuteNonQuery();
-
-            var met = new Metric_
+            using (var con = Connection)
             {
-                Name = name,
-                Aggregation = aggregation,
-                InstanceID = instanceId,
+                var lastId = con.ExecuteScalar<long>(insertMeasures, new {Count = MeasuresPerMetric});
+                var firstId = lastId - MeasuresPerMetric + 1;
+                var met = new Metric_
+                {
+                    Name = name,
+                    Aggregation = aggregation,
+                    InstanceID = instanceId,
 
-                RangeHeadID = firstId,
-                RangeTailID = firstId + 4000,
+                    RangeHeadID = firstId,
+                    RangeTailID = lastId,
 
-                ActualInterval = DateTime.UtcNow.RoundUp(TimeSpan.FromMinutes(5)),
-                ActualID = firstId
-            };
-
-            met.ID = _context.InsertAndGetId<Metric_, int>("mon.Metric", met);
-
-            return met;
+                    ActualInterval = DateTime.UtcNow.RoundUp(TimeSpan.FromMinutes(5)),
+                    ActualID = firstId
+                };
+                met.ID = con.ExecuteScalar<int>(insertMetric, met);
+                return met;
+            }
         }
 
         public Metric_ GetMetric(int metricId)
         {
-            return _context
-                .CreateSimple("select * from mon.Metric with(nolock) where ID = @p0", metricId)
-                .ExecuteQuery<Metric_>()
-                .First();
+            using (var con = Connection)
+            {
+                return con.QuerySingle<Metric_>(
+                    "select * from [mon].[Metric] with(nolock) where ID = @Id",
+                    new {Id = metricId});
+            }
         }
 
         public Measure_[] GetMeasures(int metricId)
@@ -233,25 +368,44 @@ END";
 select meas.*
 from mon.Measure meas with(nolock)
 join mon.Metric met with(nolock) on met.RangeHeadID <= meas.ID and met.RangeTailID >= meas.ID
-where met.ID = @p0
+where met.ID = @Id
 order by meas.ID
 ";
-            return _context
-                .CreateSimple(query, metricId)
-                .ExecuteQuery<Measure_>()
-                .ToArray();
+
+            using (var con = Connection)
+            {
+                return con
+                    .Query<Measure_>(query, new {Id = metricId})
+                    .ToArray();
+            }
         }
 
         public void SaveMetric(Metric_ metric, Measure_[] measures)
         {
-            _context
-                .CreateUpdate("mon.Metric", metric, "ID")
-                .ExecuteNonQuery();
+            const string updateMetric = @"
+UPDATE [mon].[Metric] SET
+    Name = @Name
+    ,InstanceID = @InstanceID
+    ,Aggregation = @Aggregation
+    
+    ,RangeHeadID = @RangeHeadID
+    ,RangeTailID = @RangeTailID
+    
+    ,ActualInterval = @ActualInterval
+    ,ActualID = @ActualID
+WHERE ID = @ID
+";
 
-            foreach (var meas in measures)
-                _context
-                    .CreateUpdate("mon.Measure", meas, "ID")
-                    .ExecuteNonQuery();
+            const string updateMeasure = @"
+UPDATE [mon].[Measure] SET
+    Value = @Value
+WHERE ID = @ID
+";
+            using (var con = Connection)
+            {
+                con.Execute(updateMetric, metric);
+                con.Execute(updateMeasure, measures);
+            }
         }
 
         public void RemoveMetric(int id)
@@ -264,7 +418,7 @@ begin transaction;
 	delete met
 	output deleted.RangeHeadID, deleted.RangeTailID	into @measuresRange
 	from [mon].[Metric] met
-	where met.ID = @p0
+	where met.ID = @Id
 
 	delete meas
 	from [mon].[Measure] meas
@@ -272,38 +426,42 @@ begin transaction;
 
 commit transaction;
 ";
-            _context
-                .CreateSimple(query, id)
-                .ExecuteNonQuery();
+
+            using (var con = Connection)
+            {
+                con.Execute(query, new {Id = id});
+            }
         }
 
         public void RemoveInstance(int id)
         {
             const string query = @"
-delete from [mon].[Instance] where ID = @p0
-delete from [mon].[GroupInstance] where InstanceID = @p0
+delete from [mon].[Instance] where ID = @Id
+delete from [mon].[GroupInstance] where InstanceID = @Id
 ";
-            _context
-                .CreateSimple(query, id)
-                .ExecuteNonQuery();
+
+            using (var con = Connection)
+            {
+                con.Execute(query, new {Id = id});
+            }
         }
 
         public void RemoveSource(short id)
         {
-            _context
-                .CreateSimple("delete from [mon].[Source] where ID = @p0", id)
-                .ExecuteNonQuery();
+            using (var con = Connection)
+            {
+                con.Execute("delete from [mon].[Source] where ID = @Id", new {Id = id});
+            }
         }
 
         public int[] GetAllMetricIds()
         {
-            var proto = new { ID = 0 };
-
-            return _context
-                .CreateSimple("select ID from mon.Metric with(nolock)")
-                .ExecuteQueryAnonymous(proto)
-                .Select(x => x.ID)
-                .ToArray();
+            using (var con = Connection)
+            {
+                return con
+                    .Query<int>("select ID from [mon].[Metric] with(nolock)")
+                    .ToArray();
+            }
         }
     } //end of class
 }
