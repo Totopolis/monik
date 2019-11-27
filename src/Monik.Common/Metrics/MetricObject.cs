@@ -75,7 +75,7 @@ namespace Monik.Service
 
         private IEnumerable<double> GetHistoryValuesEnumerable(int skip)
         {
-            var dif = _dto.RangeTailID - _dto.RangeHeadID;
+            var dif = _dto.RangeTailID - _dto.RangeHeadID + 1;
             var actualIdx = _dto.ActualID - _dto.RangeHeadID;
             var i = skip;
             while (i < int.MaxValue)
