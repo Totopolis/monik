@@ -42,7 +42,10 @@ namespace Monik.Service
             while (_pendingEntities.TryDequeue(out var item))
                 data.Add(item);
 
-            WriteEntites(data);
+            if (data.Count > 0)
+            {
+                WriteEntites(data);
+            }
 
             _timing.EndAndMeasure(WriteTimeMetric);
         }
