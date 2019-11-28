@@ -3,7 +3,7 @@
     <TargetFrameworks>netcoreapp3.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Monik.Common\Monik.Common.csproj" />
+    <ProjectReference Include="..\..\src\Monik.Service\Monik.Service.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.13.1" />

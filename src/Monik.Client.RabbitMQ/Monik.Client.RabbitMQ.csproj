@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Monik.Common\Extensions\RabbitConnectionConfigurationExtensions.cs" Link="RabbitConnectionConfigurationExtensions.cs" />
+    <Compile Include="..\Monik.Service\Extensions\RabbitConnectionConfigurationExtensions.cs" Link="RabbitConnectionConfigurationExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>
