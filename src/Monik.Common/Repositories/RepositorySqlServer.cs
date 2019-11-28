@@ -272,9 +272,9 @@ values
         {
             const string query = @"
 insert into [mon].[Log]
-([Created], [Received], [Level], [Severity], [InstanceID], [Format], [Body], [Tags])
+([ID], [Created], [Received], [Level], [Severity], [InstanceID], [Format], [Body], [Tags])
 values
-(@Created, @Received, @Level, @Severity, @InstanceID, @Format, @Body, @Tags)
+(@ID, @Created, @Received, @Level, @Severity, @InstanceID, @Format, @Body, @Tags)
 ";
 
             using (var con = Connection)
@@ -287,9 +287,9 @@ values
         {
             const string query = @"
 insert into [mon].[KeepAlive]
-([Created], [Received], [InstanceID])
+([ID], [Created], [Received], [InstanceID])
 values
-(@Created, @Received, @InstanceID)
+(@ID, @Created, @Received, @InstanceID)
 ";
 
             using (var con = Connection)
