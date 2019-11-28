@@ -275,30 +275,61 @@ values
         public void WriteLogs(IEnumerable<Log_> values)
         {
             const string query = @"
-insert into mon.""Log""
+COPY mon.""Log""
 (""ID"", ""Created"", ""Received"", ""Level"", ""Severity"", ""InstanceID"", ""Format"", ""Body"", ""Tags"")
-values
-(@ID, @Created, @Received, @Level, @Severity, @InstanceID, @Format, @Body, @Tags)
+FROM STDIN (FORMAT BINARY)
 ";
-
-            using (var con = Connection)
+            using (var con = (NpgsqlConnection) Connection)
             {
-                con.Execute(query, values);
+                con.Open();
+
+                using (var writer = con.BeginBinaryImport(query))
+                {
+                    foreach (var item in values)
+                    {
+                        writer.StartRow();
+
+                        writer.Write(item.ID);
+                        writer.Write(item.Created);
+                        writer.Write(item.Received);
+                        writer.Write(item.Level);
+                        writer.Write(item.Severity);
+                        writer.Write(item.InstanceID);
+                        writer.Write(item.Format);
+                        writer.Write(item.Body);
+                        writer.Write(item.Tags);
+                    }
+
+                    writer.Complete();
+                }
             }
         }
 
         public void WriteKeepAlives(IEnumerable<KeepAlive_> values)
         {
             const string query = @"
-insert into mon.""KeepAlive""
+COPY mon.""KeepAlive""
 (""ID"", ""Created"", ""Received"", ""InstanceID"")
-values
-(@ID, @Created, @Received, @InstanceID)
+FROM STDIN (FORMAT BINARY)
 ";
-
-            using (var con = Connection)
+            using (var con = (NpgsqlConnection) Connection)
             {
-                con.Execute(query, values);
+                con.Open();
+
+                using (var writer = con.BeginBinaryImport(query))
+                {
+                    foreach (var item in values)
+                    {
+                        writer.StartRow();
+
+                        writer.Write(item.ID);
+                        writer.Write(item.Created);
+                        writer.Write(item.Received);
+                        writer.Write(item.InstanceID);
+                    }
+
+                    writer.Complete();
+                }
             }
         }
 

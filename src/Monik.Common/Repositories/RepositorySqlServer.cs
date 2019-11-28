@@ -270,31 +270,64 @@ values
 
         public void WriteLogs(IEnumerable<Log_> values)
         {
-            const string query = @"
-insert into [mon].[Log]
-([ID], [Created], [Received], [Level], [Severity], [InstanceID], [Format], [Body], [Tags])
-values
-(@ID, @Created, @Received, @Level, @Severity, @InstanceID, @Format, @Body, @Tags)
-";
-
-            using (var con = Connection)
+            using (var con = (SqlConnection) Connection)
+            using (var bcp = new SqlBulkCopy(con))
             {
-                con.Execute(query, values);
+                bcp.DestinationTableName = "[mon].[Log]";
+                bcp.BatchSize = _settings.WriteBatchSize;
+                bcp.BulkCopyTimeout = _settings.WriteBatchTimeout;
+
+                var table = new DataTable("[mon].[Log]");
+                table.Columns.Add("[ID]");
+                table.Columns.Add("[Created]");
+                table.Columns.Add("[Received]");
+                table.Columns.Add("[Level]");
+                table.Columns.Add("[Severity]");
+                table.Columns.Add("[InstanceID]");
+                table.Columns.Add("[Format]");
+                table.Columns.Add("[Body]");
+                table.Columns.Add("[Tags]");
+
+                foreach (var item in values)
+                {
+                    table.Rows.Add(item.ID,
+                        item.Created,
+                        item.Received,
+                        item.Level,
+                        item.Severity,
+                        item.InstanceID,
+                        item.Format,
+                        item.Body,
+                        item.Tags);
+                }
+
+                con.Open();
+                bcp.WriteToServer(table);
             }
         }
 
         public void WriteKeepAlives(IEnumerable<KeepAlive_> values)
         {
-            const string query = @"
-insert into [mon].[KeepAlive]
-([ID], [Created], [Received], [InstanceID])
-values
-(@ID, @Created, @Received, @InstanceID)
-";
-
-            using (var con = Connection)
+            using (var con = (SqlConnection) Connection)
+            using (var bcp = new SqlBulkCopy(con))
             {
-                con.Execute(query, values);
+                bcp.DestinationTableName = "[mon].[KeepAlive]";
+                bcp.BatchSize = _settings.WriteBatchSize;
+                bcp.BulkCopyTimeout = _settings.WriteBatchTimeout;
+
+                var table = new DataTable("[mon].[KeepAlive]");
+                table.Columns.Add("[ID]");
+                table.Columns.Add("[Created]");
+                table.Columns.Add("[Received]");
+                table.Columns.Add("[InstanceID]");
+
+                foreach (var item in values)
+                {
+                    table.Rows.Add(item.ID, item.Created, item.Received, item.InstanceID);
+                }
+
+                con.Open();
+                bcp.WriteToServer(table);
             }
         }
 
