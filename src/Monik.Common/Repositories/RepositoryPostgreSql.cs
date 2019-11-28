@@ -346,10 +346,13 @@ FROM STDIN (FORMAT BINARY)
         public Metric_ CreateMetric(string name, int aggregation, int instanceId)
         {
             const string insertMeasures = @"
+begin;
+LOCK TABLE mon.""Measure"" IN SHARE ROW EXCLUSIVE MODE;
 insert into mon.""Measure"" (""Value"")
 select 0
 from generate_series(1, @Count)
-returning ""ID""
+returning ""ID"";
+commit;
 ";
             const string insertMetric = @"
 insert into mon.""Metric""

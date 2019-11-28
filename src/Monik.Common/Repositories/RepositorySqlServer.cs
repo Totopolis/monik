@@ -346,6 +346,8 @@ values
             const string insertMeasures = @"
 begin transaction;
 
+EXEC sp_getapplock @Resource = '[mon].[Measure]', @LockMode = 'Exclusive';  
+
 declare @i int = 1;
 while (@i <= @Count)
 begin
