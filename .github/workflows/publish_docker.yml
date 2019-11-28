@@ -22,7 +22,7 @@ jobs:
     - name: Publish to DockerHub
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: totopolis/monik/service:${{ env.RELEASE_VERSION }}
+        name: totopolis/monik:${{ env.RELEASE_VERSION }}
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         buildargs: VERSION=${{ env.RELEASE_VERSION }}
