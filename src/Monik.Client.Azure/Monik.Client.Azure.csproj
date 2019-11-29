@@ -11,6 +11,6 @@
 
   <ItemGroup>
     <PackageReference Include="Monik.Client.Base" Version="1.0.3" />
-    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="4.1.0" />
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="4.1.1" />
   </ItemGroup>
 </Project>

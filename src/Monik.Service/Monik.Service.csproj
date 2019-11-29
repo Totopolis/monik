@@ -20,14 +20,13 @@
     <PackageReference Include="Nancy" Version="2.0.0" />
     <PackageReference Include="Nancy.Authentication.Stateless" Version="2.0.0" />
     <PackageReference Include="Nancy.Bootstrappers.Autofac" Version="2.0.0-clinteastwood" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="4.1.0" />
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="4.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Owin" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.0.1" />
   </ItemGroup>
 
 </Project>
