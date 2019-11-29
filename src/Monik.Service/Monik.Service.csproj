@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <DebugType>portable</DebugType>
@@ -30,4 +31,5 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.0.0" />
   </ItemGroup>
+
 </Project>

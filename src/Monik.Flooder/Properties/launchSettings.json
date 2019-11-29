@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Monik.Flooder": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
