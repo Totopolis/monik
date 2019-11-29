@@ -10,6 +10,8 @@ namespace Monik.Service
 {
     public class RepositoryPostgreSql : RepositoryBase, IRepository
     {
+        private const int MeasuresCreationLockId = 111;
+
         private readonly IMonikServiceSettings _settings;
 
         public RepositoryPostgreSql(IMonikServiceSettings settings)
@@ -346,13 +348,10 @@ FROM STDIN (FORMAT BINARY)
         public Metric_ CreateMetric(string name, int aggregation, int instanceId)
         {
             const string insertMeasures = @"
-begin;
-LOCK TABLE mon.""Measure"" IN SHARE ROW EXCLUSIVE MODE;
 insert into mon.""Measure"" (""Value"")
 select 0
 from generate_series(1, @Count)
 returning ""ID"";
-commit;
 ";
             const string insertMetric = @"
 insert into mon.""Metric""
@@ -364,9 +363,21 @@ returning ""ID""
 
             using (var con = Connection)
             {
-                var ids = con
-                    .Query<long>(insertMeasures, new {Count = MeasuresPerMetric})
-                    .ToArray();
+                con.Open();
+
+                long[] ids;
+                using (var tran = con.BeginTransaction())
+                {
+                    con.Execute("select pg_advisory_lock(@LockId);",
+                        new {LockId = MeasuresCreationLockId}, tran);
+                    ids = con
+                        .Query<long>(insertMeasures, new {Count = MeasuresPerMetric}, tran)
+                        .ToArray();
+                    con.Execute("select pg_advisory_unlock(@LockId);",
+                        new {LockId = MeasuresCreationLockId}, tran);
+                    tran.Commit();
+                }
+
                 var lastId = ids.Last();
                 var firstId = ids.First();
                 var met = new Metric_
