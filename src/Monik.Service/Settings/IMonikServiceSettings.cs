@@ -14,5 +14,7 @@
         int WriteBatchTimeout { get; }
 
         string AuthSecretKey { get; }
+
+        QueueReaderSettings[] Readers { get; }
     }
 }

@@ -12,7 +12,7 @@ namespace Monik.Service
         private Gerakul.SqlQueue.InMemory.QueueClient _client;
         private Gerakul.SqlQueue.InMemory.AutoReader _reader;
 
-        public void Start(EventQueue config, ActiveQueueContext context)
+        public void Start(QueueReaderSettings config, ActiveQueueContext context)
         {
             _client = Gerakul.SqlQueue.InMemory.QueueClient
                 .Create(config.ConnectionString, config.QueueName);

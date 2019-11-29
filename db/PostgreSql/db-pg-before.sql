@@ -4,14 +4,6 @@ BEGIN;
 CREATE SCHEMA IF NOT EXISTS "mon";
 
 
-CREATE TABLE "mon"."EventQueue"( 
-	"ID" int NOT NULL,
-	"Name" varchar(256) NOT NULL,
-	"Description" varchar(256),
-	"Type" smallint NOT NULL,
-	"ConnectionString" varchar(256) NOT NULL,
-	"QueueName" varchar(256) NOT NULL);
-
 CREATE TABLE "mon"."Group"( 
 	"ID" smallint NOT NULL,
 	"Name" varchar(256) NOT NULL,

@@ -331,16 +331,6 @@ values
             }
         }
 
-        public List<EventQueue> GetEventSources()
-        {
-            using (var con = Connection)
-            {
-                return con
-                    .Query<EventQueue>("select * from [mon].[EventQueue] with(nolock)")
-                    .ToList();
-            }
-        }
-
         public Metric_ CreateMetric(string name, int aggregation, int instanceId)
         {
             const string insertMeasures = @"

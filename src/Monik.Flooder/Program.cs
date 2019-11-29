@@ -18,9 +18,9 @@ namespace Monik.Flooder
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     config
-                        .AddJsonFile("appsettings.json",
+                        .AddJsonFile("configs/appsettings.json",
                             optional: true, reloadOnChange: true)
-                        .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json",
+                        .AddJsonFile($"configs/appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json",
                             optional: true, reloadOnChange: true);
                 })
                 .ConfigureLogging((hostingContext, logging) =>

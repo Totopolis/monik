@@ -11,7 +11,7 @@ namespace Monik.Service
     {
         private IAdvancedBus _client;
 
-        public void Start(EventQueue config, ActiveQueueContext context)
+        public void Start(QueueReaderSettings config, ActiveQueueContext context)
         {
             var connectionString = config.ConnectionString.FetchConnectionSslOptions(out var configure);
 

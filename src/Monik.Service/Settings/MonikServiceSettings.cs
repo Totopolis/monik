@@ -15,5 +15,7 @@
         public int WriteBatchTimeout { get; set; }
 
         public string AuthSecretKey { get; set; }
+
+        public QueueReaderSettings[] Readers { get; set; }
     } //end of class
 }

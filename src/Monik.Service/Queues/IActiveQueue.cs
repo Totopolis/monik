@@ -2,7 +2,7 @@
 {
     public interface IActiveQueue
     {
-        void Start(EventQueue config, ActiveQueueContext context);
+        void Start(QueueReaderSettings config, ActiveQueueContext context);
         void Stop();
     }
 }

@@ -22,7 +22,7 @@ namespace Monik.Service
         private CancellationTokenSource _receiverTokenSource;
         private readonly Dictionary<string, DateTime> _fallbacks = new Dictionary<string, DateTime>();
 
-        public void Start(EventQueue config, ActiveQueueContext context)
+        public void Start(QueueReaderSettings config, ActiveQueueContext context)
         {
             _receiver = new MessageReceiver(
                 new ServiceBusConnection(config.ConnectionString),

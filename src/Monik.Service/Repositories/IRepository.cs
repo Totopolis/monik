@@ -34,8 +34,6 @@ namespace Monik.Service
         void WriteKeepAlives(IEnumerable<KeepAlive_> values);
         void WriteLogs(IEnumerable<Log_> values);
 
-        List<EventQueue> GetEventSources();
-
         int[] GetAllMetricIds();
         Metric_ CreateMetric(string name, int aggregation, int instanceId);
         Metric_ GetMetric(int metricId);

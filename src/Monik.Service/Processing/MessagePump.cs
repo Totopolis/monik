@@ -13,11 +13,11 @@ namespace Monik.Service
         private const int DelayOnProcess = 500; //in ms
         private const int WaitOnExit = 10_000; //in ms
 
-        private readonly IRepository _repository;
         private readonly ICacheSourceInstance _cache;
         private readonly IMessageProcessor _processor;
         private readonly IMonik _monik;
 
+        private readonly QueueReaderSettings[] _queueReaderSettings;
         private readonly List<IActiveQueue> _queues = new List<IActiveQueue>();
 
         private readonly ConcurrentQueue<Event> _msgBuffer = new ConcurrentQueue<Event>();
@@ -26,9 +26,10 @@ namespace Monik.Service
         private readonly ManualResetEvent _newMessageEvent = new ManualResetEvent(false);
         private readonly CancellationTokenSource _pumpCancellationTokenSource = new CancellationTokenSource();
 
-        public MessagePump(IRepository repository, ICacheSourceInstance cache, IMessageProcessor processor, IMonik monik)
+        public MessagePump(IMonikServiceSettings settings, ICacheSourceInstance cache, IMessageProcessor processor, IMonik monik)
         {
-            _repository = repository;
+            _queueReaderSettings = settings.Readers;
+
             _cache = cache;
             _processor = processor;
             _monik = monik;
@@ -117,10 +118,7 @@ namespace Monik.Service
                 }
             };
 
-            // Load events sources
-            var configs = _repository.GetEventSources();
-
-            foreach (var it in configs)
+            foreach (var it in _queueReaderSettings)
             {
                 try
                 {
@@ -165,17 +163,17 @@ namespace Monik.Service
         /// </summary>
         /// <param name="type"></param>
         /// <returns>New ActiveQueue instance based on the type parameter</returns>
-        private static IActiveQueue CreateActiveQueueByType(EventQueueType type)
+        private static IActiveQueue CreateActiveQueueByType(QueueReaderType type)
         {
             switch (type)
             {
-                case EventQueueType.Azure:
+                case QueueReaderType.Azure:
                     return new AzureActiveQueue();
 
-                case EventQueueType.Rabbit:
+                case QueueReaderType.RabbitMq:
                     return new RabbitActiveQueue();
 
-                case EventQueueType.Sql:
+                case QueueReaderType.SqlQueue:
                     return new SqlActiveQueue();
 
                 default:
