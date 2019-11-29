@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Monik.Common;
 using Nancy.Owin;
@@ -11,9 +12,11 @@ namespace Monik.Service
         public void Configure(
             IApplicationBuilder app, 
             IWebHostEnvironment env,
-            IHostApplicationLifetime hostLifetime)
+            IHostApplicationLifetime hostLifetime,
+            IConfiguration config)
         {
-            var bootstrapper = new Bootstrapper();
+            var settings = config.GetSection("Service").Get<MonikServiceSettings>();
+            var bootstrapper = new Bootstrapper(settings);
 
             hostLifetime.ApplicationStarted.Register(() =>
             {

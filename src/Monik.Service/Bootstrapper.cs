@@ -14,6 +14,13 @@ namespace Monik.Service
     {
         public static Bootstrapper Singleton;
 
+        private readonly IMonikServiceSettings _settings;
+
+        public Bootstrapper(IMonikServiceSettings settings)
+        {
+            _settings = settings;
+        }
+
         public T Resolve<T>() => ApplicationContainer.Resolve<T>();
 
         protected override void ApplicationStartup(ILifetimeScope container, IPipelines pipelines)
@@ -70,8 +77,8 @@ namespace Monik.Service
         {
             existingContainer.RegisterImplementation<IUserIdentityProvider, UserIdentityProvider>();
 
-            existingContainer.RegisterSingleton<IMonikServiceSettings, MonikServiceSettings>();
-
+            existingContainer.Update(b => b.RegisterInstance(_settings));
+            
             existingContainer.Update(
                 b => b.Register<IRepository>(c =>
                     {

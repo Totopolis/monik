@@ -1,22 +1,19 @@
-﻿using System.Configuration;
-
-namespace Monik.Service
+﻿namespace Monik.Service
 {
     public class MonikServiceSettings : IMonikServiceSettings
     {
-        public DbProvider DbProvider =>
-            (DbProvider) System.Enum.Parse(typeof(DbProvider), ConfigurationManager.AppSettings["DBProvider"]);
-        public string InstanceName => ConfigurationManager.AppSettings["InstanceName"];
+        public DbProvider DbProvider { get; set; }
+        public string InstanceName { get; set; }
 
-        public string DbConnectionString => ConfigurationManager.AppSettings["DBConnectionString"];
+        public string DbConnectionString { get; set; }
 
-        public int DayDeepKeepAlive => int.Parse(ConfigurationManager.AppSettings["DayDeepKeepAlive"]);
-        public int DayDeepLog => int.Parse(ConfigurationManager.AppSettings["DayDeepLog"]);
-        public int CleanupBatchSize => int.Parse(ConfigurationManager.AppSettings["CleanupBatchSize"]);
+        public int DayDeepKeepAlive { get; set; }
+        public int DayDeepLog { get; set; }
+        public int CleanupBatchSize { get; set; }
         
-        public int WriteBatchSize => int.Parse(ConfigurationManager.AppSettings["WriteBatchSize"]);
-        public int WriteBatchTimeout => int.Parse(ConfigurationManager.AppSettings["WriteBatchTimeout"]);
+        public int WriteBatchSize { get; set; }
+        public int WriteBatchTimeout { get; set; }
 
-        public string AuthSecretKey => ConfigurationManager.AppSettings["AuthSecretKey"];
+        public string AuthSecretKey { get; set; }
     } //end of class
 }

@@ -1,7 +1,9 @@
-﻿using System.Configuration;
+﻿using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Monik.Service
 {
@@ -16,11 +18,27 @@ namespace Monik.Service
             new HostBuilder()
                 .UseSystemd()
                 .UseWindowsService()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .ConfigureLogging(logging => { logging.ClearProviders(); })
+                .ConfigureHostConfiguration(config => { config.AddEnvironmentVariables("ASPNETCORE_"); })
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config
+                        .AddJsonFile("configs/appsettings.json",
+                            optional: true, reloadOnChange: true)
+                        .AddJsonFile($"configs/appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json",
+                            optional: true, reloadOnChange: true);
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder
+                        .UseConfiguration(
+                            new ConfigurationBuilder()
+                                .SetBasePath(Directory.GetCurrentDirectory())
+                                .AddJsonFile("configs/hosting.json", optional: true)
+                                .Build()
+                        )
                         .UseKestrel(serverOptions => { serverOptions.AllowSynchronousIO = true; })
-                        .UseUrls(ConfigurationManager.AppSettings["Url"].Replace("localhost", "*"))
                         .UseStartup<Startup>();
                 });
     }
