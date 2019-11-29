@@ -69,10 +69,11 @@ Generate a secret key
 ```sh
 node -e "console.log(require('crypto').randomBytes(256).toString('base64'));"
 ```
-Put the key in the app.config and deploy with the new config
-```xml
-<!--Authentication Secret Key-->
-<add key="AuthSecretKeyBase64" value="secret-key" />
+Put the key in the `appsettings.json` and deploy with the new config
+```json
+{
+  "AuthSecretKey": "secret-key"
+}
 ```
 Create a token with a subject `sub` and an expiration timestamp `exp`, sign it with the previously generated key
 ```sh
