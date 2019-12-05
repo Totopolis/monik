@@ -20,7 +20,7 @@ jobs:
       run: ./.github/workflows/AddSourceWithCredentialsToNuGetConfig -ConfigFile ./NuGet.Config -Source $env:GH_SOURCE_NAME -Username $env:GH_REPO_OWNER -Password $env:GH_TOKEN
     - uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '3.0.100' # SDK Version to use.
+        dotnet-version: '3.1.100' # SDK Version to use.
     - run: dotnet pack ./src/Monik.Client.RabbitMQ/Monik.Client.RabbitMQ.csproj -c Release -o NuGetPackages /p:Version=$RELEASE_VERSION
     - name: Push to feeds
       env:
