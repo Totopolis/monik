@@ -1,7 +1,7 @@
-FROM mcr.microsoft.com/dotnet/core/runtime:3.0-alpine AS base
+FROM mcr.microsoft.com/dotnet/core/runtime:3.1-alpine AS base
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.0-alpine AS publish
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS publish
 ARG VERSION=1.0.0
 WORKDIR /src
 COPY . .
