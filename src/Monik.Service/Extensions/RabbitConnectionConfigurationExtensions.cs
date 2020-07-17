@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using EasyNetQ;
 
 namespace Monik.Common.RabbitMQ
@@ -26,6 +27,12 @@ namespace Monik.Common.RabbitMQ
                 {
                     "Ssl.CertPassphrase",
                     (value, config) => config.Ssl.CertPassphrase = value
+                },
+                {
+                    "Ssl.Version",
+                    (value, config) => config.Ssl.Version = Enum.TryParse(value, out SslProtocols v)
+                        ? v
+                        : throw new ArgumentException($"Wrong Ssl.Version {value}")
                 },
             };
 
