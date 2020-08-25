@@ -14,6 +14,7 @@ namespace Monik.Service
 
         private readonly IMonik _monik;
         private readonly IRepository _repository;
+        private readonly IMessagePump _pump;
 
         private Metric_ _dto;
         private Measure_[] _measures;
@@ -22,10 +23,11 @@ namespace Monik.Service
 
         private IWindowCalculator window;
 
-        public MetricObject(IMonik monik, IRepository repository)
+        public MetricObject(IMonik monik, IRepository repository, IMessagePump pump)
         {
             _monik = monik;
             _repository = repository;
+            _pump = pump;
 
             _dto = null;
             _measures = null;
@@ -46,6 +48,23 @@ namespace Monik.Service
                     Value = actualMeasure.Value
                 };
             }
+        }
+
+        private Event NewMeasureEvent(string sourceName, string instanceName, string key, double value, AggregationType aggregation)
+        {
+            var ev = new Event
+            {
+                Created = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                Source = sourceName,
+                Instance = instanceName
+            };
+            ev.Mc = new Metric
+            {
+                Name = key,
+                Aggregation = aggregation,
+                Value = value
+            };
+            return ev;
         }
 
         public WindowResponse GetWindow()
@@ -92,7 +111,7 @@ namespace Monik.Service
             var actualIndx = intervalId - _dto.RangeHeadID;
             return _measures[actualIndx];
         }
-        
+
         public void CreateNew(string name, int aggregation, Instance instance)
         {
             _dto = _repository.CreateMetric(name, aggregation, instance.ID);
@@ -113,16 +132,19 @@ namespace Monik.Service
             {
                 var actualIntervalStart = _dto.ActualInterval.AddMinutes(-5);
                 var actualIntervalEnd = _dto.ActualInterval;
-                
+
                 // interval with epsilon
                 var intervalStart = actualIntervalStart.AddMilliseconds(-IntervalEpsilon);
                 var intervalEnd = actualIntervalEnd.AddMilliseconds(IntervalEpsilon);
-
                 if (metTime < intervalStart || metTime > intervalEnd)
                 {
                     // skip event
                     // increase skip metric
                     _monik.Measure("OutTimeMeasure", AggregationType.Accumulator, 1);
+
+                    var ev = NewMeasureEvent(metric.Source, metric.Instance, "OutTimeMeasure", 1, AggregationType.Accumulator);
+                    _pump.OnEmbeddedEvents(new Event[1] { ev });
+
                     var serverTime = DateTime.UtcNow;
                     var diffInterval = metTime < intervalStart
                         ? (metTime - actualIntervalStart).TotalMilliseconds
