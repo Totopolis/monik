@@ -138,12 +138,12 @@ namespace Monik.Service
                 var intervalStart = actualIntervalStart.AddMilliseconds(-IntervalEpsilon);
                 var intervalEnd = actualIntervalEnd.AddMilliseconds(IntervalEpsilon);
 
-                if (metTime < intervalStart || metTime > intervalEnd)
+                if ((metTime < intervalStart || metTime > intervalEnd) && (metric.Mc.Name.ToLower() != "outtimemeasure"))
                 {
                     // skip event
                     // increase skip metric
                     _monik.Measure("OutTimeMeasure", AggregationType.Accumulator, 1);
-                    
+
                     var ev = NewMeasureEvent(metric.Source, metric.Instance, "OutTimeMeasure", 1, AggregationType.Accumulator);
                     ConcurrentQueue<Event> cq = new ConcurrentQueue<Event>();
                     cq.Enqueue(ev);
