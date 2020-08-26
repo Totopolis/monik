@@ -136,7 +136,7 @@ namespace Monik.Service
                 // interval with epsilon
                 var intervalStart = actualIntervalStart.AddMilliseconds(-IntervalEpsilon);
                 var intervalEnd = actualIntervalEnd.AddMilliseconds(IntervalEpsilon);
-                if (metTime < intervalStart || metTime > intervalEnd)
+                if ((metTime < intervalStart || metTime > intervalEnd)  && (metric.Mc.Name.ToLower() != "outtimemeasure"))
                 {
                     // skip event
                     // increase skip metric
