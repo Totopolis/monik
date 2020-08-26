@@ -1,5 +1,6 @@
 ﻿using Monik.Common;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,6 +15,7 @@ namespace Monik.Service
 
         private readonly IMonik _monik;
         private readonly IRepository _repository;
+        private readonly IMessagePump _pump;
 
         private Metric_ _dto;
         private Measure_[] _measures;
@@ -22,10 +24,11 @@ namespace Monik.Service
 
         private IWindowCalculator window;
 
-        public MetricObject(IMonik monik, IRepository repository)
+        public MetricObject(IMonik monik, IRepository repository, IMessagePump pump)
         {
             _monik = monik;
             _repository = repository;
+            _pump = pump;
 
             _dto = null;
             _measures = null;
@@ -105,6 +108,23 @@ namespace Monik.Service
             _measures = _repository.GetMeasures(metricId);
         }
 
+        private Event NewMeasureEvent(string sourceName, string instanceName, string key, double value, AggregationType aggregation)
+        {
+            var ev = new Event
+            {
+                Created = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                Source = sourceName,
+                Instance = instanceName
+            };
+            ev.Mc = new Metric
+            {
+                Name = key,
+                Aggregation = aggregation,
+                Value = value
+            };
+            return ev;
+        }
+
         public void OnNewMeasure(Event metric)
         {
             var metTime = Helper.FromMillisecondsSinceUnixEpoch(metric.Created);
@@ -123,6 +143,12 @@ namespace Monik.Service
                     // skip event
                     // increase skip metric
                     _monik.Measure("OutTimeMeasure", AggregationType.Accumulator, 1);
+                    
+                    var ev = NewMeasureEvent(metric.Source, metric.Instance, "OutTimeMeasure", 1, AggregationType.Accumulator);
+                    ConcurrentQueue<Event> cq = new ConcurrentQueue<Event>();
+                    cq.Enqueue(ev);
+                    _pump.OnEmbeddedEvents(cq);
+                    
                     var serverTime = DateTime.UtcNow;
                     var diffInterval = metTime < intervalStart
                         ? (metTime - actualIntervalStart).TotalMilliseconds
