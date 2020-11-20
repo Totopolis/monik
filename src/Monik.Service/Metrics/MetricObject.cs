@@ -118,10 +118,10 @@ namespace Monik.Service
             _measures = _repository.GetMeasures(_dto.ID);
         }
 
-        public void Load(int metricId)
+        public void Load(Metric_ metric, Measure_[] measures)
         {
-            _dto = _repository.GetMetric(metricId);
-            _measures = _repository.GetMeasures(metricId);
+            _dto = metric;
+            _measures = measures;
         }
 
         public void OnNewMeasure(Event metric)

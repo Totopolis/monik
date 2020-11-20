@@ -35,8 +35,6 @@ namespace Monik.Service
             _metrics = new ConcurrentDictionary<IMetricObject, byte>();
 
             _sourceCache.RemoveMetrics += OnRemoveMetrics;
-
-            _monik.ApplicationVerbose("CacheMetric.ctor");
         }
 
         private void OnRemoveMetrics(IEnumerable<int> metIds)
@@ -141,15 +139,21 @@ namespace Monik.Service
 
         public void OnStart()
         {
-            _monik.ApplicationVerbose("CacheMetric.OnStart");
-
             // Load metrics to instances and measures to metricobjects, from db
 
-            foreach (var metId in _repository.GetAllMetricIds())
-            {
-                var metObj = _autofac.Resolve<IMetricObject>();
+            var metrics = _repository.GetAllMetrics();
+            var measuresDictionary = _repository.GetAllMeasures();
 
-                metObj.Load(metId);
+            foreach (var metric in metrics)
+            {
+                if (!measuresDictionary.TryGetValue(metric.ID, out var measures))
+                {
+                    _monik.LogicWarning($"Measures for metric {metric.ID}:{metric.Name}" +
+                                        $" InstId:{metric.InstanceID} not found");
+                    continue;
+                }
+                var metObj = _autofac.Resolve<IMetricObject>();
+                metObj.Load(metric, measures);
 
                 var instance = _sourceCache.GetInstanceById(metObj.Dto.InstanceID);
                 instance?.Metrics.TryAdd(metObj.Dto.Name, metObj);
@@ -162,6 +166,8 @@ namespace Monik.Service
 
             _shedulerPerMin.OnStart();
             _shedulerPerSec.OnStart();
+
+            _monik.ApplicationVerbose("CacheMetric started");
         }
 
         public void OnStop()

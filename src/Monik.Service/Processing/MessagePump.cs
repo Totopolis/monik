@@ -33,8 +33,6 @@ namespace Monik.Service
             _cache = cache;
             _processor = processor;
             _monik = monik;
-
-            _monik.ApplicationVerbose("MessagePump created");
         }
 
         public void OnEmbeddedEvents(IEnumerable<Event> events)
@@ -75,9 +73,9 @@ namespace Monik.Service
 
                     _processor.FinalizeProcessing();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // TODO: trace and handle Repository problems...
+                    _monik.LogicError($"Failed to process messages: {ex}");
                 }
                 finally
                 {
@@ -118,26 +116,29 @@ namespace Monik.Service
                 }
             };
 
-            foreach (var it in _queueReaderSettings)
+            if (_queueReaderSettings != null)
             {
-                try
+                foreach (var it in _queueReaderSettings)
                 {
-                    var queue = CreateActiveQueueByType(it.Type);
-
-                    if (queue != null)
+                    try
                     {
-                        _queues.Add(queue);
-                        queue.Start(it, context);
+                        var queue = CreateActiveQueueByType(it.Type);
+
+                        if (queue != null)
+                        {
+                            _queues.Add(queue);
+                            queue.Start(it, context);
+                        }
+                        else
+                            _monik.ApplicationWarning(
+                                $"MessagePump.OnStart cannot initialize {it.Name}: unknown type {it.Type}");
                     }
-                    else
-                        _monik.ApplicationWarning(
-                            $"MessagePump.OnStart cannot initialize {it.Name}: unknown type {it.Type}");
-                }
-                catch (Exception ex)
-                {
-                    _monik.ApplicationError($"MessagePump.OnStart failed initialization {it.Name}: {ex.Message}");
-                }
-            }//configure all event sources
+                    catch (Exception ex)
+                    {
+                        _monik.ApplicationError($"MessagePump.OnStart failed initialization {it.Name}: {ex.Message}");
+                    }
+                } //configure all event sources
+            }
 
             // Start message processing
             _pumpTask = Task.Run(OnProcessTask);

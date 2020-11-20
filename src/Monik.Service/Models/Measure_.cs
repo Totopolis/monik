@@ -7,4 +7,9 @@
 
         internal bool HasValue { get; set; }
     }
+
+    public class MeasureWithMetricId : Measure_
+    {
+        public int MetricId { get; set; }
+    }
 }

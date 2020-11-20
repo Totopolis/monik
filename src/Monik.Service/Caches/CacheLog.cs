@@ -21,8 +21,6 @@ namespace Monik.Service
         {
             _logs = new ConcurrentQueue<Log_>();
             OldestLogId = 0;
-
-            _monik.ApplicationVerbose("CacheLog created");
         }
 
         // TODO: use database parameter

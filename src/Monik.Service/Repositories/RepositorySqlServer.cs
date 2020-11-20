@@ -377,14 +377,35 @@ VALUES
             }
         }
 
-        public Metric_ GetMetric(int metricId)
+        public Metric_[] GetAllMetrics()
         {
-            using (var con = Connection)
-            {
-                return con.QuerySingle<Metric_>(
-                    "select * from [mon].[Metric] with(nolock) where ID = @Id",
-                    new {Id = metricId});
-            }
+            using var con = Connection;
+            return con.Query<Metric_>("select * from [mon].[Metric] with(nolock)")
+                .ToArray();
+        }
+
+        public Dictionary<int, Measure_[]> GetAllMeasures()
+        {
+            const string query = @"
+select met.Id as MetricId, meas.*
+from mon.Measure meas with(nolock)
+join mon.Metric met with(nolock) on met.RangeHeadID <= meas.ID and met.RangeTailID >= meas.ID
+";
+
+            using var con = Connection;
+            return con
+                .Query<MeasureWithMetricId>(query)
+                .GroupBy(x => x.MetricId)
+                .ToDictionary(x => x.Key,
+                    x => x
+                        .Select(m => new Measure_
+                        {
+                            ID = m.ID,
+                            Value = m.Value,
+                            HasValue = m.HasValue,
+                        })
+                        .OrderBy(m => m.ID)
+                        .ToArray());
         }
 
         public Measure_[] GetMeasures(int metricId)
@@ -476,16 +497,6 @@ delete from [mon].[GroupInstance] where InstanceID = @Id
             using (var con = Connection)
             {
                 con.Execute("delete from [mon].[Source] where ID = @Id", new {Id = id});
-            }
-        }
-
-        public int[] GetAllMetricIds()
-        {
-            using (var con = Connection)
-            {
-                return con
-                    .Query<int>("select ID from [mon].[Metric] with(nolock)")
-                    .ToArray();
             }
         }
     } //end of class

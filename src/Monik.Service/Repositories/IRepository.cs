@@ -34,9 +34,9 @@ namespace Monik.Service
         void WriteKeepAlives(IEnumerable<KeepAlive_> values);
         void WriteLogs(IEnumerable<Log_> values);
 
-        int[] GetAllMetricIds();
+        Metric_[] GetAllMetrics();
         Metric_ CreateMetric(string name, int aggregation, int instanceId);
-        Metric_ GetMetric(int metricId);
+        Dictionary<int, Measure_[]> GetAllMeasures();
         Measure_[] GetMeasures(int metricId);
 
         void SaveMetric(Metric_ metric, Measure_[] measures);

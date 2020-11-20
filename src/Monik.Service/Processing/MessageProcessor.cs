@@ -30,8 +30,6 @@ namespace Monik.Service
 
             _cleaner = Scheduler.CreatePerHour(_monik, CleanerTask, "cleaner");
             _statist = Scheduler.CreatePerHour(_monik, StatistTask, "statist");
-
-            _monik.ApplicationVerbose("MessageProcessor created");
         }
 
         private readonly Scheduler _cleaner;

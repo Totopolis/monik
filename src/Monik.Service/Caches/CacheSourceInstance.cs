@@ -35,8 +35,6 @@ namespace Monik.Service
             _sourceMap = new Dictionary<short, Source>();
             _instanceMap = new Dictionary<int, Instance>();
             _sourceInstanceMap = new Dictionary<string, Instance>();
-
-            _monik.ApplicationVerbose("CacheSourceInstance created");
         }
 
         public void OnStart()

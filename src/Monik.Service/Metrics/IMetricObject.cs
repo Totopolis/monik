@@ -11,7 +11,7 @@ namespace Monik.Service
         MetricHistoryResponse GetMetricHistory(int amount, int skip);
 
         void CreateNew(string name, int aggregation, Instance instance);
-        void Load(int metricId);
+        void Load(Metric_ metric, Measure_[] measures);
 
         void OnNewMeasure(Event metric);
 

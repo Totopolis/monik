@@ -19,7 +19,6 @@ namespace Monik.Service
                 .UseSystemd()
                 .UseWindowsService()
                 .UseContentRoot(Directory.GetCurrentDirectory())
-                .ConfigureLogging(logging => { logging.ClearProviders(); })
                 .ConfigureHostConfiguration(config => { config.AddEnvironmentVariables("ASPNETCORE_"); })
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
@@ -28,6 +27,11 @@ namespace Monik.Service
                             optional: true, reloadOnChange: true)
                         .AddJsonFile($"configs/appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json",
                             optional: true, reloadOnChange: true);
+                })
+                .ConfigureLogging((hostingContext, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                    loggingBuilder.AddConsole();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

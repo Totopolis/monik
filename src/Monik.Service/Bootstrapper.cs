@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Autofac;
+using Microsoft.Extensions.Logging;
 using Monik.Common;
 using Nancy;
 using Nancy.Authentication.Stateless;
@@ -15,10 +16,12 @@ namespace Monik.Service
         public static Bootstrapper Singleton;
 
         private readonly IMonikServiceSettings _settings;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public Bootstrapper(IMonikServiceSettings settings)
+        public Bootstrapper(IMonikServiceSettings settings, ILoggerFactory loggerFactory)
         {
             _settings = settings;
+            _loggerFactory = loggerFactory;
         }
 
         public T Resolve<T>() => ApplicationContainer.Resolve<T>();
@@ -45,16 +48,23 @@ namespace Monik.Service
 
         public void OnApplicationStart()
         {
-            Resolve<IMonik>().ApplicationWarning(
-                $"Starting {Assembly.GetExecutingAssembly().GetName().Version}");
+            var logger = Resolve<IMonik>();
+            logger.ApplicationWarning($"Starting {Assembly.GetExecutingAssembly().GetName().Version}");
 
+            logger.ApplicationInfo("Load sources");
             Resolve<ICacheSourceInstance>().OnStart();
+            logger.ApplicationInfo("Load logs");
             Resolve<ICacheLog>().OnStart();
+            logger.ApplicationInfo("Load ka");
             Resolve<ICacheKeepAlive>().OnStart();
+            logger.ApplicationInfo("Load metrics");
             Resolve<ICacheMetric>().OnStart();
 
+            logger.ApplicationInfo("Starting messages");
             Resolve<IMessageProcessor>().OnStart();
             Resolve<IMessagePump>().OnStart();
+
+            logger.ApplicationWarning("Started");
         }
 
         // Raise at NancyHostHolder.Stop() when service shutdown
@@ -75,6 +85,14 @@ namespace Monik.Service
 
         protected override void ConfigureApplicationContainer(ILifetimeScope existingContainer)
         {
+            existingContainer.Update(b =>
+            {
+                b.RegisterInstance(_loggerFactory);
+                b.RegisterGeneric(typeof(Logger<>))
+                    .As(typeof(ILogger<>))
+                    .SingleInstance();
+            });
+
             existingContainer.RegisterImplementation<IUserIdentityProvider, UserIdentityProvider>();
 
             existingContainer.Update(b => b.RegisterInstance(_settings));

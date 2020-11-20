@@ -14,8 +14,6 @@ namespace Monik.Service
             _cache = cache;
             
             _status = new Dictionary<int, KeepAlive_>();
-
-            _monik.ApplicationVerbose("CacheKeepAlive created");
         }
 
         public override void OnStart()
